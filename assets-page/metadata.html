@@ -1,0 +1,2222 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0"
+    />
+    <title>DOGINALS METADATA TOOLS</title>
+    <link rel="icon" type="image/png" href="/assets/menu.png" />
+    <link rel="shortcut icon" type="image/png" href="/assets/menu.png" />
+
+    <!-- Keep if you still want it available; page uses Space Grotesk in CSS -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        height: 100%;
+      }
+
+      body {
+        position: relative;
+        min-height: 100vh;
+        font-family: "Space Grotesk", system-ui, -apple-system, BlinkMacSystemFont,
+          "Segoe UI", sans-serif;
+        color: #f6f2e9;
+        padding: 2rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        background:
+          radial-gradient(circle at top left, #3a280e 0, transparent 55%),
+          radial-gradient(circle at bottom right, #b38a2e 0, transparent 55%),
+          linear-gradient(135deg, #05060a 0%, #0a0e18 35%, #05040a 100%);
+        overflow-x: hidden;
+      }
+
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background-image: url("/assets/bg.png");
+        background-size: auto;
+        background-repeat: repeat;
+        pointer-events: none;
+        z-index: -1;
+        opacity: 0.95;
+      }
+
+      .app-container {
+        width: 100%;
+        max-width: 1100px;
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+      }
+
+      .content-card {
+        width: 100%;
+        background: radial-gradient(circle at top, #191b22 0, #101118 55%, #07070c 100%);
+        border-radius: 20px;
+        padding: 1.4rem 1.7rem;
+        border: 1px solid rgba(248, 200, 84, 0.45);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8);
+      }
+
+      .panel {
+        width: 100%;
+        background: radial-gradient(circle at top, #181a22 0, #080910 70%);
+        border-radius: 16px;
+        border: 1px solid rgba(248, 200, 84, 0.35);
+        padding: 0.95rem 1.05rem;
+        font-size: 0.78rem;
+        box-shadow:
+          0 0 0 1px rgba(0, 0, 0, 0.7),
+          0 16px 32px rgba(0, 0, 0, 0.7);
+      }
+
+      .hero {
+        display: flex;
+        flex-direction: column;
+        gap: 0.85rem;
+        align-items: center;
+        text-align: center;
+        margin-bottom: 0.85rem;
+      }
+
+      .round-logo {
+        width: 90px;
+        height: 90px;
+        border-radius: 24px;
+        padding: 4px;
+        background: linear-gradient(135deg, #f9d97a, #f5b642);
+        box-shadow: 0 0 25px rgba(244, 198, 80, 0.6);
+        overflow: hidden;
+      }
+
+      .round-logo img {
+        width: 100%;
+        height: 100%;
+        border-radius: 20px;
+        object-fit: contain;
+        background: #05060b;
+      }
+
+      .hero-subtitle-small {
+        font-size: 0.75rem;
+        color: #c1b491;
+        opacity: 0.9;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .main-title {
+        font-size: 1.7rem;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: #f8d881;
+        text-shadow: 0 0 18px rgba(248, 216, 129, 0.85);
+      }
+
+      .hero-subtitle-main {
+        font-size: 0.85rem;
+        color: #d4c7a6;
+        opacity: 0.9;
+      }
+
+      .footer {
+        margin-top: 1.2rem;
+        font-size: 0.7rem;
+        text-align: center;
+        opacity: 0.82;
+        color: #c9bfa0;
+      }
+
+      .panel-title,
+      .section-title,
+      .two-col-title {
+        font-size: 0.8rem;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: #f8d881;
+        margin-bottom: 0.45rem;
+      }
+
+      .panel-desc,
+      .hint,
+      .modal-desc,
+      .modal-hint {
+        font-size: 0.7rem;
+        color: #d6ccb2;
+        opacity: 0.88;
+        line-height: 1.45;
+        padding-bottom: 5px;
+      }
+
+      code {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+          "Courier New", monospace;
+        font-size: 0.95em;
+        color: #f9d97a;
+        background: rgba(5, 6, 12, 0.7);
+        border: 1px solid rgba(248, 209, 116, 0.25);
+        padding: 0.08rem 0.35rem;
+        border-radius: 8px;
+      }
+
+      .pill-inline {
+        display: inline-block;
+        padding: 0.12rem 0.45rem;
+        border-radius: 999px;
+        border: 1px solid rgba(248, 209, 116, 0.45);
+        font-size: 0.65rem;
+        color: #f4e7c3;
+        background: rgba(5, 6, 12, 0.6);
+        opacity: 0.95;
+      }
+
+      .cmd-btn,
+      .mode-btn,
+      .toast .close {
+        padding: 0.34rem 0.8rem;
+        border-radius: 999px;
+        border: 1px solid rgba(248, 209, 116, 0.8);
+        background: rgba(5, 6, 12, 0.94);
+        color: #f4e7c3;
+        font-size: 0.7rem;
+        cursor: pointer;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        text-shadow: 0 0 6px rgba(0, 0, 0, 0.7);
+        transition: transform 0.1s ease, box-shadow 0.1s ease,
+          background 0.1s ease, border-color 0.1s ease, color 0.1s ease;
+        white-space: nowrap;
+      }
+
+      .cmd-btn:hover,
+      .mode-btn:hover,
+      .toast .close:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 0 12px rgba(248, 201, 113, 0.9);
+        background: linear-gradient(135deg, #f9d97a, #f1a93a);
+        color: #171307;
+      }
+
+      .tiny-btn {
+        padding: 0.3rem 0.65rem;
+        font-size: 0.68rem;
+      }
+
+      .mode-toggle {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-top: 0.75rem;
+        justify-content: center;
+      }
+
+      .mode-btn.active {
+        background: linear-gradient(135deg, #f9d97a, #f1a93a);
+        color: #171307;
+        box-shadow: 0 0 12px rgba(248, 201, 113, 0.9);
+      }
+
+      .modal-input,
+      .modal-select {
+        width: 100%;
+        padding: 0.45rem 0.6rem;
+        border-radius: 999px;
+        border: 1px solid rgba(248, 209, 116, 0.6);
+        background: rgba(5, 6, 12, 0.94);
+        color: #f6f2e9;
+        font-family: "Space Grotesk", system-ui, -apple-system, BlinkMacSystemFont,
+          "Segoe UI", sans-serif;
+        font-size: 0.72rem;
+        outline: none;
+      }
+
+      .modal-input::placeholder {
+        color: #8e8265;
+      }
+
+      .modal-textarea {
+        width: 100%;
+        padding: 0.55rem 0.6rem;
+        border-radius: 12px;
+        border: 1px solid rgba(248, 209, 116, 0.6);
+        background: rgba(5, 6, 12, 0.94);
+        color: #f6f2e9;
+        font-size: 0.72rem;
+        outline: none;
+        min-height: 200px;
+        resize: vertical;
+      }
+
+      .flex-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.6rem;
+        align-items: center;
+      }
+
+      .input-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.6rem;
+        margin-bottom: 0.55rem;
+        align-items: center;
+      }
+
+      .label-inline {
+        font-size: 0.72rem;
+        color: #d6ccb2;
+      }
+
+      .small-input {
+        max-width: 260px;
+      }
+
+      .radio-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.9rem;
+        margin-top: 0.4rem;
+        font-size: 0.72rem;
+        color: #d6ccb2;
+      }
+
+      .radio-row input[type="radio"] {
+        width: 14px;
+        height: 14px;
+        accent-color: #f8d881;
+      }
+
+      .radio-row label {
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+        cursor: pointer;
+      }
+
+      .two-col {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.1rem;
+        margin-top: 0.85rem;
+      }
+
+      .two-col-pane {
+        background: radial-gradient(circle at top, #181a22 0, #080910 70%);
+        border-radius: 16px;
+        border: 1px solid rgba(248, 200, 84, 0.35);
+        padding: 0.95rem 1rem;
+        box-shadow:
+          0 0 0 1px rgba(0, 0, 0, 0.7),
+          0 16px 32px rgba(0, 0, 0, 0.7);
+      }
+
+      .image-preview-box {
+        margin-top: 0.55rem;
+        border-radius: 12px;
+        border: 1px solid rgba(248, 209, 116, 0.35);
+        background: #05060a;
+        min-height: 92px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 0.5rem;
+        overflow: hidden;
+      }
+
+      .image-preview-box img {
+        max-width: 100%;
+        max-height: 240px;
+        border-radius: 12px;
+        border: 1px solid rgba(248, 209, 116, 0.25);
+        object-fit: contain;
+      }
+
+      .attr-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.45rem;
+        margin-bottom: 0.45rem;
+        align-items: center;
+      }
+
+      .attr-input {
+        flex: 1 1 240px;
+        min-width: 180px;
+      }
+
+      .response-box {
+        margin-top: 0.55rem;
+        border-radius: 12px;
+        background: #05060a;
+        border: 1px solid rgba(248, 209, 116, 0.35);
+        padding: 0.55rem 0.6rem;
+        box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.6);
+      }
+
+      .response-box pre {
+        max-height: 320px;
+        overflow-y: auto;
+        font-size: 0.7rem;
+        white-space: pre-wrap;
+        word-break: break-word;
+        color: #f9d97a;
+        line-height: 1.4;
+      }
+
+      .json-box {
+        min-height: 160px;
+      }
+
+      .status-inline {
+        font-size: 0.68rem;
+        color: #d6ccb2;
+        min-height: 0.85rem;
+      }
+
+      .status-inline.error {
+        color: #ff6b6b;
+      }
+
+      .status-inline.ok {
+        color: #37ff7f;
+      }
+
+      .modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(2, 3, 8, 0.86);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 1300;
+        padding: 1rem;
+      }
+
+      .modal-overlay.active {
+        display: flex;
+      }
+
+      .modal {
+        width: 100%;
+        max-width: 640px;
+        background: radial-gradient(circle at top, #181a25 0, #05060b 65%);
+        border-radius: 16px;
+        border: 1px solid rgba(247, 208, 115, 0.75);
+        padding: 1rem 1.2rem;
+        box-shadow: 0 22px 50px rgba(0, 0, 0, 0.9);
+        font-size: 0.72rem;
+      }
+
+      .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.75rem;
+        gap: 0.5rem;
+      }
+
+      .modal-title {
+        font-size: 0.8rem;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: #f8d881;
+      }
+
+      .modal-close {
+        cursor: pointer;
+        font-size: 0.75rem;
+        padding: 0.25rem 0.7rem;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, 0.78);
+        background: rgba(0, 0, 0, 0.65);
+        color: #ffffff;
+        transition: transform 0.1s ease, box-shadow 0.1s ease, background 0.1s ease;
+        user-select: none;
+      }
+
+      .modal-close:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 0 10px rgba(248, 201, 113, 0.6);
+        background: rgba(0, 0, 0, 0.8);
+      }
+
+      .modal-body {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+
+      .modal-label {
+        font-size: 0.7rem;
+        margin-bottom: 0.18rem;
+        color: #f8d881;
+      }
+
+      .modal-footer {
+        margin-top: 0.85rem;
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+      }
+
+      .modal-status {
+        margin-top: 0.35rem;
+        min-height: 0.95rem;
+        font-size: 0.68rem;
+        color: #d6ccb2;
+      }
+
+      .modal-status.error {
+        color: #ff6b6b;
+      }
+
+      .modal-status.ok {
+        color: #37ff7f;
+      }
+
+      /* File list styles for JSON picker */
+      .file-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+        padding: 0.2rem 0;
+        max-height: 260px;
+        overflow-y: auto;
+        border-radius: 12px;
+        border: 1px solid rgba(248, 209, 116, 0.25);
+        background: rgba(5, 6, 12, 0.55);
+        padding: 0.55rem;
+      }
+
+      .file-item {
+        display: flex;
+        justify-content: space-between;
+        gap: 0.6rem;
+        padding: 0.5rem 0.55rem;
+        border-radius: 12px;
+        border: 1px solid rgba(248, 209, 116, 0.18);
+        background: rgba(0, 0, 0, 0.22);
+        cursor: pointer;
+        transition: border-color 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
+      }
+
+      .file-item:hover {
+        border-color: rgba(248, 209, 116, 0.55);
+        box-shadow: 0 0 10px rgba(248, 209, 116, 0.18);
+        background: rgba(248, 209, 116, 0.06);
+      }
+
+      .file-item.active {
+        border-color: rgba(248, 209, 116, 0.85);
+        background: rgba(248, 209, 116, 0.10);
+        box-shadow: 0 0 14px rgba(248, 209, 116, 0.22);
+      }
+
+      .file-item .name {
+        font-size: 0.72rem;
+        color: #f4e7c3;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        flex: 1;
+      }
+
+      .file-item .meta {
+        font-size: 0.65rem;
+        color: #b7ac8f;
+        flex-shrink: 0;
+        white-space: nowrap;
+      }
+
+      /* Toasts */
+      .toast-stack {
+        position: fixed;
+        inset: auto 16px 16px auto;
+        z-index: 9999;
+        display: grid;
+        gap: 10px;
+        max-width: 92vw;
+        width: 420px;
+        font-family: "Space Grotesk", system-ui, -apple-system, BlinkMacSystemFont,
+          "Segoe UI", sans-serif !important;
+      }
+
+      .toast {
+        position: relative;
+        overflow: hidden;
+        border: 1px solid rgba(248, 209, 116, 0.8);
+        border-radius: 14px;
+        background: radial-gradient(circle at top, #1b1d26 0, #05060a 75%);
+        color: #f4e7c3;
+        padding: 12px 14px;
+        display: grid;
+        grid-template-columns: 32px 1fr auto;
+        align-items: center;
+        gap: 12px;
+        font-size: 0.78rem;
+        box-shadow:
+          0 0 0 1px rgba(0, 0, 0, 0.7),
+          0 18px 36px rgba(0, 0, 0, 0.75);
+        transform-origin: center;
+        animation: toast-in 160ms ease-out forwards;
+      }
+
+      .toast::before {
+        content: "";
+        pointer-events: none;
+        position: absolute;
+        inset: 0;
+        background-image: repeating-linear-gradient(
+          to bottom,
+          rgba(255, 255, 255, 0.08) 0px,
+          rgba(255, 255, 255, 0.02) 1px,
+          transparent 2px,
+          transparent 3px
+        );
+        opacity: 0.22;
+        mix-blend-mode: soft-light;
+      }
+
+      .toast .ico {
+        font-size: 18px;
+        color: #f8d881;
+        text-shadow: 0 0 10px rgba(248, 216, 129, 0.5);
+      }
+
+      .toast .msg {
+        color: #f4e7c3;
+        line-height: 1.35;
+      }
+
+      .toast.success {
+        border-color: rgba(248, 209, 116, 0.95);
+      }
+
+      .toast.error {
+        border-color: rgba(255, 107, 107, 0.95);
+      }
+
+      .toast.info {
+        border-color: rgba(248, 209, 116, 0.7);
+      }
+
+      @keyframes toast-in {
+        from {
+          opacity: 0;
+          transform: translateY(8px) scale(0.98);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+        }
+      }
+
+      @keyframes toast-out {
+        to {
+          opacity: 0;
+          transform: translateY(8px) scale(0.97);
+        }
+      }
+
+      .response-box pre::-webkit-scrollbar,
+      .modal-textarea::-webkit-scrollbar,
+      .file-list::-webkit-scrollbar {
+        width: 8px;
+      }
+
+      .response-box pre::-webkit-scrollbar-track,
+      .modal-textarea::-webkit-scrollbar-track,
+      .file-list::-webkit-scrollbar-track {
+        background: #05060a;
+      }
+
+      .response-box pre::-webkit-scrollbar-thumb,
+      .modal-textarea::-webkit-scrollbar-thumb,
+      .file-list::-webkit-scrollbar-thumb {
+        background: #f4b728;
+        border-radius: 999px;
+      }
+
+      .response-box pre::-webkit-scrollbar-thumb:hover,
+      .modal-textarea::-webkit-scrollbar-thumb:hover,
+      .file-list::-webkit-scrollbar-thumb:hover {
+        background: #ffd46d;
+      }
+
+      @media (max-width: 780px) {
+        body {
+          padding: 1.3rem;
+        }
+
+        .content-card {
+          padding: 1.1rem 1.2rem;
+        }
+
+        .main-title {
+          font-size: 1.45rem;
+        }
+
+        .two-col {
+          grid-template-columns: 1fr;
+        }
+
+        .toast-stack {
+          right: 50%;
+          transform: translateX(50%);
+          width: min(92vw, 420px);
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- MENU MOUNT -->
+    <div id="menuMount"></div>
+
+    <div class="app-container">
+      <div class="content-card">
+        <div class="hero">
+          <div class="round-logo">
+            <img src="/assets/logo.png" alt="Doginals Logo" />
+          </div>
+          <div class="hero-subtitle-small">DOGINALS TOOLING</div>
+          <div class="main-title">METADATA CREATION TOOLS</div>
+          <div class="hero-subtitle-main">
+            Make JSON metadata for your Doginals collections
+          </div>
+
+          <div class="hint" style="max-width: 720px; margin-top: 0.5rem;">
+            Generate collection metadata once your inscriptions are ready.
+            Supports:
+            <br /><br />
+            <span class="pill-inline">name</span>,
+            <span class="pill-inline">inscriptionId</span> and optional
+            <span class="pill-inline">attributes</span>.
+            <br /><br />
+            You can paste inscription IDs manually, or load them from your mint
+            output JSON files.
+          </div>
+        </div>
+
+        <!-- MODE SWITCHER -->
+        <div id="modePanel" class="panel">
+          <div class="panel-title">Choose mode</div>
+          <div class="panel-desc">
+            Basic = just name + inscriptionId. Advanced = full attribute editing.
+            <br/><br/>
+            HashLips = convert existing <code>_metadata.json</code>.
+          </div>
+          <div class="mode-toggle">
+            <button id="modeBasicBtn" class="mode-btn active" type="button">BASIC</button>
+            <button id="modeAdvancedBtn" class="mode-btn" type="button">ADVANCED</button>
+            <button id="modeHashBtn" class="mode-btn" type="button">HASHLIPS → DOGINALS</button>
+          </div>
+        </div>
+
+        <!-- BASIC MODE -->
+        <div id="basicMode" class="panel" style="margin-top: 0.8rem;">
+          <div class="panel-title">Basic metadata (name + inscriptionId)</div>
+          <div class="panel-desc">
+            Generate simple metadata entries in the form:
+            <code>{ "inscriptionId": "", "name": "Collection #1" }</code>.
+          </div>
+
+          <div class="input-row">
+            <span class="label-inline">Collection name</span>
+            <input
+              id="basicCollectionName"
+              class="modal-input small-input"
+              placeholder="e.g. Doginal Cowz"
+            />
+          </div>
+
+          <div class="input-row">
+            <span class="label-inline">Collection size</span>
+            <input
+              id="basicCollectionSize"
+              class="modal-input small-input"
+              placeholder="e.g. 420"
+              inputmode="numeric"
+            />
+          </div>
+
+          <div class="radio-row">
+            <label>
+              <input type="radio" name="basicIdMode" value="none" checked />
+              Leave <code>inscriptionId</code> blank (fill later)
+            </label>
+            <label>
+              <input type="radio" name="basicIdMode" value="paste" />
+              Provide <code>inscriptionId</code> list now
+            </label>
+          </div>
+
+          <div style="margin-top: 0.4rem;">
+            <button id="basicPasteIdsBtn" class="cmd-btn tiny-btn" type="button">
+              ADD INSCRIPTION IDs
+            </button>
+            <span id="basicIdStatus" class="status-inline" style="margin-left: 0.4rem;"></span>
+          </div>
+
+          <div class="hint">
+            IDs should be one per line, or a JSON array like:
+            <code>["id1i0","id2i0",...]</code>. First ID = #1, second = #2, etc.
+          </div>
+
+          <div class="response-box json-box" style="margin-top: 0.6rem;">
+            <pre id="basicOutputPre">// Basic metadata JSON will appear here</pre>
+          </div>
+
+          <div class="flex-row" style="margin-top: 0.4rem; justify-content: flex-end;">
+            <button id="basicCopyBtn" class="cmd-btn tiny-btn" type="button">COPY</button>
+            <button id="basicDownloadBtn" class="cmd-btn tiny-btn" type="button">DOWNLOAD</button>
+          </div>
+        </div>
+
+        <!-- ADVANCED MODE -->
+        <div id="advancedMode" class="panel" style="margin-top: 0.8rem; display: none;">
+          <div class="panel-title">Advanced metadata (attributes editor)</div>
+          <div class="panel-desc">
+            Build full trait metadata per piece:
+            <code>{ inscriptionId, name, attributes:{Layer:Trait,...} }</code>.
+          </div>
+
+          <!-- Step 1 wrapper so we can hide it later -->
+          <div id="advSetupSection">
+            <div class="section-title">Step 1 — Collection setup</div>
+
+            <div class="input-row">
+              <span class="label-inline">Collection name</span>
+              <input id="advCollectionName" class="modal-input small-input" placeholder="e.g. Doginal Cowz" />
+            </div>
+
+            <div class="input-row">
+              <span class="label-inline">Collection size</span>
+              <input id="advCollectionSize" class="modal-input small-input" placeholder="e.g. 420" inputmode="numeric" />
+            </div>
+
+            <div class="radio-row">
+              <label>
+                <input type="radio" name="advIdMode" value="none" checked />
+                Leave <code>inscriptionId</code> blank (fill later)
+              </label>
+              <label>
+                <input type="radio" name="advIdMode" value="paste" />
+                Provide <code>inscriptionId</code> list now
+              </label>
+            </div>
+
+            <div style="margin-top: 0.4rem;">
+              <button id="advPasteIdsBtn" class="cmd-btn tiny-btn" type="button">
+                ADD INSCRIPTION IDs
+              </button>
+              <span id="advIdStatus" class="status-inline" style="margin-left: 0.4rem;"></span>
+            </div>
+
+            <div class="hint">
+              After setup you’ll walk through each item and add traits.
+              Values you’ve used before will show up in the dropdowns for fast reuse.
+            </div>
+
+            <div style="margin-top: 0.5rem;">
+              <button id="advStartBtn" class="cmd-btn tiny-btn" type="button">
+                START ATTRIBUTE EDITOR
+              </button>
+              <span id="advSetupStatus" class="status-inline" style="margin-left: 0.4rem;"></span>
+            </div>
+          </div>
+
+          <!-- Attribute editor -->
+          <div id="advEditorSection" style="margin-top: 0.8rem; display: none;">
+            <div class="section-title">Step 2 — Editing attributes</div>
+
+            <div class="hint">
+              Editing <span id="advCurrentLabel">#1</span>
+              • Use <span class="pill-inline">Add attribute</span> to add rows.
+              Click <span class="pill-inline">Attributes complete</span> to move to the next item.
+            </div>
+
+            <div class="flex-row" style="margin-top: 0.4rem; justify-content: space-between;">
+              <div class="flex-row">
+                <button id="advPrevBtn" class="cmd-btn tiny-btn" type="button">◀ PREV</button>
+                <button id="advNextBtn" class="cmd-btn tiny-btn" type="button">NEXT ▶</button>
+              </div>
+              <div class="flex-row">
+                <span id="advIndexSummary" class="status-inline"></span>
+              </div>
+            </div>
+
+            <div class="two-col" style="margin-top: 0.6rem;">
+              <div class="two-col-pane">
+                <div class="two-col-title">Current piece</div>
+                <div id="advPieceInfo" class="hint">Collection #1</div>
+
+                <div class="image-preview-box" id="advImagePreview">
+                  <span class="hint">
+                    If this piece has an <code>inscriptionId</code>, a preview
+                    will be loaded from <code>/api/inscription/:txid</code>.
+                  </span>
+                </div>
+
+                <div class="two-col-title" style="margin-top: 0.5rem;">Attributes</div>
+                <div class="hint">
+                  Layer &amp; trait fields have dropdowns with previously used values.
+                  Type to filter, use arrows + enter/tab.
+                </div>
+
+                <div id="advAttrRows" style="margin-top: 0.4rem;"></div>
+
+                <div class="flex-row" style="margin-top: 0.4rem;">
+                  <button id="advAddAttrBtn" class="cmd-btn tiny-btn" type="button">ADD ATTRIBUTE</button>
+                  <button id="advAttrDoneBtn" class="cmd-btn tiny-btn" type="button">ATTRIBUTES COMPLETE FOR THIS PIECE</button>
+                </div>
+              </div>
+
+              <div class="two-col-pane">
+                <div class="two-col-title">Live Doginals metadata JSON</div>
+
+                <div class="response-box json-box">
+                  <pre id="advOutputPre">// Advanced metadata JSON will appear here</pre>
+                </div>
+
+                <div class="flex-row" style="margin-top: 0.4rem; justify-content: flex-end;">
+                  <button id="advCopyBtn" class="cmd-btn tiny-btn" type="button">COPY</button>
+                  <button id="advDownloadBtn" class="cmd-btn tiny-btn" type="button">DOWNLOAD</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- HASHLIPS MODE -->
+        <div id="hashMode" class="panel" style="margin-top: 0.8rem; display: none;">
+          <div class="panel-title">HashLips → Doginals metadata converter</div>
+          <div class="panel-desc">
+            Drop in a standard HashLips <code>_metadata.json</code> and
+            convert it into Doginals-style metadata with optional inscription IDs.
+          </div>
+
+          <div class="input-row">
+            <input
+              id="hashFileInput"
+              type="file"
+              accept=".json"
+              class="modal-input"
+              style="max-width: 320px;"
+            />
+            <button id="hashConvertBtn" class="cmd-btn tiny-btn" type="button">
+              UPLOAD &amp; PARSE
+            </button>
+          </div>
+
+          <div id="hashFileStatus" class="status-inline" style="margin-top: 0.2rem;"></div>
+
+          <div id="hashOptionsSection" style="margin-top: 0.8rem; display: none;">
+            <div class="section-title">Step 1 — Collection name</div>
+            <div class="hint">
+              Detected from HashLips names like <code>"Doge Lords #1"</code>.
+            </div>
+
+            <div style="margin-top: 0.4rem;">
+              <div class="status-inline" id="hashDetectedNameLabel"></div>
+            </div>
+
+            <div class="radio-row" style="margin-top: 0.4rem;">
+              <label>
+                <input type="radio" name="hashNameMode" value="keep" checked />
+                Keep detected name
+              </label>
+              <label>
+                <input type="radio" name="hashNameMode" value="change" />
+                Change collection name
+              </label>
+            </div>
+
+            <div class="input-row" style="margin-top: 0.4rem;">
+              <span class="label-inline">New name</span>
+              <input
+                id="hashNameInput"
+                class="modal-input small-input"
+                placeholder="e.g. Doginals Cowz"
+                disabled
+              />
+            </div>
+
+            <div class="section-title" style="margin-top: 0.7rem;">
+              Step 2 — Inscription IDs
+            </div>
+            <div class="radio-row">
+              <label>
+                <input type="radio" name="hashIdMode" value="none" checked />
+                Leave <code>inscriptionId</code> blank (fill later)
+              </label>
+              <label>
+                <input type="radio" name="hashIdMode" value="paste" />
+                Provide IDs (in order) now
+              </label>
+            </div>
+
+            <div style="margin-top: 0.4rem;">
+              <button id="hashPasteIdsBtn" class="cmd-btn tiny-btn" type="button">
+                ADD INSCRIPTION IDs
+              </button>
+              <span id="hashIdStatus" class="status-inline" style="margin-left: 0.4rem;"></span>
+            </div>
+
+            <div class="hint">
+              Paste IDs one per line, or as <code>["id1i0","id2i0",...]</code>.
+              First ID = #1, second = #2, etc.
+            </div>
+
+            <div class="section-title" style="margin-top: 0.7rem;">
+              Step 3 — Converted Doginals metadata
+            </div>
+
+            <div class="response-box json-box">
+              <pre id="hashOutputPre">// Converted Doginals metadata will appear here</pre>
+            </div>
+
+            <div class="flex-row" style="margin-top: 0.4rem; justify-content: flex-end;">
+              <button id="hashCopyBtn" class="cmd-btn tiny-btn" type="button">COPY</button>
+              <button id="hashDownloadBtn" class="cmd-btn tiny-btn" type="button">DOWNLOAD</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="footer">
+         Doginals Metadata Tools • Made By Heimdall
+      </div>
+    </div>
+
+    <!-- INSCRIPTION ID MODAL (shared) -->
+    <div id="idModalOverlay" class="modal-overlay">
+      <div class="modal">
+        <div class="modal-header">
+          <div class="modal-title">Add inscription IDs</div>
+          <div id="idModalClose" class="modal-close">X</div>
+        </div>
+
+        <div class="modal-body">
+          <div class="modal-desc">
+            Paste IDs OR load them from one of your mint output JSON files (from your server <code>json</code> directory).
+          </div>
+
+          <div class="flex-row" style="justify-content: flex-start; gap: 0.45rem; margin-top: 0.25rem;">
+            <button id="idModalLoadJsonBtn" class="cmd-btn tiny-btn" type="button">
+              LOAD JSON
+            </button>
+            <span class="hint">Loads <span class="pill-inline">results[].inscriptionId</span> in file order.</span>
+          </div>
+
+          <div class="modal-label" style="margin-top: 0.35rem;">IDs list</div>
+          <textarea
+            id="idListInput"
+            class="modal-textarea"
+            placeholder='Paste IDs here. Example:
+[
+  "0003c0...i0",
+  "000884...i0",
+  "0024fb...i0"
+]
+
+Or just:
+0003c0...i0
+000884...i0
+0024fb...i0
+'
+          ></textarea>
+
+          <div class="modal-desc">
+            First ID becomes #1, second becomes #2, and so on. Order is preserved exactly for collection integrity.
+          </div>
+
+          <div id="idModalStatus" class="modal-status"></div>
+        </div>
+
+        <div class="modal-footer">
+          <button id="idModalCancel" class="cmd-btn tiny-btn" type="button">CANCEL</button>
+          <button id="idModalConfirm" class="cmd-btn tiny-btn" type="button">APPLY IDS</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- JSON FILE PICKER MODAL -->
+    <div id="jsonPickerOverlay" class="modal-overlay">
+      <div class="modal">
+        <div class="modal-header">
+          <div class="modal-title">Load IDs from mint JSON</div>
+          <div id="jsonPickerClose" class="modal-close">X</div>
+        </div>
+
+        <div class="modal-body">
+          <div class="modal-desc">
+            Choose a JSON file from your server-side <code>json</code> directory.
+            The tool will extract IDs from <span class="pill-inline">results[].inscriptionId</span> (in order).
+          </div>
+
+          <div class="hint" style="margin-top: 0.25rem;">
+            This modal expects backend endpoints:
+            <span class="pill-inline">GET /api/json-files</span> and
+            <span class="pill-inline">GET /api/json-files/:name</span>
+          </div>
+
+          <div id="jsonPickerStatus" class="modal-status"></div>
+
+          <div class="file-list" id="jsonFileList" style="margin-top: 0.35rem;">
+            <!-- populated by JS -->
+          </div>
+
+          <div class="hint" id="jsonPickerHint" style="margin-top: 0.35rem;"></div>
+        </div>
+
+        <div class="modal-footer">
+          <button id="jsonPickerCancel" class="cmd-btn tiny-btn" type="button">CANCEL</button>
+          <button id="jsonPickerOk" class="cmd-btn tiny-btn" type="button" disabled>LOAD IDS</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- DATALISTS FOR ADVANCED AUTOCOMPLETE -->
+    <datalist id="advLayerOptions"></datalist>
+    <datalist id="advTraitOptions"></datalist>
+
+    <!-- Toast stack -->
+    <div id="toastStack" class="toast-stack" aria-live="polite" aria-atomic="true"></div>
+
+    <script>
+      function $(id) { return document.getElementById(id); }
+
+      /* ========= Toasts ========= */
+      function notify(message, type, duration) {
+        if (typeof type === 'undefined') type = 'info';
+        if (typeof duration === 'undefined') duration = 2500;
+
+        var stack = document.getElementById('toastStack');
+        if (!stack) return;
+
+        var t = document.createElement('div');
+        t.className = 'toast ' + type;
+
+        var ico =
+          type === 'success' ? '✅' :
+          type === 'error'   ? '⚠️' :
+                               '✨';
+
+        t.innerHTML =
+          '<div class="ico" aria-hidden="true">' + ico + '</div>' +
+          '<div class="msg">' + message + '</div>' +
+          '<button class="close" aria-label="Close">✕</button>';
+
+        var close = function () {
+          t.style.animation = 'toast-out 160ms ease-in forwards';
+          setTimeout(function () { t.remove(); }, 160);
+        };
+
+        t.querySelector('.close').addEventListener('click', close);
+        stack.appendChild(t);
+
+        if (duration > 0) setTimeout(close, duration);
+        return { close: close };
+      }
+
+      // ---- Shared Doge menu (your version) ----
+      function initDogeMenu() {
+        const wrapper = document.getElementById("dogeMenuWrapper");
+        const btn = document.getElementById("dogeMenuBtn");
+        const popup = document.getElementById("dogeMenuPopup");
+        if (!wrapper || !btn || !popup) {
+          console.warn("Doginal menu elements not found in scope");
+          return;
+        }
+
+        btn.addEventListener("click", (ev) => {
+          ev.stopPropagation();
+          popup.classList.toggle("active");
+        });
+
+        document.addEventListener("click", (ev) => {
+          if (!wrapper.contains(ev.target)) {
+            popup.classList.remove("active");
+          }
+        });
+      }
+
+      // Load menu.html into #menuMount (your version)
+      (async function loadMenu() {
+        try {
+          const res = await fetch("/assets-page/menu.html", { cache: "no-store" });
+          if (!res.ok) {
+            console.error("Menu fetch failed with HTTP", res.status);
+            return;
+          }
+          const html = await res.text();
+          const mount = document.getElementById("menuMount");
+          if (!mount) return;
+          mount.innerHTML = html;
+          initDogeMenu();
+        } catch (e) {
+          console.error("Failed to load shared menu:", e);
+        }
+      })();
+
+      /* ------------ INSCRIPTION ID PARSER ------------ */
+      function parseInscriptionIdList(raw) {
+        const text = (raw || '').trim();
+        if (!text) return [];
+
+        // Try JSON array first
+        try {
+          const parsed = JSON.parse(text);
+          if (Array.isArray(parsed)) {
+            return parsed
+              .map((v) => (typeof v === 'string' ? v.trim() : ''))
+              .filter((v) => v);
+          }
+        } catch (e) { /* ignore */ }
+
+        // Fallback: split on newlines / commas
+        return text
+          .split(/[\r\n,]+/)
+          .map((v) => v.trim())
+          .filter((v) => v);
+      }
+
+      async function copyText(text) {
+        try {
+          await navigator.clipboard.writeText(text || '');
+          notify('Copied to clipboard.', 'success');
+        } catch (e) {
+          console.error(e);
+          notify('Copy failed, please copy manually.', 'error', 3500);
+        }
+      }
+
+      function downloadJsonAuto(collectionName, data) {
+        if (!data) return;
+        const safeName =
+          (collectionName || "doginals")
+            .replace(/[^a-z0-9_\- ]+/gi, "")
+            .trim() || "doginals";
+
+        const fileName = safeName + ".json";
+        const blob = new Blob([data], { type: "application/json" });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        URL.revokeObjectURL(a.href);
+        a.remove();
+      }
+
+      /* ------------ MODE SWITCHING ------------ */
+      function setMode(mode) {
+        const basic = $('basicMode');
+        const adv = $('advancedMode');
+        const hash = $('hashMode');
+
+        if (basic) basic.style.display = mode === 'basic' ? 'block' : 'none';
+        if (adv) adv.style.display = mode === 'advanced' ? 'block' : 'none';
+        if (hash) hash.style.display = mode === 'hash' ? 'block' : 'none';
+
+        const b = $('modeBasicBtn');
+        const a = $('modeAdvancedBtn');
+        const h = $('modeHashBtn');
+
+        if (b) b.classList.toggle('active', mode === 'basic');
+        if (a) a.classList.toggle('active', mode === 'advanced');
+        if (h) h.classList.toggle('active', mode === 'hash');
+      }
+
+      /* ------------ BASIC MODE STATE + LOGIC ------------ */
+      let basicInscriptionIds = [];
+
+      function getBasicCollectionName() {
+        const el = $('basicCollectionName');
+        const name = el ? el.value.trim() : '';
+        return name || 'Doginals Collection';
+      }
+
+      function getBasicSize() {
+        const el = $('basicCollectionSize');
+        const raw = el ? el.value.trim() : '';
+        const n = parseInt(raw, 10);
+        return Number.isFinite(n) && n > 0 ? n : 0;
+      }
+
+      function updateBasicIdStatus(count, size) {
+        const el = $('basicIdStatus');
+        if (!el) return;
+
+        if (!size) { el.textContent = ''; el.className = 'status-inline'; return; }
+        if (!count) { el.textContent = 'No IDs provided yet.'; el.className = 'status-inline'; return; }
+        el.className = 'status-inline ok';
+        if (count === size) el.textContent = 'Loaded ' + count + ' IDs (perfect match).';
+        else if (count < size) el.textContent = 'Loaded ' + count + ' IDs (will pad remaining ' + (size - count) + ' with empty strings).';
+        else el.textContent = 'Loaded ' + count + ' IDs (extra IDs will be ignored beyond ' + size + ').';
+      }
+
+      function buildBasicMetadata() {
+        const outPre = $('basicOutputPre');
+        if (!outPre) return;
+
+        const size = getBasicSize();
+        const collName = getBasicCollectionName();
+        const out = [];
+
+        if (!size) {
+          outPre.textContent = '// Enter a collection size to generate metadata.';
+          updateBasicIdStatus(basicInscriptionIds.length, 0);
+          return;
+        }
+
+        const useIds =
+          document.querySelector('input[name="basicIdMode"]:checked')?.value === 'paste';
+
+        for (let i = 0; i < size; i++) {
+          const id = (useIds && basicInscriptionIds[i]) ? basicInscriptionIds[i] : '';
+          out.push({ inscriptionId: id, name: collName + ' #' + (i + 1) });
+        }
+
+        outPre.textContent = JSON.stringify(out, null, 2);
+        updateBasicIdStatus(basicInscriptionIds.length, size);
+      }
+
+      /* ------------ ADVANCED MODE STATE + LOGIC ------------ */
+      let advInscriptionIds = [];
+      let advItems = [];
+      let advCurrentIndex = 0;
+      let advSize = 0;
+      let advCollectionName = '';
+      let advInitialised = false;
+      const advKnownLayers = new Set();
+      const advKnownTraits = new Set();
+
+      function getAdvCollectionName() {
+        const el = $('advCollectionName');
+        const name = el ? el.value.trim() : '';
+        return name || 'Doginals Collection';
+      }
+
+      function getAdvSize() {
+        const el = $('advCollectionSize');
+        const raw = el ? el.value.trim() : '';
+        const n = parseInt(raw, 10);
+        return Number.isFinite(n) && n > 0 ? n : 0;
+      }
+
+      function updateAdvIdStatus(count, size) {
+        const el = $('advIdStatus');
+        if (!el) return;
+
+        if (!size) { el.textContent = ''; el.className = 'status-inline'; return; }
+        if (!count) { el.textContent = 'No IDs provided yet.'; el.className = 'status-inline'; return; }
+        el.className = 'status-inline ok';
+        if (count === size) el.textContent = 'Loaded ' + count + ' IDs (perfect match).';
+        else if (count < size) el.textContent = 'Loaded ' + count + ' IDs (will pad remaining ' + (size - count) + ' with empty strings).';
+        else el.textContent = 'Loaded ' + count + ' IDs (extra IDs will be ignored beyond ' + size + ').';
+      }
+
+      function initAdvancedItems() {
+        const status = $('advSetupStatus');
+
+        advCollectionName = getAdvCollectionName();
+        advSize = getAdvSize();
+
+        if (!advSize) {
+          if (status) {
+            status.textContent = 'Please enter a valid collection size.';
+            status.className = 'status-inline error';
+          }
+          notify('Enter a valid collection size before starting.', 'error');
+          return false;
+        }
+
+        const useIds =
+          document.querySelector('input[name="advIdMode"]:checked')?.value === 'paste';
+
+        advItems = [];
+        for (let i = 0; i < advSize; i++) {
+          const id = (useIds && advInscriptionIds[i]) ? advInscriptionIds[i] : '';
+          advItems.push({
+            inscriptionId: id,
+            name: advCollectionName + ' #' + (i + 1),
+            attributes: {},
+          });
+        }
+
+        advCurrentIndex = 0;
+        advInitialised = true;
+
+        const editor = $('advEditorSection');
+        const setup = $('advSetupSection');
+        if (editor) editor.style.display = 'block';
+        if (setup) setup.style.display = 'none';
+
+        if (status) {
+          status.textContent = 'Attribute editor initialised.';
+          status.className = 'status-inline ok';
+        }
+
+        updateAdvIdStatus(advInscriptionIds.length, advSize);
+        updateAdvIndexSummary();
+        renderAdvForCurrent();
+        return true;
+      }
+
+      function updateAdvIndexSummary() {
+        const el = $('advIndexSummary');
+        if (!el) return;
+
+        if (!advInitialised || !advSize) { el.textContent = ''; return; }
+        el.textContent = 'Editing ' + (advCurrentIndex + 1) + ' / ' + advSize;
+      }
+
+      function addAdvAttrRow(layerText, traitText) {
+        const container = $('advAttrRows');
+        if (!container) return;
+
+        const row = document.createElement('div');
+        row.className = 'attr-row';
+
+        const layerInput = document.createElement('input');
+        layerInput.className = 'modal-input attr-input';
+        layerInput.placeholder = 'Layer (e.g. Background)';
+        layerInput.value = layerText || '';
+        layerInput.setAttribute('list', 'advLayerOptions');
+
+        const traitInput = document.createElement('input');
+        traitInput.className = 'modal-input attr-input';
+        traitInput.placeholder = 'Trait (e.g. Gold)';
+        traitInput.value = traitText || '';
+        traitInput.setAttribute('list', 'advTraitOptions');
+
+        const removeBtn = document.createElement('button');
+        removeBtn.type = 'button';
+        removeBtn.className = 'cmd-btn tiny-btn';
+        removeBtn.textContent = '✕';
+        removeBtn.addEventListener('click', () => { container.removeChild(row); });
+
+        row.appendChild(layerInput);
+        row.appendChild(traitInput);
+        row.appendChild(removeBtn);
+        container.appendChild(row);
+      }
+
+      function renderAdvAttrRowsFromItem(item) {
+        const container = $('advAttrRows');
+        if (!container) return;
+
+        container.innerHTML = '';
+        const attrs = item.attributes || {};
+        const keys = Object.keys(attrs);
+        if (!keys.length) { addAdvAttrRow('', ''); return; }
+        keys.forEach((layer) => addAdvAttrRow(layer, attrs[layer] ?? ''));
+      }
+
+      function refreshAdvDatalists() {
+        const layerDl = document.getElementById('advLayerOptions');
+        const traitDl = document.getElementById('advTraitOptions');
+
+        if (layerDl) {
+          layerDl.innerHTML = '';
+          Array.from(advKnownLayers).forEach((val) => {
+            const opt = document.createElement('option');
+            opt.value = val;
+            layerDl.appendChild(opt);
+          });
+        }
+
+        if (traitDl) {
+          traitDl.innerHTML = '';
+          Array.from(advKnownTraits).forEach((val) => {
+            const opt = document.createElement('option');
+            opt.value = val;
+            traitDl.appendChild(opt);
+          });
+        }
+      }
+
+      function saveCurrentAdvAttributes() {
+        if (!advInitialised || !advItems.length) return;
+
+        const item = advItems[advCurrentIndex];
+        const container = $('advAttrRows');
+        if (!container) return;
+
+        const rows = container.querySelectorAll('.attr-row');
+        const attrs = {};
+        rows.forEach((row) => {
+          const inputs = row.querySelectorAll('input');
+          if (inputs.length >= 2) {
+            const layer = inputs[0].value.trim();
+            const trait = inputs[1].value.trim();
+            if (layer && trait) {
+              attrs[layer] = trait;
+              advKnownLayers.add(layer);
+              advKnownTraits.add(trait);
+            }
+          }
+        });
+
+        item.attributes = attrs;
+        refreshAdvDatalists();
+        updateAdvOutputJson();
+      }
+
+      async function updateAdvImagePreview() {
+        const previewBox = $('advImagePreview');
+        if (!previewBox) return;
+
+        previewBox.innerHTML = '';
+
+        if (!advInitialised || !advItems.length) {
+          const span = document.createElement('span');
+          span.className = 'hint';
+          span.textContent = 'Not initialised yet.';
+          previewBox.appendChild(span);
+          return;
+        }
+
+        const item = advItems[advCurrentIndex];
+        const inscId = item.inscriptionId;
+
+        if (!inscId) {
+          const span = document.createElement('span');
+          span.className = 'hint';
+          span.textContent = 'No inscriptionId set for this piece yet.';
+          previewBox.appendChild(span);
+          return;
+        }
+
+        const loading = document.createElement('span');
+        loading.className = 'hint';
+        loading.textContent = 'Loading preview...';
+        previewBox.appendChild(loading);
+
+        try {
+          const res = await fetch('/api/inscription/' + encodeURIComponent(inscId), { cache: "no-store" });
+          if (!res.ok) throw new Error('decode endpoint returned ' + res.status);
+
+          const meta = await res.json();
+          const mime =
+            meta.mimeType ||
+            meta.contentType ||
+            (meta.headers && meta.headers['content-type']) ||
+            '';
+          const url = meta.fileUrl || meta.url || meta.contentUrl || meta.href;
+
+          if (!url) {
+            previewBox.innerHTML = '';
+            const span = document.createElement('span');
+            span.className = 'hint';
+            span.textContent = 'No file URL returned from /api/inscription for this txid.';
+            previewBox.appendChild(span);
+            return;
+          }
+
+          if (mime && !mime.startsWith('image/')) {
+            previewBox.innerHTML = '';
+            const span = document.createElement('span');
+            span.className = 'hint';
+            span.textContent = 'Content is not an image (type: ' + mime + ').';
+            previewBox.appendChild(span);
+            return;
+          }
+
+          previewBox.innerHTML = '';
+          const img = document.createElement('img');
+          img.alt = inscId;
+          img.src = url + (url.includes('?') ? '&' : '?') + 't=' + Date.now();
+          img.onerror = () => {
+            previewBox.innerHTML = '';
+            const span = document.createElement('span');
+            span.className = 'hint';
+            span.textContent = 'Error loading image preview.';
+            previewBox.appendChild(span);
+          };
+          previewBox.appendChild(img);
+        } catch (err) {
+          console.error('Advanced preview decode error:', err);
+          previewBox.innerHTML = '';
+          const span = document.createElement('span');
+          span.className = 'hint';
+          span.textContent = 'No preview available for this inscriptionId.';
+          previewBox.appendChild(span);
+        }
+      }
+
+      function updateAdvOutputJson() {
+        const pre = $('advOutputPre');
+        if (!pre) return;
+
+        if (!advInitialised || !advItems.length) {
+          pre.textContent = '// Initialise the attribute editor first.';
+          return;
+        }
+        pre.textContent = JSON.stringify(advItems, null, 2);
+      }
+
+      async function renderAdvForCurrent() {
+        if (!advInitialised || !advItems.length) return;
+
+        const item = advItems[advCurrentIndex];
+
+        const lbl = $('advCurrentLabel');
+        const info = $('advPieceInfo');
+
+        if (lbl) lbl.textContent = item.name;
+        if (info) info.textContent = 'Editing attributes for ' + item.name;
+
+        updateAdvIndexSummary();
+        renderAdvAttrRowsFromItem(item);
+        await updateAdvImagePreview();
+        updateAdvOutputJson();
+      }
+
+      function moveAdvIndex(delta) {
+        if (!advInitialised || !advItems.length) return;
+        saveCurrentAdvAttributes();
+        const next = advCurrentIndex + delta;
+        if (next < 0 || next >= advItems.length) return;
+        advCurrentIndex = next;
+        renderAdvForCurrent();
+      }
+
+      /* ------------ HASHLIPS MODE STATE + LOGIC ------------ */
+      let hashSourceItems = [];
+      let hashDetectedName = '';
+      let hashInscriptionIds = [];
+      let hashOutputData = [];
+
+      function inferHashCollectionName(items) {
+        if (!items || !items.length) return 'HashLips Collection';
+        const first = items[0];
+        if (typeof first.name === 'string') {
+          const n = first.name;
+          const idx = n.indexOf('#');
+          if (idx > 0) return n.slice(0, idx).trim();
+          return n.trim() || 'HashLips Collection';
+        }
+        return 'HashLips Collection';
+      }
+
+      function getHashFinalCollectionName() {
+        const mode = document.querySelector('input[name="hashNameMode"]:checked')?.value || 'keep';
+        if (mode === 'change') {
+          const input = $('hashNameInput');
+          const txt = input ? input.value.trim() : '';
+          if (txt) return txt;
+        }
+        return hashDetectedName || 'HashLips Collection';
+      }
+
+      function updateHashNameInputState() {
+        const mode = document.querySelector('input[name="hashNameMode"]:checked')?.value || 'keep';
+        const input = $('hashNameInput');
+        if (input) input.disabled = (mode !== 'change');
+        updateHashOutputJson();
+      }
+
+      function updateHashIdStatus(count, total) {
+        const el = $('hashIdStatus');
+        if (!el) return;
+
+        if (!total) { el.textContent = ''; el.className = 'status-inline'; return; }
+        if (!count) { el.textContent = 'No IDs provided yet.'; el.className = 'status-inline'; return; }
+        el.className = 'status-inline ok';
+        if (count === total) el.textContent = 'Loaded ' + count + ' IDs (perfect match).';
+        else if (count < total) el.textContent = 'Loaded ' + count + ' IDs (remaining ' + (total - count) + ' will be blank).';
+        else el.textContent = 'Loaded ' + count + ' IDs (extra IDs ignored beyond ' + total + ').';
+      }
+
+      function updateHashOutputJson() {
+        const pre = $('hashOutputPre');
+        if (!pre) return;
+
+        if (!hashSourceItems || !hashSourceItems.length) {
+          pre.textContent = '// Upload a HashLips _metadata.json file to begin.';
+          return;
+        }
+
+        const idMode = document.querySelector('input[name="hashIdMode"]:checked')?.value || 'none';
+        const pasteChecked = idMode === 'paste';
+
+        const items = hashSourceItems;
+        hashOutputData = [];
+        const baseName = getHashFinalCollectionName();
+
+        const out = [];
+        for (let i = 0; i < items.length; i++) {
+          const src = items[i] || {};
+          const entry = {
+            inscriptionId: (pasteChecked && hashInscriptionIds[i]) ? hashInscriptionIds[i] : '',
+            name: baseName + ' #' + (i + 1),
+            attributes: {},
+          };
+
+          if (Array.isArray(src.attributes)) {
+            src.attributes.forEach((t) => {
+              if (!t) return;
+              const key = t.trait_type || t.traitType;
+              if (!key) return;
+              entry.attributes[key] = (t.value != null) ? t.value : '';
+            });
+          } else if (src.attributes && typeof src.attributes === 'object') {
+            for (const k in src.attributes) {
+              if (Object.prototype.hasOwnProperty.call(src.attributes, k)) {
+                entry.attributes[k] = src.attributes[k];
+              }
+            }
+          }
+          out.push(entry);
+        }
+
+        hashOutputData = out;
+        pre.textContent = JSON.stringify(out, null, 2);
+        updateHashIdStatus(hashInscriptionIds.length, hashSourceItems.length);
+      }
+
+      /* ------------ SHARED ID MODAL HANDLING ------------ */
+      let currentIdTarget = null; // 'basic' | 'advanced' | 'hash'
+      let currentIdExpectedCount = 0;
+
+      function getExpectedIdCountForTarget(target) {
+        if (target === 'basic') return getBasicSize();
+        if (target === 'advanced') return getAdvSize();
+        if (target === 'hash') return Array.isArray(hashSourceItems) ? hashSourceItems.length : 0;
+        return 0;
+      }
+
+      function updateIdModalLiveStatus() {
+        const input = $('idListInput');
+        const statusEl = $('idModalStatus');
+        if (!input || !statusEl) return;
+
+        const raw = input.value;
+        const ids = parseInscriptionIdList(raw);
+        const count = ids.length;
+        const expected = currentIdExpectedCount;
+
+        if (!count) {
+          statusEl.textContent = 'No IDs detected yet.';
+          statusEl.className = 'modal-status';
+          return;
+        }
+
+        if (!expected) {
+          statusEl.textContent = 'Detected ' + count + ' IDs.';
+          statusEl.className = 'modal-status ok';
+          return;
+        }
+
+        if (count === expected) {
+          statusEl.textContent = 'Perfect: ' + count + ' IDs pasted (matches collection size).';
+          statusEl.className = 'modal-status ok';
+        } else if (count < expected) {
+          statusEl.textContent = 'Detected ' + count + ' IDs, but collection size is ' + expected + '. Check for missing IDs.';
+          statusEl.className = 'modal-status error';
+        } else {
+          statusEl.textContent = 'Detected ' + count + ' IDs, but collection size is ' + expected + '. Extra IDs will be ignored – trim the list.';
+          statusEl.className = 'modal-status error';
+        }
+      }
+
+      function openIdModal(target) {
+        currentIdTarget = target;
+        currentIdExpectedCount = getExpectedIdCountForTarget(target);
+
+        const list = $('idListInput');
+        const statusEl = $('idModalStatus');
+        const overlay = $('idModalOverlay');
+
+        if (list) list.value = '';
+
+        if (statusEl) {
+          if (currentIdExpectedCount > 0) {
+            statusEl.textContent = 'Expecting ' + currentIdExpectedCount + ' IDs for this collection.';
+            statusEl.className = 'modal-status';
+          } else {
+            statusEl.textContent = 'Paste IDs (one per line or JSON array). Collection size not set yet.';
+            statusEl.className = 'modal-status';
+          }
+        }
+
+        if (overlay) overlay.classList.add('active');
+      }
+
+      function closeIdModal() {
+        const overlay = $('idModalOverlay');
+        if (overlay) overlay.classList.remove('active');
+        currentIdTarget = null;
+        currentIdExpectedCount = 0;
+      }
+
+      function applyIdsArrayToTarget(ids) {
+        const statusEl = $('idModalStatus');
+
+        if (!Array.isArray(ids) || !ids.length) {
+          if (statusEl) {
+            statusEl.textContent = 'No valid IDs parsed.';
+            statusEl.className = 'modal-status error';
+          }
+          notify('No valid inscription IDs detected.', 'error');
+          return false;
+        }
+
+        if (currentIdExpectedCount > 0 && ids.length !== currentIdExpectedCount) {
+          if (statusEl) {
+            statusEl.textContent =
+              'You have ' + ids.length + ' IDs but this collection expects ' + currentIdExpectedCount +
+              '. Please fix the count before applying.';
+            statusEl.className = 'modal-status error';
+          }
+          notify('ID count does not match collection size.', 'error');
+          return false;
+        }
+
+        if (statusEl) {
+          statusEl.textContent = 'Loaded ' + ids.length + ' IDs.';
+          statusEl.className = 'modal-status ok';
+        }
+
+        if (currentIdTarget === 'basic') {
+          basicInscriptionIds = ids.slice();
+          buildBasicMetadata();
+        } else if (currentIdTarget === 'advanced') {
+          advInscriptionIds = ids.slice();
+          if (advInitialised) {
+            initAdvancedItems(); // rebuild with new IDs
+          } else {
+            const size = getAdvSize();
+            updateAdvIdStatus(ids.length, size);
+          }
+        } else if (currentIdTarget === 'hash') {
+          hashInscriptionIds = ids.slice();
+          updateHashOutputJson();
+        }
+
+        notify('Inscription IDs applied (' + ids.length + ').', 'success');
+        return true;
+      }
+
+      function applyIdsFromModal() {
+        const raw = $('idListInput') ? $('idListInput').value : '';
+        const ids = parseInscriptionIdList(raw);
+        const ok = applyIdsArrayToTarget(ids);
+        if (ok) setTimeout(closeIdModal, 200);
+      }
+
+      /* ------------ JSON PICKER (load ids from server json directory) ------------ */
+      let jsonSelectedName = "";
+
+      function openJsonPicker() {
+        jsonSelectedName = "";
+        const okBtn = $('jsonPickerOk');
+        const hint = $('jsonPickerHint');
+        const list = $('jsonFileList');
+        if (okBtn) okBtn.disabled = true;
+        if (hint) hint.textContent = "";
+        if (list) list.innerHTML = "";
+
+        setJsonPickerStatus("Loading JSON files…", "");
+        const overlay = $('jsonPickerOverlay');
+        if (overlay) overlay.classList.add('active');
+
+        fetchJsonFileList();
+      }
+
+      function closeJsonPicker() {
+        const overlay = $('jsonPickerOverlay');
+        if (overlay) overlay.classList.remove('active');
+        jsonSelectedName = "";
+      }
+
+      function setJsonPickerStatus(msg, kind) {
+        const el = $('jsonPickerStatus');
+        if (!el) return;
+        el.textContent = msg || "";
+        el.className = "modal-status" + (kind ? (" " + kind) : "");
+      }
+
+      async function fetchJsonFileList() {
+        try {
+          const res = await fetch("/api/json-files", { cache: "no-store" });
+          const data = await res.json().catch(() => ({}));
+          if (!res.ok || !data.ok) {
+            throw new Error(data.error || data.message || ("HTTP " + res.status));
+          }
+
+          const files = Array.isArray(data.files) ? data.files : [];
+          const list = $('jsonFileList');
+          const okBtn = $('jsonPickerOk');
+          const hint = $('jsonPickerHint');
+
+          if (!files.length) {
+            setJsonPickerStatus("No JSON files found in json directory.", "error");
+            if (list) list.innerHTML = '<div class="hint" style="padding:0.4rem;">(empty)</div>';
+            return;
+          }
+
+          setJsonPickerStatus("Select a file below:", "ok");
+          if (list) list.innerHTML = "";
+
+          files.forEach((f) => {
+            const name = String(f.name || "").trim();
+            if (!name || !list) return;
+
+            const row = document.createElement("div");
+            row.className = "file-item";
+            row.dataset.name = name;
+
+            const left = document.createElement("div");
+            left.className = "name";
+            left.textContent = name;
+
+            const right = document.createElement("div");
+            right.className = "meta";
+            const bits = [];
+            if (typeof f.size === "number") bits.push(Math.round(f.size / 1024) + " KB");
+            if (f.mtime) bits.push(String(f.mtime));
+            right.textContent = bits.join(" • ");
+
+            row.appendChild(left);
+            row.appendChild(right);
+
+            row.addEventListener("click", () => {
+              list.querySelectorAll(".file-item").forEach(el => el.classList.remove("active"));
+              row.classList.add("active");
+              jsonSelectedName = name;
+              if (okBtn) okBtn.disabled = false;
+              if (hint) hint.textContent = 'Selected: ' + name;
+            });
+
+            list.appendChild(row);
+          });
+        } catch (e) {
+          console.error("json file list error", e);
+          setJsonPickerStatus("Failed to load JSON files: " + (e.message || String(e)), "error");
+        }
+      }
+
+      function extractIdsFromMintJsonObject(obj) {
+        const results = obj && Array.isArray(obj.results) ? obj.results : [];
+        const ids = [];
+        for (let i = 0; i < results.length; i++) {
+          const r = results[i] || {};
+          const id = (typeof r.inscriptionId === "string" ? r.inscriptionId.trim() : "");
+          if (id) ids.push(id);
+        }
+        return ids;
+      }
+
+      async function loadSelectedJsonAndApply() {
+        if (!jsonSelectedName) {
+          notify("Select a JSON file first.", "error");
+          return;
+        }
+
+        try {
+          setJsonPickerStatus("Loading " + jsonSelectedName + "…", "");
+          const okBtn = $('jsonPickerOk');
+          if (okBtn) okBtn.disabled = true;
+
+          const url = "/api/json-files/" + encodeURIComponent(jsonSelectedName);
+          const res = await fetch(url, { cache: "no-store" });
+          const data = await res.json().catch(() => ({}));
+          if (!res.ok || !data.ok) {
+            throw new Error(data.error || data.message || ("HTTP " + res.status));
+          }
+
+          const obj = data.data || data.json || null;
+          const ids = extractIdsFromMintJsonObject(obj);
+
+          if (!ids.length) {
+            setJsonPickerStatus("No inscription IDs found in this file (results[].inscriptionId).", "error");
+            notify("No IDs found in JSON file.", "error");
+            if (okBtn) okBtn.disabled = false;
+            return;
+          }
+
+          const ok = applyIdsArrayToTarget(ids);
+          if (!ok) {
+            setJsonPickerStatus("Loaded " + ids.length + " IDs, but they did not match expected count.", "error");
+            if (okBtn) okBtn.disabled = false;
+            return;
+          }
+
+          closeJsonPicker();
+          setTimeout(closeIdModal, 120);
+
+        } catch (e) {
+          console.error("loadSelectedJsonAndApply error", e);
+          setJsonPickerStatus("Failed to load file: " + (e.message || String(e)), "error");
+          notify("Failed to load JSON file.", "error", 3500);
+          const okBtn = $('jsonPickerOk');
+          if (okBtn) okBtn.disabled = false;
+        }
+      }
+
+      /* ------------ DOM READY (ALL BINDINGS LIVE HERE) ------------ */
+      document.addEventListener('DOMContentLoaded', () => {
+        const yearSpan = $('yearSpan');
+        if (yearSpan) yearSpan.textContent = new Date().getFullYear();
+
+        // Ensure default mode is visible
+        setMode('basic');
+
+        // Mode buttons
+        const modeBasicBtn = $('modeBasicBtn');
+        const modeAdvancedBtn = $('modeAdvancedBtn');
+        const modeHashBtn = $('modeHashBtn');
+
+        if (modeBasicBtn) modeBasicBtn.addEventListener('click', () => setMode('basic'));
+        if (modeAdvancedBtn) modeAdvancedBtn.addEventListener('click', () => setMode('advanced'));
+        if (modeHashBtn) modeHashBtn.addEventListener('click', () => setMode('hash'));
+
+        /* BASIC bindings */
+        const basicName = $('basicCollectionName');
+        const basicSize = $('basicCollectionSize');
+        const basicPasteBtn = $('basicPasteIdsBtn');
+        const basicCopyBtn = $('basicCopyBtn');
+        const basicDlBtn = $('basicDownloadBtn');
+
+        if (basicName) basicName.addEventListener('input', buildBasicMetadata);
+        if (basicSize) basicSize.addEventListener('input', buildBasicMetadata);
+
+        document.querySelectorAll('input[name="basicIdMode"]').forEach((r) =>
+          r.addEventListener('change', buildBasicMetadata)
+        );
+
+        if (basicPasteBtn) {
+          basicPasteBtn.addEventListener('click', () => {
+            const mode = document.querySelector('input[name="basicIdMode"]:checked')?.value || 'none';
+            if (mode !== 'paste') {
+              notify('Select "Provide inscriptionId list now" first.', 'error');
+              return;
+            }
+            openIdModal('basic');
+          });
+        }
+
+        if (basicCopyBtn) {
+          basicCopyBtn.addEventListener('click', () =>
+            copyText($('basicOutputPre') ? $('basicOutputPre').textContent : '')
+          );
+        }
+
+        if (basicDlBtn) {
+          basicDlBtn.addEventListener('click', () => {
+            const name = getBasicCollectionName();
+            const json = $('basicOutputPre') ? $('basicOutputPre').textContent : "";
+            downloadJsonAuto(name, json || "");
+          });
+        }
+
+        /* ADVANCED bindings */
+        document.querySelectorAll('input[name="advIdMode"]').forEach((r) =>
+          r.addEventListener('change', () => {
+            const size = getAdvSize();
+            updateAdvIdStatus(advInscriptionIds.length, size);
+          })
+        );
+
+        const advPasteBtn = $('advPasteIdsBtn');
+        const advStartBtn = $('advStartBtn');
+        const advAddAttrBtn = $('advAddAttrBtn');
+        const advAttrDoneBtn = $('advAttrDoneBtn');
+        const advPrevBtn = $('advPrevBtn');
+        const advNextBtn = $('advNextBtn');
+        const advCopyBtn = $('advCopyBtn');
+        const advDlBtn = $('advDownloadBtn');
+
+        if (advPasteBtn) {
+          advPasteBtn.addEventListener('click', () => {
+            const mode = document.querySelector('input[name="advIdMode"]:checked')?.value || 'none';
+            if (mode !== 'paste') {
+              notify('Select "Provide inscriptionId list now" first.', 'error');
+              return;
+            }
+            openIdModal('advanced');
+          });
+        }
+
+        if (advStartBtn) advStartBtn.addEventListener('click', () => initAdvancedItems());
+        if (advAddAttrBtn) advAddAttrBtn.addEventListener('click', () => addAdvAttrRow('', ''));
+        if (advAttrDoneBtn) advAttrDoneBtn.addEventListener('click', () => { saveCurrentAdvAttributes(); moveAdvIndex(1); });
+        if (advPrevBtn) advPrevBtn.addEventListener('click', () => moveAdvIndex(-1));
+        if (advNextBtn) advNextBtn.addEventListener('click', () => moveAdvIndex(1));
+
+        if (advCopyBtn) {
+          advCopyBtn.addEventListener('click', () =>
+            copyText($('advOutputPre') ? $('advOutputPre').textContent : '')
+          );
+        }
+
+        if (advDlBtn) {
+          advDlBtn.addEventListener('click', () => {
+            const name = getAdvCollectionName();
+            const json = $('advOutputPre') ? $('advOutputPre').textContent : "";
+            downloadJsonAuto(name, json || "");
+          });
+        }
+
+        /* HASHLIPS bindings */
+        const hashConvertBtn = $('hashConvertBtn');
+        const hashNameInput = $('hashNameInput');
+        const hashPasteBtn = $('hashPasteIdsBtn');
+        const hashCopyBtn = $('hashCopyBtn');
+        const hashDlBtn = $('hashDownloadBtn');
+
+        if (hashConvertBtn) {
+          hashConvertBtn.addEventListener('click', () => {
+            const fileInput = $('hashFileInput');
+            const status = $('hashFileStatus');
+
+            const file = (fileInput && fileInput.files && fileInput.files[0]) ? fileInput.files[0] : null;
+            if (!file) {
+              if (status) {
+                status.textContent = 'Please select a _metadata.json file.';
+                status.className = 'status-inline error';
+              }
+              notify('Select a _metadata.json file first.', 'error');
+              return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+              try {
+                const json = JSON.parse(ev.target.result);
+                if (!Array.isArray(json)) throw new Error('Expected an array of items.');
+
+                hashSourceItems = json;
+                hashDetectedName = inferHashCollectionName(json);
+
+                const detected = $('hashDetectedNameLabel');
+                const options = $('hashOptionsSection');
+
+                if (detected) detected.textContent = 'Detected name: "' + hashDetectedName + '"';
+                if (hashNameInput) hashNameInput.value = hashDetectedName;
+                if (options) options.style.display = 'block';
+
+                if (status) {
+                  status.textContent = 'Loaded ' + json.length + ' items.';
+                  status.className = 'status-inline ok';
+                }
+
+                notify('HashLips metadata loaded: ' + json.length + ' items.', 'success');
+                updateHashOutputJson();
+              } catch (e) {
+                console.error(e);
+                if (status) {
+                  status.textContent = 'Invalid JSON: ' + e.message;
+                  status.className = 'status-inline error';
+                }
+                notify('Invalid JSON in _metadata.json.', 'error', 4000);
+              }
+            };
+
+            reader.onerror = () => {
+              if (status) {
+                status.textContent = 'Failed to read file.';
+                status.className = 'status-inline error';
+              }
+              notify('Failed to read file.', 'error');
+            };
+
+            reader.readAsText(file);
+          });
+        }
+
+        document.querySelectorAll('input[name="hashNameMode"]').forEach((r) =>
+          r.addEventListener('change', () => updateHashNameInputState())
+        );
+        if (hashNameInput) hashNameInput.addEventListener('input', () => updateHashOutputJson());
+
+        document.querySelectorAll('input[name="hashIdMode"]').forEach((r) =>
+          r.addEventListener('change', () => updateHashOutputJson())
+        );
+
+        if (hashPasteBtn) {
+          hashPasteBtn.addEventListener('click', () => {
+            const mode = document.querySelector('input[name="hashIdMode"]:checked')?.value || 'none';
+            if (mode !== 'paste') {
+              notify('Select "Provide IDs now" first.', 'error');
+              return;
+            }
+            openIdModal('hash');
+          });
+        }
+
+        if (hashCopyBtn) {
+          hashCopyBtn.addEventListener('click', () =>
+            copyText($('hashOutputPre') ? $('hashOutputPre').textContent : '')
+          );
+        }
+
+        if (hashDlBtn) {
+          hashDlBtn.addEventListener('click', () => {
+            const name = getHashFinalCollectionName();
+            const json = $('hashOutputPre') ? $('hashOutputPre').textContent : "";
+            downloadJsonAuto(name, json || "");
+          });
+        }
+
+        /* ID MODAL bindings */
+        const idClose = $('idModalClose');
+        const idCancel = $('idModalCancel');
+        const idConfirm = $('idModalConfirm');
+        const idOverlay = $('idModalOverlay');
+        const idInput = $('idListInput');
+        const idLoadJson = $('idModalLoadJsonBtn');
+
+        if (idClose) idClose.addEventListener('click', closeIdModal);
+        if (idCancel) idCancel.addEventListener('click', closeIdModal);
+        if (idConfirm) idConfirm.addEventListener('click', applyIdsFromModal);
+        if (idOverlay) idOverlay.addEventListener('click', (e) => { if (e.target && e.target.id === 'idModalOverlay') closeIdModal(); });
+        if (idInput) idInput.addEventListener('input', updateIdModalLiveStatus);
+
+        if (idLoadJson) {
+          idLoadJson.addEventListener('click', () => {
+            if (!currentIdTarget) {
+              notify("Open the IDs modal from a mode first.", "error");
+              return;
+            }
+            openJsonPicker();
+          });
+        }
+
+        /* JSON PICKER bindings */
+        const jpClose = $('jsonPickerClose');
+        const jpCancel = $('jsonPickerCancel');
+        const jpOk = $('jsonPickerOk');
+        const jpOverlay = $('jsonPickerOverlay');
+
+        if (jpClose) jpClose.addEventListener('click', closeJsonPicker);
+        if (jpCancel) jpCancel.addEventListener('click', closeJsonPicker);
+        if (jpOk) jpOk.addEventListener('click', loadSelectedJsonAndApply);
+        if (jpOverlay) jpOverlay.addEventListener('click', (e) => { if (e.target && e.target.id === 'jsonPickerOverlay') closeJsonPicker(); });
+
+        // Initial output
+        buildBasicMetadata();
+      });
+    </script>
+  </body>
+</html>

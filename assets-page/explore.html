@@ -1,0 +1,1719 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0"
+    />
+    <title>Doginal Explorer</title>
+
+    <link rel="icon" type="image/png" href="/assets/menu.png" />
+    <link rel="shortcut icon" type="image/png" href="/assets/menu.png" />
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        height: 100%;
+      }
+
+      body {
+        position: relative;
+        min-height: 100vh;
+        font-family: "Space Grotesk", system-ui, -apple-system, BlinkMacSystemFont,
+          "Segoe UI", sans-serif;
+        color: #f6f2e9;
+        padding: 2rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        background:
+          radial-gradient(circle at top left, #3a280e 0, transparent 55%),
+          radial-gradient(circle at bottom right, #b38a2e 0, transparent 55%),
+          linear-gradient(135deg, #05060a 0%, #0a0e18 35%, #05040a 100%);
+        overflow-x: hidden;
+      }
+
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background-image: url("/assets/bg.png");
+        background-size: auto;
+        background-repeat: repeat;
+        pointer-events: none;
+        z-index: -1;
+      }
+
+      .app-container {
+        width: 100%;
+        max-width: 1100px;
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+      }
+
+      .panel {
+        width: 100%;
+        background: radial-gradient(circle at top, #191b22 0, #101118 55%, #07070c 100%);
+        border-radius: 20px;
+        padding: 1.5rem 1.75rem;
+        border: 1px solid rgba(248, 200, 84, 0.45);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8);
+      }
+
+      .hero {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+      }
+
+      .hero-top {
+        display: flex;
+        align-items: center;
+        gap: 1.25rem;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+
+      .logo-wrap {
+        width: 90px;
+        height: 90px;
+        border-radius: 24px;
+        padding: 4px;
+        background: linear-gradient(135deg, #f9d97a, #f5b642);
+        box-shadow: 0 0 25px rgba(244, 198, 80, 0.6);
+      }
+
+      .logo-inner {
+        width: 100%;
+        height: 100%;
+        border-radius: 20px;
+        background: #05060b;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+      }
+
+      .logo-inner img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+      }
+
+      .hero-text {
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+      }
+
+      .title {
+        font-size: 1.7rem;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: #f8d881;
+        text-shadow: 0 0 18px rgba(248, 216, 129, 0.85);
+      }
+
+      .subtitle {
+        font-size: 0.85rem;
+        color: #d4c7a6;
+        opacity: 0.9;
+      }
+
+      .subtitle-small {
+        font-size: 0.75rem;
+        color: #c1b491;
+        opacity: 0.9;
+      }
+
+      .filter-bar {
+        margin-top: 0.9rem;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.45rem;
+      }
+
+      .filter-btn {
+        padding: 0.32rem 0.7rem;
+        border-radius: 999px;
+        border: 1px solid rgba(249, 209, 116, 0.75);
+        background: rgba(4, 6, 12, 0.94);
+        color: #f6f2e9;
+        font-size: 0.7rem;
+        letter-spacing: 0.08em;
+        cursor: pointer;
+        text-shadow: 0 0 6px rgba(0, 0, 0, 0.7);
+        text-transform: uppercase;
+        transition: transform 0.1s ease, box-shadow 0.1s ease,
+          background 0.1s ease, color 0.1s ease, border-color 0.1s ease;
+        white-space: nowrap;
+      }
+
+      .filter-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 0 12px rgba(248, 201, 113, 0.8);
+        background: rgba(12, 14, 22, 0.98);
+      }
+
+      .filter-btn.active {
+        background: linear-gradient(135deg, #f9d97a, #f1a93a);
+        color: #171307;
+        border-color: rgba(255, 214, 140, 0.95);
+        box-shadow: 0 0 15px rgba(248, 201, 113, 0.9);
+      }
+
+      .explore-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+        gap: 1rem;
+        margin-top: 1.1rem;
+      }
+
+      .dog-card {
+        position: relative;
+        border-radius: 16px;
+        border: 1px solid rgba(248, 200, 84, 0.4);
+        background: radial-gradient(circle at top, #181a22 0, #080910 70%);
+        overflow: hidden;
+        cursor: pointer;
+        box-shadow:
+          0 0 0 1px rgba(0, 0, 0, 0.7),
+          0 16px 32px rgba(0, 0, 0, 0.85);
+        transition: transform 0.12s ease, box-shadow 0.12s ease,
+          border-color 0.12s ease;
+      }
+
+      .dog-card:hover {
+        transform: translateY(-2px);
+        box-shadow:
+          0 0 18px rgba(248, 201, 113, 0.7),
+          0 24px 40px rgba(0, 0, 0, 0.95);
+        border-color: rgba(248, 201, 113, 0.9);
+      }
+
+      .dog-thumb {
+        position: relative;
+        width: 100%;
+        aspect-ratio: 1 / 1;
+        background: #020014;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        box-shadow: inset 0 0 18px rgba(0, 0, 0, 0.9);
+      }
+
+      .dog-thumb::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          120deg,
+          transparent 0%,
+          rgba(255, 255, 255, 0.26) 50%,
+          transparent 100%
+        );
+        transform: translateX(-120%);
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      .dog-thumb.loading::before {
+        opacity: 1;
+        animation: thumb-shimmer 1.3s linear infinite;
+      }
+
+      @keyframes thumb-shimmer {
+        from {
+          transform: translateX(-120%);
+        }
+        to {
+          transform: translateX(120%);
+        }
+      }
+
+      .dog-thumb img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;    /* preserve aspect ratio, no cropping */
+        display: block;
+      }
+
+      .dog-thumb iframe {
+        width: 100%;
+        height: 100%;
+        border: none;
+        background: #000;
+      }
+
+      .dog-thumb audio,
+      .dog-thumb video {
+        width: 100%;
+        height: 100%;
+        display: block;
+        background: #000;
+      }
+
+      .dog-badge {
+        position: absolute;
+        left: 0.6rem;
+        bottom: 0.5rem;
+        padding: 0.22rem 0.5rem;
+        border-radius: 999px;
+        border: 1px solid rgba(248, 200, 84, 0.9);
+        background: rgba(3, 4, 10, 0.92);
+        color: #fbe9b8;
+        font-size: 0.6rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .dog-info-btn {
+        position: absolute;
+        right: 0.6rem;
+        bottom: 0.5rem;
+        width: 22px;
+        height: 22px;
+        border-radius: 999px;
+        border: 1px solid rgba(248, 200, 84, 0.9);
+        background: rgba(3, 4, 10, 0.92);
+        color: #f6f2e9;
+        font-size: 0.7rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+      }
+
+      .dog-info-btn:hover {
+        box-shadow: 0 0 10px rgba(248, 200, 84, 0.9);
+      }
+
+      .grid-empty {
+        grid-column: 1 / -1;
+        text-align: center;
+        font-size: 0.8rem;
+        opacity: 0.8;
+        padding: 1rem 0;
+      }
+
+      .status-line {
+        margin-top: 0.7rem;
+        font-size: 0.75rem;
+        text-align: center;
+        color: #d8cba4;
+      }
+
+      .status-line.gold {
+        color: #f6d47e;
+      }
+
+      .footer {
+        margin-top: 0.8rem;
+        font-size: 0.7rem;
+        text-align: center;
+        color: #b3a688;
+      }
+
+      .modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(2, 3, 8, 0.96);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 1200;
+      }
+
+      .modal-overlay.active {
+        display: flex;
+      }
+
+      .modal-inner {
+        width: min(960px, 96vw);
+        max-height: 92vh;
+        background: radial-gradient(circle at top, #181a25 0, #05060b 65%);
+        border-radius: 20px;
+        border: 1px solid rgba(247, 208, 115, 0.75);
+        box-shadow: 0 22px 50px rgba(0, 0, 0, 0.9);
+        padding: 1.2rem 1.5rem 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.7rem;
+      }
+
+      .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .modal-title {
+        font-size: 0.9rem;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: #f7d97d;
+      }
+
+      .modal-close {
+        cursor: pointer;
+        font-size: 0.8rem;
+        padding: 0.25rem 0.7rem;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, 0.8);
+        background: rgba(0, 0, 0, 0.65);
+        color: #ffffff;
+      }
+
+      .modal-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem 1.3rem;
+        font-size: 0.72rem;
+        color: #d7c79f;
+      }
+
+      .modal-meta span {
+        display: flex;
+        gap: 0.25rem;
+        white-space: nowrap;
+      }
+
+      .modal-meta strong {
+        color: #f6f2e9;
+      }
+
+      /* Modal body now acts as a container for a preview area with a raw overlay */
+      .modal-body {
+        position: relative;            /* so .modal-raw can overlay it */
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+
+      .modal-preview {
+        flex: 1;
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        background: #050010;
+        padding: 0.75rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+      }
+
+      .modal-preview img {
+        max-width: 100%;
+        max-height: 70vh;
+        display: block;
+      }
+
+      .modal-preview iframe {
+        width: 100%;
+        height: 70vh;
+        border: none;
+        border-radius: 8px;
+        background: #000;
+      }
+
+      .modal-preview pre {
+        width: 100%;
+        max-height: 70vh;
+        overflow: auto;
+        border-radius: 8px;
+        background: #000;
+        padding: 0.45rem;
+        font-size: 0.72rem;
+        white-space: pre-wrap;
+        word-break: break-word;
+        text-align: left;
+        color: #f1ebe0;
+      }
+
+      .modal-preview audio,
+      .modal-preview video {
+        width: 100%;
+        max-height: 70vh;
+        display: block;
+      }
+
+      /* RAW view: full overlay over the preview area, scrolls internally */
+      .modal-raw {
+        position: absolute;
+        inset: 0;                       /* fill .modal-body */
+        margin: 0;
+        border-radius: 12px;
+        border: 1px solid rgba(244, 183, 40, 0.55);
+        background: #050010;
+        padding: 0.75rem;
+        font-size: 0.72rem;
+        overflow: auto;
+        white-space: pre-wrap;
+        word-break: break-word;
+        color: #f1ebe0;
+        display: none;                  /* shown only when toggled */
+        box-sizing: border-box;
+      }
+
+      .modal-footer {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        justify-content: flex-end;
+        margin-top: 0.3rem;
+      }
+
+      .modal-btn {
+        padding: 0.35rem 0.7rem;
+        border-radius: 999px;
+        border: 1px solid rgba(247, 208, 115, 0.8);
+        background: rgba(5, 6, 12, 0.94);
+        color: #f4e7c3;
+        font-size: 0.7rem;
+        letter-spacing: 0.08em;
+        cursor: pointer;
+        text-transform: uppercase;
+      }
+
+      .modal-btn:hover {
+        box-shadow: 0 0 12px rgba(247, 208, 115, 0.85);
+      }
+
+      /* Fullscreen overlay (same behaviour as viewer page) */
+      .overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(2, 3, 8, 0.96);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 1300;
+      }
+
+      .overlay.active {
+        display: flex;
+      }
+
+      #fsOverlayInner {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 1.2rem;
+        box-sizing: border-box;
+      }
+
+      #fsOverlayInner img,
+      #fsOverlayInner iframe {
+        width: 100%;
+        height: 100%;
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+        border-radius: 10px;
+        border: none;
+        background: #000;
+      }
+
+      #fsOverlayInner audio,
+      #fsOverlayInner video {
+        width: 100%;
+        max-width: 100%;
+        border-radius: 10px;
+        background: #000;
+      }
+
+      #fsOverlayInner pre {
+        width: 100%;
+        max-height: 100%;
+        overflow: auto;
+        background: #050608;
+        border-radius: 10px;
+        padding: 1rem;
+        font-size: 0.75rem;
+        color: #f4f1e7;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+
+      .overlay-close {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        padding: 0.35rem 0.75rem;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, 0.78);
+        background: rgba(0, 0, 0, 0.65);
+        color: #fff;
+        cursor: pointer;
+        font-size: 0.8rem;
+      }
+
+      .pagination-bar {
+        margin-top: 1.2rem;
+        display: flex;
+        justify-content: center;
+        gap: 6px;
+        flex-wrap: wrap;
+      }
+
+      .page-btn {
+        padding: 6px 12px;
+        border-radius: 10px;
+        border: 1px solid rgba(248, 209, 116, 0.5);
+        background: rgba(5, 6, 12, 0.85);
+        color: #f6f2e9;
+        cursor: pointer;
+        font-size: 0.75rem;
+      }
+
+      .page-btn.active {
+        background: linear-gradient(135deg, #f9d97a, #f1a93a);
+        color: #171307;
+        border-color: rgba(248, 209, 116, 1);
+      }
+
+      .page-btn.disabled {
+        opacity: 0.4;
+        pointer-events: none;
+      }
+
+      .ellipsis {
+        color: #cbbf9b;
+        padding: 6px 10px;
+        cursor: pointer;
+        user-select: none;
+      }
+
+      .page-input {
+        width: 60px;
+        padding: 6px 6px;
+        border-radius: 10px;
+        border: 1px solid rgba(248, 209, 116, 0.7);
+        background: rgba(5, 6, 12, 0.95);
+        color: #f6f2e9;
+        font-size: 0.75rem;
+        text-align: center;
+        outline: none;
+      }
+
+      .page-input::-webkit-outer-spin-button,
+      .page-input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+      }
+
+      .page-input[type="number"] {
+        -moz-appearance: textfield;
+      }
+
+      /* Ensure fullscreen close button always stays above overlays */
+      #fsCloseOverlay {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        z-index: 99999 !important;
+      }
+
+      #fsOverlayInner,
+      #fsOverlayInner * {
+        z-index: 1;
+      }
+
+      .footer {
+        margin-top: 1.2rem;
+        font-size: 0.7rem;
+        text-align: center;
+        opacity: 0.82;
+        color: #c9bfa0;
+      }
+
+      @media (max-width: 780px) {
+        body {
+          padding: 1.3rem;
+        }
+        .panel {
+          padding: 1.1rem 1.2rem;
+        }
+        .hero {
+          gap: 0.7rem;
+        }
+        .title {
+          font-size: 1.4rem;
+        }
+        .filter-bar {
+          justify-content: flex-start;
+        }
+        .modal-inner {
+          padding: 0.9rem 0.9rem 0.8rem;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="menuMount"></div>
+
+    <div id="inscriptionModal" class="modal-overlay">
+      <div class="modal-inner">
+        <div class="modal-header">
+          <div class="modal-title">Doginal Preview</div>
+          <button id="modalClose" class="modal-close">Close</button>
+        </div>
+        <div class="modal-meta">
+          <span><strong>TXID:</strong> <span id="modalTxid">–</span></span>
+          <span><strong>TYPE:</strong> <span id="modalType">–</span></span>
+          <span><strong>SIZE:</strong> <span id="modalSize">–</span></span>
+        </div>
+
+        <div class="modal-body">
+          <div id="modalPreview" class="modal-preview"></div>
+          <pre id="modalRaw" class="modal-raw"></pre>
+        </div>
+
+        <div class="modal-footer">
+          <button id="copyTxidBtn" class="modal-btn">Copy TXID</button>
+          <button id="showRawBtn" class="modal-btn">Show Raw</button>
+          <button id="copyUrlBtn" class="modal-btn">Copy URL</button>
+          <button id="fullscreenBtn" class="modal-btn">Fullscreen</button>
+          <button id="downloadBtn" class="modal-btn">Download</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="app-container">
+      <div class="panel">
+        <div class="hero">
+          <div class="hero-top">
+            <div class="logo-wrap">
+              <div class="logo-inner">
+                <img src="/assets/logo.png" alt="Doginal logo" />
+              </div>
+            </div>
+            <div class="hero-text">
+              <div class="title">Doginal Explorer</div>
+              <div class="subtitle">
+                Browse Doginals reconstructed from your <code>/content</code> folder.
+              </div>
+              <div class="subtitle-small">
+                Filter by type and inspect any inscription in detail.
+              </div>
+            </div>
+          </div>
+
+          <!-- Fullscreen overlay for explorer modal -->
+          <div class="overlay" id="fsOverlay">
+            <button class="overlay-close" id="fsCloseOverlay">Close</button>
+            <div id="fsOverlayInner"></div>
+          </div>
+
+          <div class="filter-bar">
+            <button class="filter-btn active" data-filter="ALL">All</button>
+            <button class="filter-btn" data-filter="PNG">PNG</button>
+            <button class="filter-btn" data-filter="SVG">SVG</button>
+            <button class="filter-btn" data-filter="WEBP">WEBP</button>
+            <button class="filter-btn" data-filter="JPEG">JPEG</button>
+            <button class="filter-btn" data-filter="HTML">HTML</button>
+            <button class="filter-btn" data-filter="JSON">JSON</button>
+            <button class="filter-btn" data-filter="JS">JS</button>
+            <button class="filter-btn" data-filter="GIF">GIF</button>
+            <button class="filter-btn" data-filter="VIDEO">VIDEO</button>
+            <button class="filter-btn" data-filter="AUDIO">AUDIO</button>
+            <button class="filter-btn" data-filter="MODEL">3D</button>
+            <button class="filter-btn" data-filter="TXT">TXT</button>
+            <button class="filter-btn" data-filter="PDF">PDF</button>
+            <button class="filter-btn" data-filter="OTHER">OTHER</button>
+          </div>
+        </div>
+
+        <div id="dogGrid" class="explore-grid"></div>
+        <div id="paginationBar" class="pagination-bar"></div>
+
+        <div class="status-line gold" id="loadedCount">Loaded 0 doginals.</div>
+        <div class="status-line" id="statusText"></div>
+
+        <div class="footer">
+          Doginal Explorer • Made By Heimdall • Loads From Your <code>/content</code> cache.
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const $ = (id) => document.getElementById(id);
+
+      // ---- Shared Doge menu ----
+      function initDogeMenu() {
+        const wrapper = document.getElementById("dogeMenuWrapper");
+        const btn = document.getElementById("dogeMenuBtn");
+        const popup = document.getElementById("dogeMenuPopup");
+        if (!wrapper || !btn || !popup) {
+          console.warn("Doginal menu elements not found in scope");
+          return;
+        }
+
+        btn.addEventListener("click", (ev) => {
+          ev.stopPropagation();
+          popup.classList.toggle("active");
+        });
+
+        document.addEventListener("click", (ev) => {
+          if (!wrapper.contains(ev.target)) {
+            popup.classList.remove("active");
+          }
+        });
+      }
+
+      async function loadMenu() {
+        try {
+          const res = await fetch("/assets-page/menu.html", { cache: "no-store" });
+          if (!res.ok) {
+            console.error("Menu fetch failed with HTTP", res.status);
+            return;
+          }
+
+          const html = await res.text();
+          const mount = document.getElementById("menuMount");
+          if (!mount) return;
+
+          mount.innerHTML = html;
+          initDogeMenu();
+        } catch (e) {
+          console.error("Failed to load shared menu:", e);
+        }
+      }
+
+      // --- DRC-20 overlay helper loader ---
+      let drc20HelpersPromise = null;
+
+      async function ensureDRC20HelpersLoaded() {
+        // Already loaded?
+        if (window.DRC20CSS && window.DRC20CSS.buildOverlay) return;
+
+        if (!drc20HelpersPromise) {
+          drc20HelpersPromise = (async () => {
+            try {
+              const res = await fetch("/assets-page/drc20css.html", { cache: "no-store" });
+              if (!res.ok) throw new Error("HTTP " + res.status);
+
+              const html = await res.text();
+              const tmp = document.createElement("div");
+              tmp.innerHTML = html;
+
+              // Inject styles
+              tmp.querySelectorAll("style").forEach((styleEl) => {
+                document.head.appendChild(styleEl.cloneNode(true));
+              });
+
+              // Run scripts
+              tmp.querySelectorAll("script").forEach((scriptEl) => {
+                const s = document.createElement("script");
+                if (scriptEl.src) {
+                  s.src = scriptEl.src;
+                } else {
+                  s.textContent = scriptEl.textContent;
+                }
+                document.body.appendChild(s);
+              });
+            } catch (e) {
+              console.error("Failed to load DRC-20 helpers:", e);
+              // allow retry on next call
+              drc20HelpersPromise = null;
+              throw e;
+            }
+          })();
+        }
+
+        return drc20HelpersPromise;
+      }
+
+      // ----------------- EXPLORER LOGIC -----------------
+
+      const extToFilter = {
+        png: "PNG",
+        jpg: "JPEG",
+        jpeg: "JPEG",
+        webp: "WEBP",
+        gif: "GIF",
+        svg: "SVG",
+
+        html: "HTML",
+        htm: "HTML",
+
+        json: "JSON",
+
+        js: "JS",
+        mjs: "JS",
+        cjs: "JS",
+
+        mp4: "VIDEO",
+        webm: "VIDEO",
+        mov: "VIDEO",
+        avi: "VIDEO",
+        mkv: "VIDEO",
+
+        mp3: "AUDIO",
+        wav: "AUDIO",
+        ogg: "AUDIO",
+        flac: "AUDIO",
+        mpeg: "AUDIO",
+        mpga: "AUDIO",
+
+        // TXT & PDF
+        txt: "TXT",
+        pdf: "PDF",
+
+        // 3D
+        glb: "MODEL",
+        gltf: "MODEL",
+      };
+
+      /** Decide which filter bucket an inscription belongs to */
+      function mapItemToFilter(item) {
+        const ext = (item.ext || "").toLowerCase();
+        const type = (item.mimeType || "").toLowerCase();
+
+        if (extToFilter[ext]) return extToFilter[ext];
+
+        if (type.startsWith("model/")) return "MODEL";
+        if (type.includes("gltf")) return "MODEL";
+
+        if (type.startsWith("audio/")) return "AUDIO";
+        if (type.startsWith("video/")) return "VIDEO";
+
+        if (type.includes("javascript")) return "JS";
+        if (type.includes("json")) return "JSON";
+        if (type.includes("html")) return "HTML";
+
+        // images without a known extension still show under OTHER
+        if (type.startsWith("image/")) {
+          if (type.includes("png")) return "PNG";
+          if (type.includes("jpeg") || type.includes("jpg")) return "JPEG";
+          if (type.includes("gif")) return "GIF";
+          if (type.includes("webp")) return "WEBP";
+          if (type.includes("svg")) return "SVG";
+        }
+
+        return "OTHER";
+      }
+
+      let allDoginals = [];
+
+      // --- Pagination state ---
+      let currentPage = 1;
+      const ITEMS_PER_PAGE = 40; // Change anytime
+
+      let activeFilter = "ALL";
+
+      function shortHash(str, front = 6, back = 6) {
+        if (!str || typeof str !== "string") return "—";
+        if (str.length <= front + back + 3) return str;
+        return str.slice(0, front) + "…" + str.slice(-back);
+      }
+
+      function isModelItem(type, ext) {
+        const t = (type || "").toLowerCase();
+        const e = (ext || "").toLowerCase();
+        return e === "glb" || e === "gltf" || t.startsWith("model/") || t.includes("gltf");
+      }
+
+      function buildModelViewerUrl(rawUrl) {
+        // Always route 3D through the viewer wrapper to prevent browser "download" behavior.
+        // Pass the raw /content/... url as src (URL-encoded).
+        const encoded = encodeURIComponent(rawUrl || "");
+        return `/assets-page/model-viewer.html?src=${encoded}`;
+      }
+
+      function renderThumb(container, item) {
+        container.innerHTML = "";
+        container.classList.add("loading");
+
+        const url = item.url;
+        const type = (item.mimeType || "").toLowerCase();
+        const ext = (item.ext || "").toLowerCase();
+
+        if (!url) {
+          container.classList.remove("loading");
+          const span = document.createElement("span");
+          span.style.fontSize = "0.7rem";
+          span.style.opacity = "0.7";
+          span.textContent = "No preview";
+          container.appendChild(span);
+          return;
+        }
+
+        const isJson = type.includes("application/json") || ext === "json";
+        const isHtml = type.includes("html") || ext === "html" || ext === "htm";
+        const isText = (type.startsWith("text/") && !isHtml && !isJson) || ext === "txt";
+
+        const isAudio = type.startsWith("audio/") || ["mp3", "wav", "ogg", "flac", "mpeg", "mpga"].includes(ext);
+        const isVideo = type.startsWith("video/") || ["mp4", "webm", "mov", "avi", "mkv"].includes(ext);
+
+        const isModel = isModelItem(type, ext);
+
+        // Text / JSON → maybe a DRC-20 overlay
+        if (isJson || isText) {
+          (async () => {
+            try {
+              const r = await fetch(url, { cache: "no-store" });
+              const t = await r.text();
+
+              // Try to build a DRC-20 overlay
+              await ensureDRC20HelpersLoaded().catch(() => {});
+              let overlay = null;
+              try {
+                if (window.DRC20CSS && window.DRC20CSS.buildOverlay) {
+                  overlay = window.DRC20CSS.buildOverlay(t);
+                }
+              } catch (_) {}
+
+              container.classList.remove("loading");
+              container.innerHTML = "";
+
+              if (overlay) {
+                // Use fancy DRC-20 card
+                container.appendChild(overlay);
+              } else {
+                // Fallback: snippet preview
+                const pre = document.createElement("pre");
+                pre.style.fontSize = "0.7rem";
+                pre.style.whiteSpace = "pre-wrap";
+                pre.style.wordBreak = "break-word";
+                const snippet = t.length > 260 ? t.slice(0, 260) + "…" : t;
+                pre.textContent = snippet;
+                container.appendChild(pre);
+              }
+            } catch (e) {
+              container.classList.remove("loading");
+              container.innerHTML = "";
+              const pre = document.createElement("pre");
+              pre.style.fontSize = "0.7rem";
+              pre.style.whiteSpace = "pre-wrap";
+              pre.style.wordBreak = "break-word";
+              pre.textContent = "// failed to load";
+              container.appendChild(pre);
+            }
+          })();
+          return;
+        }
+
+        // 3D model → ALWAYS use model-viewer.html wrapper (prevents auto-download)
+        if (isModel) {
+          const iframe = document.createElement("iframe");
+          iframe.src = buildModelViewerUrl(url);
+          iframe.setAttribute("loading", "lazy");
+          iframe.addEventListener("load", () => container.classList.remove("loading"));
+          iframe.addEventListener("error", () => container.classList.remove("loading"));
+          container.appendChild(iframe);
+          return;
+        }
+
+        // Audio → never iframe; controls only; no autoplay
+        if (isAudio) {
+          const audio = document.createElement("audio");
+          audio.controls = true;
+          audio.preload = "metadata";
+          audio.autoplay = false;
+          audio.src = url;
+          audio.addEventListener("loadedmetadata", () => container.classList.remove("loading"));
+          audio.addEventListener("error", () => container.classList.remove("loading"));
+          container.appendChild(audio);
+          return;
+        }
+
+        // Video → never iframe; controls only; no autoplay
+        if (isVideo) {
+          const video = document.createElement("video");
+          video.controls = true;
+          video.preload = "metadata";
+          video.autoplay = false;
+          video.src = url;
+          video.addEventListener("loadedmetadata", () => container.classList.remove("loading"));
+          video.addEventListener("error", () => container.classList.remove("loading"));
+          container.appendChild(video);
+          return;
+        }
+
+        // Normal images (non-SVG)
+        if (type.startsWith("image/") && !type.includes("svg")) {
+          const img = new Image();
+          img.src = url;
+          img.onload = () => container.classList.remove("loading");
+          img.onerror = () => container.classList.remove("loading");
+          container.appendChild(img);
+          return;
+        }
+
+        // Everything else → iframe (HTML, SVG, etc.)
+        const iframe = document.createElement("iframe");
+        iframe.src = url;
+        iframe.setAttribute("loading", "lazy");
+        iframe.addEventListener("load", () => container.classList.remove("loading"));
+        iframe.addEventListener("error", () => container.classList.remove("loading"));
+        container.appendChild(iframe);
+      }
+
+      function applyFilter() {
+        const grid = $("dogGrid");
+        grid.innerHTML = "";
+
+        let filtered = allDoginals;
+
+        if (activeFilter !== "ALL") {
+          filtered = allDoginals.filter((item) => mapItemToFilter(item) === activeFilter);
+        }
+
+        // --- Pagination calculations ---
+        const totalItems = filtered.length;
+        const totalPages = Math.max(1, Math.ceil(totalItems / ITEMS_PER_PAGE));
+
+        // keep page within limits
+        if (currentPage > totalPages) currentPage = totalPages;
+        if (currentPage < 1) currentPage = 1;
+
+        const startIdx = (currentPage - 1) * ITEMS_PER_PAGE;
+        const endIdx = startIdx + ITEMS_PER_PAGE;
+
+        const pageItems = filtered.slice(startIdx, endIdx);
+
+        // --- Render items for current page ---
+        if (!pageItems.length) {
+          grid.innerHTML = `<div class="grid-empty">No ${activeFilter} doginals found.</div>`;
+          $("loadedCount").textContent = "Loaded 0 doginals.";
+          renderPagination(1, 1);
+          return;
+        }
+
+        pageItems.forEach((item) => {
+          const card = document.createElement("div");
+          card.className = "dog-card";
+
+          const thumb = document.createElement("div");
+          thumb.className = "dog-thumb";
+          renderThumb(thumb, item);
+
+          const badge = document.createElement("div");
+          badge.className = "dog-badge";
+          badge.textContent = shortHash(item.inscriptionId || item.txid, 6, 4);
+
+          const infoBtn = document.createElement("button");
+          infoBtn.className = "dog-info-btn";
+          infoBtn.textContent = "i";
+          infoBtn.addEventListener("click", (ev) => {
+            ev.stopPropagation();
+            openModal(item);
+          });
+
+          card.appendChild(thumb);
+          card.appendChild(badge);
+          card.appendChild(infoBtn);
+
+          card.addEventListener("click", () => openModal(item));
+
+          grid.appendChild(card);
+        });
+
+        $("loadedCount").textContent =
+          "Showing " + pageItems.length + " of " + filtered.length + " doginals.";
+
+        // Render pagination controls
+        renderPagination(currentPage, totalPages);
+      }
+
+      function renderPagination(page, totalPages) {
+        const bar = $("paginationBar");
+        bar.innerHTML = "";
+
+        function btn(label, targetPage, disabled = false) {
+          const b = document.createElement("button");
+          b.textContent = label;
+          b.className = "page-btn";
+          if (disabled) b.classList.add("disabled");
+          b.onclick = () => {
+            if (!disabled) {
+              currentPage = targetPage;
+              applyFilter();
+            }
+          };
+          return b;
+        }
+
+        // Previous button
+        bar.appendChild(btn("←", page - 1, page === 1));
+
+        const pagesToShow = [];
+
+        pagesToShow.push(1); // always show first page
+
+        if (page > 3) pagesToShow.push("...");
+
+        for (let p = page - 1; p <= page + 1; p++) {
+          if (p > 1 && p < totalPages) pagesToShow.push(p);
+        }
+
+        if (page < totalPages - 2) pagesToShow.push("...");
+
+        if (totalPages > 1) pagesToShow.push(totalPages); // always show last page
+
+        pagesToShow.forEach((p) => {
+          if (p === "...") {
+            const span = document.createElement("span");
+            span.className = "ellipsis";
+            span.textContent = "...";
+
+            span.addEventListener("click", () => {
+              // turn ellipsis into inline number input
+              const input = document.createElement("input");
+              input.type = "number";
+              input.min = "1";
+              input.max = String(totalPages);
+              input.value = String(page);
+              input.className = "page-input";
+
+              // helper to commit chosen page
+              const commit = () => {
+                let num = parseInt(input.value, 10);
+                if (Number.isNaN(num) || num < 1 || num > totalPages) {
+                  num = page; // fallback to current page
+                }
+                currentPage = num;
+                applyFilter();
+              };
+
+              input.addEventListener("keydown", (e) => {
+                if (e.key === "Enter") {
+                  commit();
+                } else if (e.key === "Escape") {
+                  // cancel → re-render pagination to restore dots
+                  applyFilter();
+                }
+              });
+
+              input.addEventListener("blur", () => {
+                commit();
+              });
+
+              // swap span for input
+              bar.replaceChild(input, span);
+              input.focus();
+              input.select();
+            });
+
+            bar.appendChild(span);
+          } else {
+            const isActive = p === page;
+            const b = btn(p, p, isActive);
+            if (isActive) b.classList.add("active");
+            bar.appendChild(b);
+          }
+        });
+
+        // Next button
+        bar.appendChild(btn("→", page + 1, page === totalPages));
+      }
+
+      function setupFilterButtons() {
+        document.querySelectorAll(".filter-btn").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            document.querySelectorAll(".filter-btn").forEach((b) => b.classList.remove("active"));
+            btn.classList.add("active");
+            activeFilter = btn.dataset.filter;
+            currentPage = 1;
+            applyFilter();
+          });
+        });
+      }
+
+      async function loadDoginals() {
+        try {
+          $("statusText").textContent = "Scanning /content/master.json…";
+          const res = await fetch("/api/doginals/list", { cache: "no-store" });
+          if (!res.ok) throw new Error("HTTP " + res.status);
+          const data = await res.json();
+          allDoginals = Array.isArray(data) ? data : [];
+          $("statusText").textContent = "";
+          applyFilter();
+        } catch (e) {
+          console.error(e);
+          $("statusText").textContent = "Failed to load doginals from /api/doginals/list.";
+        }
+      }
+
+      let currentItem = null;
+      let modalShowingRaw = false;
+      let modalRawCache = null;
+
+      function openModal(item) {
+        currentItem = item;
+        modalShowingRaw = false;
+        modalRawCache = null;
+
+        $("modalTxid").textContent = item.inscriptionId || item.txid || "—";
+        $("modalType").textContent = item.mimeType || "unknown";
+        $("modalSize").textContent = item.size ? item.size.toLocaleString() + " bytes" : "—";
+
+        renderModalPreview(item);
+
+        $("inscriptionModal").classList.add("active");
+      }
+
+      function closeModal() {
+        $("inscriptionModal").classList.remove("active");
+        currentItem = null;
+        modalRawCache = null;
+        modalShowingRaw = false;
+      }
+
+      function renderModalPreview(item) {
+        const preview = $("modalPreview");
+        const raw = $("modalRaw");
+        const btn = $("showRawBtn");
+
+        preview.innerHTML = "";
+        raw.style.display = "none";
+        preview.style.display = "flex";
+        preview.style.opacity = "1";
+        modalShowingRaw = false;
+
+        const url = item.url;
+        const type = (item.mimeType || "").toLowerCase();
+        const ext = (item.ext || "").toLowerCase();
+
+        if (!url) {
+          if (btn) btn.style.display = "none";
+          preview.textContent = "No preview available.";
+          return;
+        }
+
+        const isJson = type.includes("application/json") || ext === "json";
+        const isHtml = type.includes("html") || ext === "html" || ext === "htm";
+        const isJs = type.includes("javascript") || ext === "js" || ext === "mjs" || ext === "cjs";
+        const isText = (type.startsWith("text/") && !isHtml && !isJson && !isJs) || ext === "txt";
+
+        const isAudio = type.startsWith("audio/") || ["mp3", "wav", "ogg", "flac", "mpeg", "mpga"].includes(ext);
+        const isVideo = type.startsWith("video/") || ["mp4", "webm", "mov", "avi", "mkv"].includes(ext);
+
+        const isModel = isModelItem(type, ext);
+
+        // Show Raw button only for HTML / JS / JSON
+        if (btn) {
+          if (isHtml || isJs || isJson) {
+            btn.style.display = "inline-block";
+          } else {
+            btn.style.display = "none";
+          }
+        }
+
+        // 3D model → ALWAYS use model-viewer.html wrapper (prevents auto-download)
+        if (isModel) {
+          const iframe = document.createElement("iframe");
+          iframe.src = buildModelViewerUrl(url);
+          iframe.style.width = "100%";
+          iframe.style.height = "70vh";
+          iframe.style.border = "none";
+          iframe.style.borderRadius = "8px";
+          preview.appendChild(iframe);
+          // raw toggle not applicable for binary models
+          if (btn) btn.style.display = "none";
+          return;
+        }
+
+        // AUDIO (no autoplay)
+        if (isAudio) {
+          const audio = document.createElement("audio");
+          audio.controls = true;
+          audio.preload = "metadata";
+          audio.autoplay = false;
+          audio.src = url;
+          preview.appendChild(audio);
+          return;
+        }
+
+        // VIDEO (no autoplay)
+        if (isVideo) {
+          const video = document.createElement("video");
+          video.controls = true;
+          video.preload = "metadata";
+          video.autoplay = false;
+          video.src = url;
+          video.style.maxWidth = "100%";
+          video.style.maxHeight = "70vh";
+          preview.appendChild(video);
+          return;
+        }
+
+        // JS – always show code text in preview, scrollable
+        if (isJs) {
+          (async () => {
+            try {
+              const r = await fetch(url, { cache: "no-store" });
+              const t = await r.text();
+              modalRawCache = t;
+
+              preview.innerHTML = "";
+              const pre = document.createElement("pre");
+              pre.textContent = t;
+              pre.style.whiteSpace = "pre";
+              pre.style.overflow = "auto";
+              pre.style.maxHeight = "70vh";
+              preview.appendChild(pre);
+            } catch (e) {
+              preview.innerHTML = "";
+              const pre = document.createElement("pre");
+              pre.textContent = "// failed to load js\n" + e.message;
+              preview.appendChild(pre);
+            }
+          })();
+          return;
+        }
+
+        // JSON or plain text – DRC-20 overlay if applicable, otherwise raw text
+        if (isJson || isText) {
+          preview.innerHTML = "";
+          const pre = document.createElement("pre");
+          pre.textContent = "// loading…";
+          preview.appendChild(pre);
+
+          (async () => {
+            try {
+              const r = await fetch(url, { cache: "no-store" });
+              const t = await r.text();
+              modalRawCache = t;
+
+              // Try to treat it as a DRC-20 inscription
+              await ensureDRC20HelpersLoaded().catch(() => {});
+              let parsed = null;
+              try {
+                parsed = window.DRC20CSS && window.DRC20CSS.parse ? window.DRC20CSS.parse(t) : null;
+              } catch (_) {
+                parsed = null;
+              }
+
+              if (parsed) {
+                // Build full-size overlay in the modal preview
+                preview.innerHTML = "";
+                window.DRC20CSS.buildDrc20Card(preview, t, { variant: "full" });
+              } else {
+                // Not a DRC-20: show plain text
+                pre.textContent = t;
+              }
+            } catch (e) {
+              pre.textContent = "// failed to load\n" + e.message;
+            }
+          })();
+
+          return;
+        }
+
+        // HTML → iframe preview, raw toggle will fetch source
+        // NOTE: This supports HTML that contains three/model logic; if it references a glb/gltf
+        // it will behave as before (iframe to that HTML). If you want that HTML to resolve to
+        // a model, you can still open it via model-viewer in index, but we are not changing
+        // HTML behaviour here beyond the model-file download fix.
+        if (isHtml) {
+          const iframe = document.createElement("iframe");
+          iframe.src = url;
+          iframe.style.width = "100%";
+          iframe.style.height = "70vh";
+          iframe.style.border = "none";
+          preview.appendChild(iframe);
+          modalRawCache = null; // will be fetched on demand
+          return;
+        }
+
+        // Images
+        if (type.startsWith("image/") && !type.includes("svg")) {
+          const img = new Image();
+          img.src = url;
+          img.style.maxWidth = "100%";
+          img.style.maxHeight = "70vh";
+          preview.appendChild(img);
+          if (btn) btn.style.display = "none";
+          return;
+        }
+
+        // Fallback → iframe
+        const iframe = document.createElement("iframe");
+        iframe.src = url;
+        iframe.style.width = "100%";
+        iframe.style.height = "70vh";
+        iframe.style.border = "none";
+        preview.appendChild(iframe);
+        if (btn) btn.style.display = "none";
+      }
+
+      async function toggleModalRaw() {
+        if (!currentItem) return;
+
+        const preview = $("modalPreview");
+        const raw = $("modalRaw");
+        const btn = $("showRawBtn");
+
+        if (!modalShowingRaw) {
+          // Going from PREVIEW → RAW
+          if (!modalRawCache) {
+            try {
+              const r = await fetch(currentItem.url, { cache: "no-store" });
+              modalRawCache = await r.text();
+            } catch (e) {
+              modalRawCache = "// failed to load\n" + e.message;
+            }
+          }
+
+          raw.textContent = modalRawCache;
+          raw.style.display = "block"; // overlay turns on
+          preview.style.opacity = "0"; // hide preview visually but keep layout
+          btn.textContent = "Show Preview";
+          modalShowingRaw = true;
+        } else {
+          // RAW → PREVIEW
+          raw.style.display = "none"; // overlay off
+          preview.style.opacity = "1";
+          btn.textContent = "Show Raw";
+          modalShowingRaw = false;
+        }
+      }
+
+      async function copyTxid() {
+        if (!currentItem) return;
+        const txid = currentItem.inscriptionId || currentItem.txid;
+        await navigator.clipboard.writeText(txid || "");
+        $("statusText").textContent = "TXID copied to clipboard.";
+      }
+
+      async function copyUrl() {
+        if (!currentItem) return;
+        const full = window.location.origin + currentItem.url;
+        await navigator.clipboard.writeText(full);
+        $("statusText").textContent = "URL copied to clipboard.";
+      }
+
+      function downloadCurrent() {
+        if (!currentItem) return;
+        const a = document.createElement("a");
+        a.href = currentItem.url;
+        a.download =
+          currentItem.filename ||
+          (currentItem.inscriptionId || currentItem.txid || "doginal");
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+      }
+
+      function openFullscreenFromModal() {
+        if (!currentItem) return;
+
+        const overlay = $("fsOverlay");
+        const inner = $("fsOverlayInner");
+        inner.innerHTML = "";
+
+        const url = currentItem.url;
+        const type = (currentItem.mimeType || "").toLowerCase();
+        const ext = (currentItem.ext || "").toLowerCase();
+
+        if (!url) {
+          const pre = document.createElement("pre");
+          pre.textContent = "No preview available.";
+          inner.appendChild(pre);
+          overlay.classList.add("active");
+          return;
+        }
+
+        const isJson = type.includes("json") || ext === "json";
+        const isHtml = type.includes("html") || ext === "html" || ext === "htm";
+        const isJs = type.includes("javascript") || ext === "js" || ext === "mjs" || ext === "cjs";
+        const isText = (type.startsWith("text/") && !isHtml && !isJson && !isJs) || ext === "txt";
+
+        const isAudio = type.startsWith("audio/") || ["mp3", "wav", "ogg", "flac", "mpeg", "mpga"].includes(ext);
+        const isVideo = type.startsWith("video/") || ["mp4", "webm", "mov", "avi", "mkv"].includes(ext);
+
+        const isModel = isModelItem(type, ext);
+
+        // 3D model → ALWAYS use model-viewer wrapper
+        if (isModel) {
+          const iframe = document.createElement("iframe");
+          iframe.src = buildModelViewerUrl(url);
+          iframe.setAttribute("loading", "lazy");
+          iframe.style.border = "none";
+          inner.appendChild(iframe);
+          overlay.classList.add("active");
+          goElementFullscreen(overlay);
+          return;
+        }
+
+        // Audio/video → never iframe; no autoplay
+        if (isAudio) {
+          const audio = document.createElement("audio");
+          audio.controls = true;
+          audio.preload = "metadata";
+          audio.autoplay = false;
+          audio.src = url;
+          inner.appendChild(audio);
+          overlay.classList.add("active");
+          goElementFullscreen(overlay);
+          return;
+        }
+
+        if (isVideo) {
+          const video = document.createElement("video");
+          video.controls = true;
+          video.preload = "metadata";
+          video.autoplay = false;
+          video.src = url;
+          video.style.width = "100%";
+          video.style.height = "100%";
+          video.style.maxWidth = "100%";
+          video.style.maxHeight = "100%";
+          inner.appendChild(video);
+          overlay.classList.add("active");
+          goElementFullscreen(overlay);
+          return;
+        }
+
+        // Text / JSON / JS → DRC-20 overlay if applicable, otherwise text
+        if (isJson || isText || isJs || type === "application/javascript" || ext === "js") {
+          inner.innerHTML = "";
+          const pre = document.createElement("pre");
+          pre.textContent = "// loading…";
+          inner.appendChild(pre);
+
+          (async () => {
+            try {
+              const r = await fetch(url, { cache: "no-store" });
+              const t = await r.text();
+
+              const isJsFullscreen = isJs || type === "application/javascript" || ext === "js";
+
+              // For JS we always show code; for JSON/TXT we try DRC-20 first
+              if (!isJsFullscreen) {
+                await ensureDRC20HelpersLoaded().catch(() => {});
+                let parsed = null;
+                try {
+                  parsed = window.DRC20CSS && window.DRC20CSS.parse ? window.DRC20CSS.parse(t) : null;
+                } catch (_) {
+                  parsed = null;
+                }
+
+                if (parsed) {
+                  // Full-screen DRC-20 overlay
+                  inner.innerHTML = "";
+                  const container = document.createElement("div");
+                  container.style.width = "100%";
+                  container.style.height = "100%";
+                  container.style.display = "flex";
+                  container.style.alignItems = "center";
+                  container.style.justifyContent = "center";
+
+                  window.DRC20CSS.buildDrc20Card(container, t, { variant: "full" });
+
+                  inner.appendChild(container);
+                  return;
+                }
+              }
+
+              // Fallback: just show text
+              pre.textContent = t;
+            } catch (e) {
+              pre.textContent = "// failed to load\n" + e.message;
+            }
+          })();
+
+          overlay.classList.add("active");
+          goElementFullscreen(overlay);
+          return;
+        }
+
+        // Images
+        if (type.startsWith("image/") && !type.includes("svg")) {
+          const img = new Image();
+          img.src = url;
+          img.alt = currentItem.inscriptionId || currentItem.txid || "";
+          inner.appendChild(img);
+          overlay.classList.add("active");
+          goElementFullscreen(overlay);
+          return;
+        }
+
+        // Everything else (HTML, SVG, etc) → iframe
+        const iframe = document.createElement("iframe");
+        iframe.src = url;
+        iframe.setAttribute("loading", "lazy");
+        iframe.style.border = "none";
+        inner.appendChild(iframe);
+
+        overlay.classList.add("active");
+        goElementFullscreen(overlay);
+      }
+
+      function goElementFullscreen(el) {
+        if (!el) return;
+
+        const request =
+          el.requestFullscreen ||
+          el.webkitRequestFullscreen ||
+          el.mozRequestFullScreen ||
+          el.msRequestFullscreen;
+
+        if (request) {
+          request.call(el).catch?.(() => {
+            // Some browsers throw if user gesture isn't detected – just ignore.
+          });
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", () => {
+        loadMenu();
+        setupFilterButtons();
+        loadDoginals();
+
+        $("modalClose").addEventListener("click", closeModal);
+        $("inscriptionModal").addEventListener("click", (e) => {
+          if (e.target === $("inscriptionModal")) closeModal();
+        });
+
+        $("copyTxidBtn").addEventListener("click", copyTxid);
+        $("copyUrlBtn").addEventListener("click", copyUrl);
+        $("downloadBtn").addEventListener("click", downloadCurrent);
+        $("showRawBtn").addEventListener("click", toggleModalRaw);
+
+        // Fullscreen button + overlay close
+        $("fullscreenBtn").addEventListener("click", openFullscreenFromModal);
+        $("fsCloseOverlay").addEventListener("click", () => {
+          $("fsOverlay").classList.remove("active");
+
+          const exit =
+            document.exitFullscreen ||
+            document.webkitExitFullscreen ||
+            document.mozCancelFullScreen ||
+            document.msExitFullscreen;
+
+          if (exit && document.fullscreenElement) {
+            exit.call(document).catch?.(() => {});
+          }
+        });
+
+        $("fsOverlay").addEventListener("click", (e) => {
+          if (e.target === $("fsOverlay")) {
+            $("fsOverlay").classList.remove("active");
+          }
+        });
+      });
+    </script>
+  </body>
+</html>

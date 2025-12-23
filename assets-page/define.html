@@ -1,0 +1,2537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Doginals Tooling • Define Traits</title>
+  <link rel="icon" type="image/png" href="/assets/menu.png" />
+  <link rel="shortcut icon" type="image/png" href="/assets/menu.png" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      position: relative;
+      min-height: 100vh;
+      font-family: "Space Grotesk", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: #f6f2e9;
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background:
+        radial-gradient(circle at top left, #3a280e 0, transparent 55%),
+        radial-gradient(circle at bottom right, #b38a2e 0, transparent 55%),
+        linear-gradient(135deg, #05060a 0%, #0a0e18 35%, #05040a 100%);
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background-image: url("/assets/bg.png");
+      background-size: auto;
+      background-repeat: repeat;
+      pointer-events: none;
+      z-index: -1;
+      opacity: 0.95;
+    }
+
+    #menuMount { position: relative; z-index: 1200; width: 100%; }
+
+    .app-container {
+      width: 100%;
+      max-width: 1100px;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .content-card {
+      width: 100%;
+      background: radial-gradient(circle at top, #191b22 0, #101118 55%, #07070c 100%);
+      border-radius: 20px;
+      padding: 1.4rem 1.7rem;
+      border: 1px solid rgba(248, 200, 84, 0.45);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8);
+    }
+
+    .panel {
+      width: 100%;
+      background: radial-gradient(circle at top, #181a22 0, #080910 70%);
+      border-radius: 16px;
+      border: 1px solid rgba(248, 200, 84, 0.35);
+      padding: 0.95rem 1.05rem;
+      font-size: 0.78rem;
+      box-shadow:
+        0 0 0 1px rgba(0, 0, 0, 0.7),
+        0 16px 32px rgba(0, 0, 0, 0.7);
+    }
+
+    .hero {
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+      align-items: center;
+      text-align: center;
+      margin-bottom: 0.85rem;
+    }
+
+    .round-logo {
+      width: 90px;
+      height: 90px;
+      border-radius: 24px;
+      padding: 4px;
+      background: linear-gradient(135deg, #f9d97a, #f5b642);
+      box-shadow: 0 0 25px rgba(244, 198, 80, 0.6);
+      overflow: hidden;
+    }
+
+    .round-logo img {
+      width: 100%;
+      height: 100%;
+      border-radius: 20px;
+      object-fit: contain;
+      background: #05060b;
+    }
+
+    .hero-subtitle-small {
+      font-size: 0.75rem;
+      color: #c1b491;
+      opacity: 0.9;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .main-title {
+      font-size: 1.7rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #f8d881;
+      text-shadow: 0 0 18px rgba(248, 216, 129, 0.85);
+    }
+
+    .hero-subtitle-main {
+      font-size: 0.85rem;
+      color: #d4c7a6;
+      opacity: 0.9;
+      max-width: 860px;
+      line-height: 1.55;
+    }
+
+    .pill-inline {
+      display: inline-block;
+      padding: 0.12rem 0.45rem;
+      border-radius: 999px;
+      border: 1px solid rgba(248, 209, 116, 0.45);
+      font-size: 0.65rem;
+      color: #f4e7c3;
+      background: rgba(5, 6, 12, 0.6);
+      opacity: 0.95;
+      margin: 0 0.12rem;
+    }
+
+    .panel-title, .section-title {
+      font-size: 0.8rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #f8d881;
+      margin-bottom: 0.45rem;
+    }
+
+    .panel-desc, .hint {
+      font-size: 0.7rem;
+      color: #d6ccb2;
+      opacity: 0.88;
+      line-height: 1.45;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.95em;
+      color: #f9d97a;
+      background: rgba(5, 6, 12, 0.7);
+      border: 1px solid rgba(248, 209, 116, 0.25);
+      padding: 0.08rem 0.35rem;
+      border-radius: 8px;
+    }
+
+    .cmd-btn {
+      padding: 0.34rem 0.8rem;
+      border-radius: 999px;
+      border: 1px solid rgba(248, 209, 116, 0.8);
+      background: rgba(5, 6, 12, 0.94);
+      color: #f4e7c3;
+      font-size: 0.7rem;
+      cursor: pointer;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      text-shadow: 0 0 6px rgba(0, 0, 0, 0.7);
+      transition: transform 0.1s ease, box-shadow 0.1s ease,
+        background 0.1s ease, border-color 0.1s ease, color 0.1s ease;
+      white-space: nowrap;
+    }
+
+    .cmd-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 0 12px rgba(248, 201, 113, 0.9);
+      background: linear-gradient(135deg, #f9d97a, #f1a93a);
+      color: #171307;
+    }
+
+    .cmd-btn.ghost {
+      border-color: rgba(248, 209, 116, 0.35);
+      color: #c9bfa0;
+      background: rgba(5, 6, 12, 0.75);
+    }
+
+    .cmd-btn.danger {
+      border-color: rgba(255, 107, 107, 0.7);
+      color: #ffd1d1;
+    }
+    .cmd-btn.danger:hover {
+      background: linear-gradient(135deg, #ff8a8a, #ff5a5a);
+      color: #220607;
+      box-shadow: 0 0 12px rgba(255, 107, 107, 0.6);
+    }
+
+    .tiny-btn { padding: 0.3rem 0.65rem; font-size: 0.68rem; }
+
+    .input-inline {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      align-items: center;
+      margin-top: 0.45rem;
+    }
+
+    .label-inline {
+      font-size: 0.72rem;
+      color: #d6ccb2;
+    }
+
+    .input-text, .modal-input, select.modal-input, textarea.modal-textarea {
+      width: 100%;
+      padding: 0.45rem 0.6rem;
+      border-radius: 999px;
+      border: 1px solid rgba(248, 209, 116, 0.6);
+      background: rgba(5, 6, 12, 0.94);
+      color: #f6f2e9;
+      font-family: "Space Grotesk", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 0.72rem;
+      outline: none;
+    }
+
+    textarea.modal-textarea {
+      border-radius: 12px;
+      min-height: 110px;
+      resize: vertical;
+      padding: 0.55rem 0.6rem;
+    }
+
+    .input-text::placeholder, .modal-input::placeholder, textarea.modal-textarea::placeholder {
+      color: #8e8265;
+    }
+
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      align-items: center;
+    }
+
+    .status-inline {
+      font-size: 0.68rem;
+      color: #d6ccb2;
+      min-height: 0.85rem;
+    }
+    .status-inline.ok { color: #37ff7f; }
+    .status-inline.error { color: #ff6b6b; }
+
+    /* Step 2 grid */
+    .step2-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 2.2fr) minmax(0, 1.1fr);
+      gap: 1.1rem;
+      margin-top: 0.75rem;
+    }
+
+    .sub-panel {
+      background: radial-gradient(circle at top, #181a22 0, #080910 70%);
+      border-radius: 16px;
+      border: 1px solid rgba(248, 200, 84, 0.35);
+      padding: 0.9rem 1rem;
+      box-shadow:
+        0 0 0 1px rgba(0, 0, 0, 0.7),
+        0 16px 32px rgba(0, 0, 0, 0.7);
+    }
+
+    .preview-inner {
+      display: grid;
+      grid-template-columns: 200px minmax(0, 1fr);
+      gap: 0.7rem;
+      align-items: flex-start;
+      margin-top: 0.35rem;
+    }
+
+    .mini-wrap, .zoom-wrap {
+      background: #05060a;
+      border-radius: 12px;
+      border: 1px solid rgba(248, 209, 116, 0.35);
+      padding: 0.4rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+    }
+
+    canvas { image-rendering: pixelated; }
+
+    .zoom-wrap { width: 100%; }
+
+    .controls-row {
+      margin-top: 0.55rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      align-items: flex-start;
+      justify-content: space-between;
+    }
+
+    .controls-col {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      min-width: 170px;
+      flex: 1 1 220px;
+    }
+
+    .label-sm {
+      font-size: 0.7rem;
+      color: #f8d881;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .trait-input-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      align-items: center;
+    }
+
+    .traits-list {
+      margin-top: 0.45rem;
+      max-height: 300px;
+      overflow-y: auto;
+      padding-right: 0.3rem;
+    }
+
+    .trait-type-label {
+      color: #f8d881;
+      margin-top: 0.5rem;
+      font-size: 0.72rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      opacity: 0.95;
+    }
+
+    .trait-value {
+      margin-left: 0.8rem;
+      cursor: pointer;
+      margin-top: 0.15rem;
+      font-size: 0.72rem;
+      color: #f4e7c3;
+      opacity: 0.95;
+    }
+
+    .trait-value:hover {
+      text-decoration: underline;
+      color: #f9d97a;
+    }
+
+    .image-traits-box {
+      margin-top: 0.55rem;
+      font-size: 0.72rem;
+    }
+
+    #currentImageTraits {
+      white-space: pre-line;
+      margin-top: 0.25rem;
+      color: #d6ccb2;
+      opacity: 0.9;
+    }
+
+    .footer {
+      margin-top: 1.2rem;
+      font-size: 0.7rem;
+      text-align: center;
+      opacity: 0.82;
+      color: #c9bfa0;
+    }
+
+    /* Modals */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(2, 3, 8, 0.86);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1300;
+      padding: 1rem;
+    }
+
+    .modal-overlay.active { display: flex; }
+
+    .modal {
+      width: 100%;
+      max-width: 680px;
+      background: radial-gradient(circle at top, #181a25 0, #05060b 65%);
+      border-radius: 16px;
+      border: 1px solid rgba(247, 208, 115, 0.75);
+      padding: 1rem 1.2rem;
+      box-shadow: 0 22px 50px rgba(0, 0, 0, 0.9);
+      font-size: 0.72rem;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.75rem;
+      gap: 0.5rem;
+    }
+
+    .modal-title {
+      font-size: 0.8rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #f8d881;
+    }
+
+    .modal-close {
+      cursor: pointer;
+      font-size: 0.75rem;
+      padding: 0.25rem 0.7rem;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.78);
+      background: rgba(0, 0, 0, 0.65);
+      color: #ffffff;
+      transition: transform 0.1s ease, box-shadow 0.1s ease, background 0.1s ease;
+      user-select: none;
+    }
+
+    .modal-close:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 0 10px rgba(248, 201, 113, 0.6);
+      background: rgba(0, 0, 0, 0.8);
+    }
+
+    .modal-body {
+      display: flex;
+      flex-direction: column;
+      gap: 0.55rem;
+    }
+
+    .modal-label {
+      font-size: 0.7rem;
+      color: #f8d881;
+      margin-bottom: 0.2rem;
+    }
+
+    .modal-footer {
+      margin-top: 0.85rem;
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .modal-status {
+      margin-top: 0.25rem;
+      min-height: 0.95rem;
+      font-size: 0.68rem;
+      color: #d6ccb2;
+    }
+    .modal-status.error { color: #ff6b6b; }
+    .modal-status.ok { color: #37ff7f; }
+
+    /* Saves file list */
+    .file-list {
+      margin-top: 0.35rem;
+      border-radius: 12px;
+      border: 1px solid rgba(248, 209, 116, 0.25);
+      background: rgba(0, 0, 0, 0.18);
+      overflow: hidden;
+    }
+
+    .file-item {
+      display: flex;
+      gap: 0.6rem;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.55rem 0.65rem;
+      border-top: 1px solid rgba(248, 209, 116, 0.12);
+      cursor: pointer;
+    }
+    .file-item:first-child { border-top: none; }
+    .file-item:hover {
+      background: rgba(248, 209, 116, 0.06);
+    }
+    .file-item.active {
+      background: rgba(248, 209, 116, 0.10);
+      outline: 1px solid rgba(248, 209, 116, 0.55);
+    }
+    .file-item .name {
+      font-size: 0.72rem;
+      color: #f4e7c3;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      flex: 1;
+    }
+    .file-item .meta {
+      font-size: 0.65rem;
+      color: #c9bfa0;
+      flex-shrink: 0;
+      margin-left: 0.5rem;
+      white-space: nowrap;
+    }
+
+    .download-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+
+      padding: 0.42rem 0.9rem;
+      border-radius: 999px;
+
+      font-size: 0.7rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+
+      color: #171307;
+      background: linear-gradient(135deg, #f9d97a, #f1a93a);
+      border: 1px solid rgba(248, 209, 116, 0.85);
+
+      cursor: pointer;
+      text-decoration: none;
+      user-select: none;
+
+      box-shadow:
+        0 0 0 1px rgba(0, 0, 0, 0.6),
+        0 10px 20px rgba(0, 0, 0, 0.65);
+
+      transition:
+        transform 0.12s ease,
+        box-shadow 0.12s ease,
+        filter 0.12s ease;
+    }
+
+    .download-btn:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.05);
+      box-shadow:
+        0 0 0 1px rgba(0, 0, 0, 0.6),
+        0 14px 28px rgba(248, 201, 113, 0.6);
+    }
+
+    .download-btn:active {
+      transform: translateY(0);
+      filter: brightness(0.97);
+      box-shadow:
+        0 0 0 1px rgba(0, 0, 0, 0.6),
+        0 8px 16px rgba(0, 0, 0, 0.7);
+    }
+
+
+    /* Toasts */
+    .toast-stack {
+      position: fixed;
+      inset: auto 16px 16px auto;
+      z-index: 9999;
+      display: grid;
+      gap: 10px;
+      max-width: 92vw;
+      width: 420px;
+      font-family: "Space Grotesk", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+    }
+
+    .toast {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(248, 209, 116, 0.8);
+      border-radius: 14px;
+      background: radial-gradient(circle at top, #1b1d26 0, #05060a 75%);
+      color: #f4e7c3;
+      padding: 12px 14px;
+      display: grid;
+      grid-template-columns: 32px 1fr auto;
+      align-items: center;
+      gap: 12px;
+      font-size: 0.78rem;
+      box-shadow:
+        0 0 0 1px rgba(0, 0, 0, 0.7),
+        0 18px 36px rgba(0, 0, 0, 0.75);
+      transform-origin: center;
+      animation: toast-in 160ms ease-out forwards;
+    }
+
+    .toast::before {
+      content: "";
+      pointer-events: none;
+      position: absolute;
+      inset: 0;
+      background-image: repeating-linear-gradient(
+        to bottom,
+        rgba(255, 255, 255, 0.08) 0px,
+        rgba(255, 255, 255, 0.02) 1px,
+        transparent 2px,
+        transparent 3px
+      );
+      opacity: 0.22;
+      mix-blend-mode: soft-light;
+    }
+
+    .toast .ico {
+      font-size: 18px;
+      color: #f8d881;
+      text-shadow: 0 0 10px rgba(248, 216, 129, 0.5);
+    }
+
+    .toast .msg {
+      color: #f4e7c3;
+      line-height: 1.35;
+    }
+
+    .toast.success { border-color: rgba(248, 209, 116, 0.95); }
+    .toast.error { border-color: rgba(255, 107, 107, 0.95); }
+    .toast.info { border-color: rgba(248, 209, 116, 0.7); }
+
+    .toast .close {
+      padding: 0.34rem 0.6rem;
+      border-radius: 999px;
+      border: 1px solid rgba(248, 209, 116, 0.55);
+      background: rgba(0,0,0,0.35);
+      color: #f4e7c3;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: transform 0.1s ease, box-shadow 0.1s ease, background 0.1s ease;
+      position: relative;
+      z-index: 1;
+    }
+    .toast .close:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 0 10px rgba(248, 201, 113, 0.35);
+      background: rgba(0,0,0,0.55);
+    }
+
+    .toast.toast-out { animation: toast-out 160ms ease-in forwards; }
+
+    @keyframes toast-in {
+      from { opacity: 0; transform: translateY(8px) scale(0.98); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    @keyframes toast-out {
+      to { opacity: 0; transform: translateY(8px) scale(0.97); }
+    }
+
+    /* Scrollbars */
+    .traits-list::-webkit-scrollbar,
+    .modal-textarea::-webkit-scrollbar {
+      width: 8px;
+    }
+    .traits-list::-webkit-scrollbar-track,
+    .modal-textarea::-webkit-scrollbar-track {
+      background: #05060a;
+    }
+    .traits-list::-webkit-scrollbar-thumb,
+    .modal-textarea::-webkit-scrollbar-thumb {
+      background: #f4b728;
+      border-radius: 999px;
+    }
+    .traits-list::-webkit-scrollbar-thumb:hover,
+    .modal-textarea::-webkit-scrollbar-thumb:hover {
+      background: #ffd46d;
+    }
+
+    @media (max-width: 980px) {
+      .step2-grid { grid-template-columns: 1fr; }
+      .preview-inner { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 780px) {
+      body { padding: 1.3rem; }
+      .content-card { padding: 1.1rem 1.2rem; }
+      .main-title { font-size: 1.45rem; }
+      .toast-stack {
+        right: 50%;
+        transform: translateX(50%);
+        width: min(92vw, 420px);
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- MENU MOUNT -->
+  <div id="menuMount"></div>
+
+  <div class="app-container">
+    <div class="content-card">
+      <div class="hero">
+        <div class="round-logo">
+          <img src="/assets/logo.png" alt="Doginals Logo" />
+        </div>
+        <div class="hero-subtitle-small">DOGINALS TOOLING</div>
+        <div class="main-title">DEFINE TRAITS</div>
+        <div class="hero-subtitle-main">
+          Paint pixels once, auto-detect traits across your collection.
+          Upload your images to <span class="pill-inline">/uploads</span>, mark a few “fingerprint”
+          pixels for each trait, and let the tool find those traits everywhere.
+          Works great with numbered files like <span class="pill-inline">00001.png</span> or any extension.
+        </div>
+      </div>
+
+      <!-- STEP 1 -->
+      <div class="panel" id="step1Panel">
+        <div class="panel-title">Step 1 — Upload images</div>
+        <div class="panel-desc">
+          Choose image files (PNG/JPG/WEBP). They will be copied into your local server’s
+          <code>uploads</code> folder and served at <code>/uploads/...</code> so the app can load them fast.
+        </div>
+
+        <div class="input-inline">
+          <span class="label-inline">Select images</span>
+          <input id="uploadInput" type="file" multiple accept=".png,.jpg,.jpeg,.webp,image/png,image/jpeg,image/webp" class="modal-input" style="max-width: 360px;" />
+          <button id="uploadBtn" class="cmd-btn tiny-btn" type="button">UPLOAD</button>
+          <button id="refreshUploadsBtn" class="cmd-btn tiny-btn ghost" type="button">REFRESH LIST</button>
+          <button id="clearUploadsBtn" class="cmd-btn tiny-btn danger" type="button">CLEAR UPLOADS</button>
+        </div>
+
+        <div id="folderStatus" class="status-inline" style="margin-top: 0.35rem;">
+          No uploads loaded yet.
+        </div>
+
+        <div class="hint" style="margin-top:0.45rem;">
+          Local-only app note: files are stored on your machine in <code>/uploads</code>. Nothing is uploaded to the internet.
+        </div>
+      </div>
+
+      <!-- STEP 2 -->
+      <div id="step2Section" class="panel" style="margin-top: 0.9rem; display:none;">
+        <div class="panel-title">Step 2 — Define traits</div>
+        <div class="panel-desc" style="margin-bottom:0.35rem;">
+          Click on pixels in the zoomed window to mark them as the “fingerprint” for a trait value.
+          <span class="pill-inline">Yellow</span> pixels are ones you’ve picked.
+          <span class="pill-inline" style="border-color: rgba(96,165,250,0.7); color:#cfe6ff;">Blue</span>
+          pixels are automatically detected from templates.
+          Ctrl/⌘-click removes a yellow pixel. Max 20 pixels per trait example.
+        </div>
+
+        <div class="step2-grid">
+          <!-- left -->
+          <div class="sub-panel">
+            <div class="section-title">Image preview</div>
+            <div id="imageInfo" class="hint">
+              No image loaded yet.
+            </div>
+
+            <div class="preview-inner">
+              <div class="mini-wrap">
+                <canvas id="miniCanvas" width="180" height="180"></canvas>
+              </div>
+              <div class="zoom-wrap">
+                <canvas id="zoomCanvas" width="200" height="200"></canvas>
+              </div>
+            </div>
+
+            <div class="image-traits-box">
+              <div class="label-sm">Traits on this image</div>
+              <div id="currentImageTraits" class="hint">
+                No traits detected on this image yet.
+              </div>
+            </div>
+
+            <div class="hint" style="margin-top:0.4rem;">
+              1) Click the mini image to move the selection box.<br/>
+              2) Use the big grid to pick pixels (yellow).<br/>
+              3) Blue pixels show where existing templates already match this image.<br/>
+              Zoom is fixed at 20× cell size for precise pixel selection.
+            </div>
+
+            <div class="controls-row">
+              <div class="controls-col">
+                <div class="label-sm">Trait</div>
+                <div class="trait-input-row">
+                  <input
+                    id="traitTypeInput"
+                    class="input-text"
+                    list="traitTypesList"
+                    placeholder="e.g. Background"
+                    style="flex:1;"
+                  />
+                  <input
+                    id="traitValueInput"
+                    class="input-text"
+                    placeholder="e.g. Gold"
+                    style="flex:1;"
+                  />
+                </div>
+                <div class="hint">
+                  Start typing a trait type and we’ll autocomplete with ones you’ve already used.
+                </div>
+              </div>
+
+              <div class="controls-col" style="min-width: 220px; flex: 0 1 220px;">
+                <button id="saveTraitBtn" class="cmd-btn tiny-btn" type="button">SAVE TRAIT</button>
+                <button id="clearPixelsBtn" class="cmd-btn tiny-btn ghost" type="button">CLEAR PIXELS</button>
+                <div class="hint" id="pixelCountHint">
+                  Max 20 yellow pixels per trait example.
+                </div>
+              </div>
+
+              <div class="controls-col" style="min-width: 170px; flex: 0 1 170px; align-items: flex-end;">
+                <button id="prevImgBtn" class="cmd-btn tiny-btn" type="button">◀ PREV</button>
+                <button id="nextImgBtn" class="cmd-btn tiny-btn" type="button">NEXT ▶</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- right -->
+          <div class="sub-panel">
+            <div class="section-title">Traits so far</div>
+            <div class="hint">
+              This is the global list of traits you’ve defined. Click a value to rename or delete it, or move it to a different trait type.
+              Changes apply across all images.
+            </div>
+
+            <div id="traitsList" class="traits-list"></div>
+
+            <div style="margin-top: 0.9rem;">
+              <div class="section-title">Project</div>
+              <div class="hint">
+                Save stores trait templates, pixels, and which image you were on as a JSON in <code>/saves</code>.
+                Load opens a modal listing your saved projects.
+              </div>
+
+              <div class="row" style="margin-top: 0.5rem;">
+                <button id="saveProjectBtn" class="cmd-btn tiny-btn" type="button">SAVE PROJECT</button>
+                <button id="loadProjectBtn" class="cmd-btn tiny-btn ghost" type="button">LOAD PROJECT</button>
+              </div>
+            </div>
+
+            <div style="margin-top: 0.9rem;">
+              <div class="section-title">Export</div>
+              <div class="hint">Collection name (export file + token names):</div>
+              <input
+                id="collectionNameInput"
+                class="input-text"
+                placeholder="e.g. Doginals Cowz"
+                style="margin-top:0.35rem; width:100%;"
+              />
+              <div class="hint" style="margin-top:0.4rem;">
+                Export will ask for trait order, optionally let you paste inscription IDs (must match image count),
+                auto-detect traits across all images, and save <span class="pill-inline">collectionName.json</span>.
+              </div>
+              <button id="exportMetadataBtn" class="cmd-btn" type="button" style="margin-top:0.55rem; width:100%;">
+                EXPORT METADATA
+              </button>
+            </div>
+
+            <div id="rightStatus" class="status-inline" style="margin-top: 0.6rem;"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer">
+        © <span id="yearSpan"></span> Doginals • Define Traits
+      </div>
+    </div>
+  </div>
+
+  <!-- datalist for autocomplete -->
+  <datalist id="traitTypesList"></datalist>
+
+  <!-- Trait edit modal -->
+  <div id="editTraitOverlay" class="modal-overlay">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title">Edit trait</div>
+        <div class="modal-close" data-close-edit>✕</div>
+      </div>
+      <div class="modal-body">
+        <div>
+          <div class="modal-label">Trait type</div>
+          <input id="editTraitTypeInput" class="modal-input" />
+        </div>
+        <div>
+          <div class="modal-label">Trait value</div>
+          <input id="editTraitValueInput" class="modal-input" />
+        </div>
+        <div id="editTraitStatus" class="modal-status"></div>
+      </div>
+      <div class="modal-footer">
+        <button id="deleteTraitBtn" class="cmd-btn tiny-btn danger" type="button">DELETE</button>
+        <button class="cmd-btn tiny-btn ghost" type="button" data-close-edit>CANCEL</button>
+        <button id="saveTraitEditBtn" class="cmd-btn tiny-btn" type="button">SAVE</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Export order / inscription IDs modal -->
+  <div id="exportOverlay" class="modal-overlay">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title">Export options</div>
+        <div class="modal-close" data-close-export>✕</div>
+      </div>
+      <div class="modal-body">
+        <div class="modal-label">1) Choose trait order (top = first in attributes)</div>
+
+        <div id="orderList" style="
+          max-height: 210px;
+          overflow-y: auto;
+          margin: 0.35rem 0 0.6rem;
+          border-radius: 12px;
+          border: 1px solid rgba(248, 209, 116, 0.25);
+          background: rgba(0,0,0,0.18);
+          padding: 0.5rem;
+        "></div>
+
+        <div class="modal-label">2) Optional — paste inscription IDs (one per line or JSON array)</div>
+        <textarea
+          id="exportIdsInput"
+          class="modal-textarea"
+          placeholder='00001...i0
+00002...i0
+00003...i0
+
+or ["00001...i0","00002...i0",...]'
+        ></textarea>
+        <div id="exportIdsStatus" class="modal-status"></div>
+        <div id="exportDownloadWrap" class="modal-status" style="display:none;"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="cmd-btn tiny-btn ghost" type="button" data-close-export>CANCEL</button>
+        <button id="exportConfirmBtn" class="cmd-btn tiny-btn" type="button">EXPORT</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Saves picker modal -->
+  <div id="savesOverlay" class="modal-overlay">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title">Load saved project</div>
+        <div class="modal-close" data-close-saves>✕</div>
+      </div>
+      <div class="modal-body">
+        <div class="panel-desc">
+          Select a save file from <code>/saves</code> and click <span class="pill-inline">LOAD</span>.
+        </div>
+
+        <div id="savesStatus" class="modal-status">Loading saves…</div>
+
+        <div class="file-list" id="savesList"></div>
+
+        <div class="hint" id="savesHint" style="margin-top: 0.35rem;"></div>
+      </div>
+      <div class="modal-footer">
+        <button id="savesDeleteBtn" class="cmd-btn tiny-btn danger" type="button" disabled>
+            DELETE
+          </button>
+ 
+        <button class="cmd-btn tiny-btn ghost" type="button" data-close-saves>CANCEL</button>
+        <button id="savesLoadBtn" class="cmd-btn tiny-btn" type="button" disabled>LOAD</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Save project modal -->
+  <div id="saveProjectOverlay" class="modal-overlay">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title">Save project</div>
+        <div class="modal-close" data-close-saveproj>✕</div>
+      </div>
+      <div class="modal-body">
+        <div class="panel-desc">
+          Choose a filename for the save. This will be written to <code>/saves</code>.
+        </div>
+
+        <div>
+          <div class="modal-label">Filename</div>
+          <input id="saveProjectNameInput" class="modal-input" placeholder="traits-project.json" />
+          <div class="hint" style="margin-top:0.25rem;">
+            Tip: end with <code>.json</code>. If you don’t, we’ll add it automatically.
+          </div>
+        </div>
+
+        <div id="saveProjectStatus" class="modal-status"></div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="cmd-btn tiny-btn ghost" type="button" data-close-saveproj>CANCEL</button>
+        <button id="saveProjectConfirmBtn" class="cmd-btn tiny-btn" type="button">SAVE</button>
+      </div>
+    </div>
+  </div>
+
+      <!-- CONFIRM MODAL (re-usable) -->
+      <div id="confirmOverlay" class="modal-overlay">
+        <div class="modal" style="max-width: 520px;">
+          <div class="modal-header">
+            <div id="confirmTitle" class="modal-title">Confirm</div>
+            <div id="confirmClose" class="modal-close">X</div>
+          </div>
+  
+          <div class="modal-body">
+             <div id="confirmMessage" class="modal-desc">
+              Are you sure?
+            </div>
+            <div id="confirmHint" class="modal-hint" style="margin-top:0.5rem;"></div>
+          </div>
+  
+          <div class="modal-footer">
+            <button id="confirmCancel" class="cmd-btn tiny-btn ghost" type="button">CANCEL</button>
+            <button id="confirmOk" class="cmd-btn tiny-btn" type="button">OK</button>
+          </div>
+        </div>
+      </div>
+  <!-- Toast stack -->
+  <div id="toastStack" class="toast-stack" aria-live="polite" aria-atomic="true"></div>
+
+  <script>
+    /************ tiny helpers ************/
+    function $(id) { return document.getElementById(id); }
+
+    function openConfirmModal({ title, message, hint, okText, danger }, onOk) {
+  const overlay = $("confirmOverlay");
+  const t = $("confirmTitle");
+  const m = $("confirmMessage");
+  const h = $("confirmHint");
+  const ok = $("confirmOk");
+
+  t.textContent = title || "Confirm";
+  m.textContent = message || "Are you sure?";
+  h.textContent = hint || "";
+
+  // reset OK button label + styles
+  ok.textContent = okText || "OK";
+  ok.classList.remove("danger");
+  if (danger) ok.classList.add("danger");
+
+  const close = () => overlay.classList.remove("active");
+
+  // remove previous click handlers by cloning
+  const okClone = ok.cloneNode(true);
+  ok.parentNode.replaceChild(okClone, ok);
+
+  okClone.addEventListener("click", async () => {
+    try {
+      if (onOk) await onOk();
+    } finally {
+      close();
+    }
+  });
+
+  $("confirmClose").onclick = close;
+  $("confirmCancel").onclick = close;
+  overlay.onclick = (e) => { if (e.target === overlay) close(); };
+
+  overlay.classList.add("active");
+}
+
+    /* ========= Toasts ========= */
+    function notify(message, type, duration) {
+      if (typeof type === 'undefined') type = 'info';
+      if (typeof duration === 'undefined') duration = 2800;
+
+      var stack = document.getElementById('toastStack');
+      if (!stack) return;
+
+      var t = document.createElement('div');
+      t.className = 'toast ' + type;
+
+      var ico =
+        type === 'success' ? '✅' :
+        type === 'error'   ? '⚠️' :
+                             '✨';
+
+      t.innerHTML =
+        '<div class="ico" aria-hidden="true">' + ico + '</div>' +
+        '<div class="msg">' + message + '</div>' +
+        '<button class="close" aria-label="Close">✕</button>';
+
+      var close = function () {
+        t.classList.add("toast-out");
+        setTimeout(function () { t.remove(); }, 170);
+      };
+
+      t.querySelector('.close').addEventListener('click', close);
+      stack.appendChild(t);
+
+      if (duration > 0) setTimeout(close, duration);
+      return { close: close };
+    }
+
+      // ---- Shared Doge menu (your version) ----
+      function initDogeMenu() {
+        const wrapper = document.getElementById("dogeMenuWrapper");
+        const btn = document.getElementById("dogeMenuBtn");
+        const popup = document.getElementById("dogeMenuPopup");
+        if (!wrapper || !btn || !popup) {
+          console.warn("Doginal menu elements not found in scope");
+          return;
+        }
+
+        btn.addEventListener("click", (ev) => {
+          ev.stopPropagation();
+          popup.classList.toggle("active");
+        });
+
+        document.addEventListener("click", (ev) => {
+          if (!wrapper.contains(ev.target)) {
+            popup.classList.remove("active");
+          }
+        });
+      }
+
+      // Load menu.html into #menuMount (your version)
+      (async function loadMenu() {
+        try {
+          const res = await fetch("/assets-page/menu.html", { cache: "no-store" });
+          if (!res.ok) {
+            console.error("Menu fetch failed with HTTP", res.status);
+            return;
+          }
+          const html = await res.text();
+          const mount = document.getElementById("menuMount");
+          if (!mount) return;
+          mount.innerHTML = html;
+          initDogeMenu();
+        } catch (e) {
+          console.error("Failed to load shared menu:", e);
+        }
+      })();
+
+    /************ Data structures ************/
+    class TraitManager {
+      constructor() {
+        this.traitMap = {};   // type -> Set(values)
+        this.templates = {};  // type -> value -> { positions:[{x,y}], rgba:[[r,g,b,a]], hex:[str] }
+      }
+      normaliseType(t) {
+        const s = (t || "").trim();
+        if (!s) return "";
+        return s.charAt(0).toUpperCase() + s.slice(1);
+      }
+      getTraitTypes() {
+        return Object.keys(this.traitMap);
+      }
+      addTrait(type, value, positions, rgbaList) {
+        type = this.normaliseType(type);
+        if (!type || !value) return;
+        if (!this.traitMap[type]) this.traitMap[type] = new Set();
+        this.traitMap[type].add(value);
+
+        if (!this.templates[type]) this.templates[type] = {};
+        this.templates[type][value] = {
+          positions: positions.map(p => ({ x: p.x, y: p.y })),
+          rgba: rgbaList.map(c => [c[0], c[1], c[2], c[3]]),
+          hex: rgbaList.map(c => rgbaToHex(c))
+        };
+      }
+      renameTrait(oldType, oldValue, newType, newValue, images) {
+        oldType = this.normaliseType(oldType);
+        newType = this.normaliseType(newType);
+        if (!oldType || !newType) return;
+
+        if (!this.traitMap[oldType]) return;
+        if (!this.traitMap[newType]) this.traitMap[newType] = new Set();
+        this.traitMap[newType].add(newValue);
+
+        if (this.traitMap[oldType].has(oldValue)) {
+          this.traitMap[oldType].delete(oldValue);
+          if (this.traitMap[oldType].size === 0) delete this.traitMap[oldType];
+        }
+
+        if (this.templates[oldType] && this.templates[oldType][oldValue]) {
+          const tmpl = this.templates[oldType][oldValue];
+          if (!this.templates[newType]) this.templates[newType] = {};
+          this.templates[newType][newValue] = tmpl;
+          delete this.templates[oldType][oldValue];
+          if (this.templates[oldType] && Object.keys(this.templates[oldType]).length === 0) {
+            delete this.templates[oldType];
+          }
+        }
+
+        const oldKey = `${oldType}_${oldValue}`;
+        const newKey = `${newType}_${newValue}`;
+        images.forEach(entry => {
+          if (entry.traits[oldType] === oldValue) {
+            delete entry.traits[oldType];
+            entry.traits[newType] = newValue;
+          }
+          if (entry.pixelPoints[oldKey]) {
+            entry.pixelPoints[newKey] = entry.pixelPoints[oldKey];
+            delete entry.pixelPoints[oldKey];
+          }
+        });
+      }
+      deleteTrait(type, value, images) {
+        type = this.normaliseType(type);
+        if (!type) return;
+
+        if (this.traitMap[type]) {
+          this.traitMap[type].delete(value);
+          if (this.traitMap[type].size === 0) delete this.traitMap[type];
+        }
+        if (this.templates[type] && this.templates[type][value]) {
+          delete this.templates[type][value];
+          if (Object.keys(this.templates[type]).length === 0) {
+            delete this.templates[type];
+          }
+        }
+        const key = `${type}_${value}`;
+        images.forEach(entry => {
+          if (entry.traits[type] === value) delete entry.traits[type];
+          if (entry.pixelPoints[key]) delete entry.pixelPoints[key];
+        });
+      }
+      serializeTemplates() {
+        const out = {};
+        for (const t in this.templates) {
+          out[t] = {};
+          for (const v in this.templates[t]) {
+            const tmpl = this.templates[t][v];
+            out[t][v] = {
+              positions: tmpl.positions.map(p => ({ x: p.x, y: p.y })),
+              rgba: tmpl.rgba.map(c => [c[0], c[1], c[2], c[3]]),
+              hex: tmpl.hex.slice()
+            };
+          }
+        }
+        return out;
+      }
+      loadTemplates(data) {
+        this.templates = {};
+        for (const t in data || {}) {
+          this.templates[t] = {};
+          for (const v in data[t]) {
+            const tmpl = data[t][v];
+            this.templates[t][v] = {
+              positions: (tmpl.positions || []).map(p => ({ x: p.x, y: p.y })),
+              rgba: (tmpl.rgba || []).map(c => [c[0], c[1], c[2], c[3]]),
+              hex: (tmpl.hex || []).slice()
+            };
+          }
+        }
+      }
+    }
+
+    class ImageEntry {
+      constructor(obj) {
+        this.name = obj.name;
+        this.url = obj.url;       // /uploads/<file>
+        this.img = null;          // HTMLImageElement
+        this.imageData = null;    // ImageData for full image
+        this.width = 0;
+        this.height = 0;
+        this.traits = {};         // type -> value
+        this.pixelPoints = {};    // `${type}_${value}` -> [{x,y}]
+        this.autoPositions = new Set(); // "x,y"
+        this.autoTraitRegions = {};     // key -> {minX,minY,maxX,maxY}
+      }
+    }
+
+    function rgbaToHex(rgba) {
+      const [r,g,b] = rgba;
+      return "#" +
+        r.toString(16).padStart(2,"0") +
+        g.toString(16).padStart(2,"0") +
+        b.toString(16).padStart(2,"0");
+    }
+
+    function parseIdList(raw) {
+      const text = (raw || "").trim();
+      if (!text) return [];
+      try {
+        const parsed = JSON.parse(text);
+        if (Array.isArray(parsed)) {
+          return parsed.map(v => typeof v === "string" ? v.trim() : "").filter(Boolean);
+        }
+      } catch(e) { /* fall through */ }
+      return text.split(/[\r\n,]+/).map(v => v.trim()).filter(Boolean);
+    }
+
+    function safeJsonName(name) {
+      const s = String(name || "").trim();
+      if (!s) return "traits-project.json";
+      const cleaned = s.replace(/[^a-zA-Z0-9._ -]+/g, "_").replace(/\s+/g, " ").trim();
+      return cleaned.toLowerCase().endsWith(".json") ? cleaned : (cleaned + ".json");
+    }
+
+    function nowStamp() {
+      const d = new Date();
+      const pad = (n) => String(n).padStart(2, "0");
+      return (
+        d.getFullYear() +
+        pad(d.getMonth()+1) +
+        pad(d.getDate()) + "-" +
+        pad(d.getHours()) +
+        pad(d.getMinutes()) +
+        pad(d.getSeconds())
+      );
+    }
+
+    /************ main app state ************/
+    const tm = new TraitManager();
+    let images = [];         // array of ImageEntry
+    let currentIndex = 0;
+
+    const miniCanvas = $("miniCanvas");
+    const miniCtx = miniCanvas.getContext("2d");
+    const zoomCanvas = $("zoomCanvas");
+    const zoomCtx = zoomCanvas.getContext("2d");
+
+    // selection window in image pixel coords
+    const REGION_SIZE = 20;
+    const CELL_SIZE = 20;
+    let regionX = 0;
+    let regionY = 0;
+    let miniScale = 1;
+    let miniOffX = 0;
+    let miniOffY = 0;
+
+    // current manual selection (Set of "x,y")
+    const selectedPixels = new Set();
+    let maxPixelToastShown = false;
+    const MAX_PIXELS = 20;
+
+    let editTraitContext = null; // { type, value }
+
+    // export modal state
+    let exportTraitTypes = [];
+    let selectedSaveName = "";
+    let exportObjectUrl = null;
+
+
+    /************ API helpers ************/
+    async function apiJson(url, opts) {
+      const res = await fetch(url, Object.assign({ cache: "no-store" }, opts || {}));
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || data.ok === false) {
+        const msg = data.error || data.message || ("HTTP " + res.status);
+        throw new Error(msg);
+      }
+      return data;
+    }
+
+    async function listUploadsAndLoad() {
+      const status = $("folderStatus");
+      status.textContent = "Loading uploads list…";
+      status.className = "status-inline";
+
+      try {
+        const data = await apiJson("/api/define/uploads");
+        const files = Array.isArray(data.files) ? data.files : [];
+
+        if (!files.length) {
+          images = [];
+          $("step2Section").style.display = "none";
+          status.textContent = "No images in uploads yet. Upload some files above.";
+          status.className = "status-inline";
+          return;
+        }
+
+        images = files.map(f => new ImageEntry({ name: f.name, url: f.url }));
+        currentIndex = 0;
+
+        // reset trait state (fresh session)
+        tm.traitMap = {};
+        tm.templates = {};
+        images.forEach(e => { e.traits = {}; e.pixelPoints = {}; e.autoPositions.clear(); e.autoTraitRegions = {}; });
+
+        refreshTraitUI();
+        clearSelection();
+
+        $("step2Section").style.display = "block";
+        status.textContent = `Loaded ${images.length} image(s) from uploads.`;
+        status.className = "status-inline ok";
+
+        await showImage(0);
+        notify(`Loaded ${images.length} images.`, "success");
+      } catch (e) {
+        console.error(e);
+        status.textContent = "Failed to load uploads list: " + (e.message || String(e));
+        status.className = "status-inline error";
+        notify("Failed to load uploads list.", "error", 3500);
+      }
+    }
+
+    async function uploadSelectedFiles() {
+      const input = $("uploadInput");
+      const files = Array.from(input.files || []);
+      if (!files.length) {
+        notify("Select some images first.", "error");
+        return;
+      }
+
+      const status = $("folderStatus");
+      status.textContent = "Uploading…";
+      status.className = "status-inline";
+
+      const fd = new FormData();
+      files.forEach(f => fd.append("files", f));
+
+      try {
+        const res = await fetch("/api/define/uploads", { method: "POST", body: fd });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || data.ok === false) throw new Error(data.error || data.message || ("HTTP " + res.status));
+
+        input.value = "";
+        notify(`Uploaded ${data.count || files.length} file(s).`, "success");
+        await listUploadsAndLoad();
+      } catch (e) {
+        console.error(e);
+        status.textContent = "Upload failed: " + (e.message || String(e));
+        status.className = "status-inline error";
+        notify("Upload failed.", "error", 4000);
+      }
+    }
+
+    async function clearUploads() {
+      const ok = confirm("This will delete ALL images in /uploads. Continue?");
+      if (!ok) return;
+
+      const status = $("folderStatus");
+      status.textContent = "Clearing uploads…";
+      status.className = "status-inline";
+
+      try {
+        await apiJson("/api/define/uploads", { method: "DELETE" });
+        notify("Uploads cleared.", "success");
+        await listUploadsAndLoad();
+      } catch (e) {
+        console.error(e);
+        status.textContent = "Failed to clear uploads: " + (e.message || String(e));
+        status.className = "status-inline error";
+        notify("Failed to clear uploads.", "error", 3500);
+      }
+    }
+
+    /************ image loading helpers ************/
+    function ensureImageLoaded(entry) {
+      return new Promise((resolve, reject) => {
+        if (entry.img && entry.width && entry.height) {
+          resolve(entry);
+          return;
+        }
+        const img = new Image();
+        img.onload = () => {
+          entry.img = img;
+          entry.width = img.naturalWidth;
+          entry.height = img.naturalHeight;
+          resolve(entry);
+        };
+        img.onerror = reject;
+
+        // cache-bust so updates to uploads reflect
+        const src = entry.url + (entry.url.includes("?") ? "&" : "?") + "t=" + Date.now();
+        img.src = src;
+      });
+    }
+
+    function ensureImageData(entry) {
+      return new Promise(async (resolve, reject) => {
+        try {
+          await ensureImageLoaded(entry);
+          if (entry.imageData) {
+            resolve(entry.imageData);
+            return;
+          }
+          const off = document.createElement("canvas");
+          off.width = entry.width;
+          off.height = entry.height;
+          const ctx = off.getContext("2d");
+          ctx.imageSmoothingEnabled = false;
+          ctx.drawImage(entry.img, 0, 0);
+          entry.imageData = ctx.getImageData(0, 0, entry.width, entry.height);
+          resolve(entry.imageData);
+        } catch (e) {
+          reject(e);
+        }
+      });
+    }
+
+    /************ rendering ************/
+    function clearSelection() {
+      selectedPixels.clear();
+      maxPixelToastShown = false;
+      updatePixelCountHint();
+      drawZoomRegion();
+    }
+
+    function updatePixelCountHint() {
+      const hint = $("pixelCountHint");
+      if (!hint) return;
+      hint.textContent = `Selected ${selectedPixels.size} pixel(s). Max ${MAX_PIXELS} per trait example.`;
+    }
+
+    function updateCurrentImageTraits() {
+      const el = $("currentImageTraits");
+      if (!el) return;
+
+      if (!images.length) {
+        el.textContent = "No traits detected on this image yet.";
+        return;
+      }
+      const entry = images[currentIndex];
+      const traits = entry.traits || {};
+      const keys = Object.keys(traits);
+      if (!keys.length) {
+        el.textContent = "No traits detected on this image yet.";
+        return;
+      }
+      const lines = keys.sort().map(k => `[${k}] ${traits[k]}`);
+      el.textContent = lines.join("\n");
+    }
+
+    async function showImage(index) {
+      if (!images.length) return;
+      currentIndex = Math.max(0, Math.min(index, images.length - 1));
+      const entry = images[currentIndex];
+
+      try {
+        await ensureImageLoaded(entry);
+      } catch (e) {
+        console.error("load image failed", e);
+        notify("Failed to load image.", "error");
+        return;
+      }
+
+      $("imageInfo").textContent = `Editing traits for ${currentIndex + 1} / ${images.length} — ${entry.name}`;
+
+      // center region on middle of image on first show (or keep previous)
+      regionX = Math.max(
+        0,
+        Math.min(regionX || Math.floor((entry.width - REGION_SIZE) / 2), entry.width - REGION_SIZE)
+      );
+      regionY = Math.max(
+        0,
+        Math.min(regionY || Math.floor((entry.height - REGION_SIZE) / 2), entry.height - REGION_SIZE)
+      );
+
+      await detectAutoPositions(entry);
+      drawMini(entry);
+      clearSelection();
+      updateCurrentImageTraits();
+    }
+
+    function drawTraitRegionsOnMini(entry) {
+      const regions = [];
+
+      // per-image pixelPoints
+      for (const key in entry.pixelPoints) {
+        const pts = entry.pixelPoints[key];
+        if (!pts || !pts.length) continue;
+        let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+        pts.forEach(p => {
+          if (p.x < minX) minX = p.x;
+          if (p.y < minY) minY = p.y;
+          if (p.x > maxX) maxX = p.x;
+          if (p.y > maxY) maxY = p.y;
+        });
+        if (minX <= maxX && minY <= maxY) regions.push({ minX, minY, maxX, maxY });
+      }
+
+      // auto-detected regions
+      for (const key in entry.autoTraitRegions) {
+        const r = entry.autoTraitRegions[key];
+        if (!r) continue;
+        if (Number.isFinite(r.minX) && Number.isFinite(r.minY) &&
+            Number.isFinite(r.maxX) && Number.isFinite(r.maxY)) {
+          regions.push(r);
+        }
+      }
+
+      if (!regions.length) return;
+
+      miniCtx.save();
+      miniCtx.strokeStyle = "#f4b728";
+      miniCtx.lineWidth = 2;
+      miniCtx.globalAlpha = 0.85;
+
+      regions.forEach(r => {
+        const x0 = miniOffX + r.minX * miniScale;
+        const y0 = miniOffY + r.minY * miniScale;
+        const w = (r.maxX - r.minX + 1) * miniScale;
+        const h = (r.maxY - r.minY + 1) * miniScale;
+        miniCtx.strokeRect(x0 + 0.5, y0 + 0.5, w, h);
+      });
+
+      miniCtx.restore();
+    }
+
+    function drawMini(entry) {
+      const w = entry.width;
+      const h = entry.height;
+      const cw = miniCanvas.width;
+      const ch = miniCanvas.height;
+
+      miniCtx.clearRect(0, 0, cw, ch);
+      miniCtx.save();
+      miniCtx.fillStyle = "#05060a";
+      miniCtx.fillRect(0, 0, cw, ch);
+
+      miniScale = Math.min(cw / w, ch / h);
+      const drawW = w * miniScale;
+      const drawH = h * miniScale;
+      miniOffX = (cw - drawW) / 2;
+      miniOffY = (ch - drawH) / 2;
+
+      miniCtx.imageSmoothingEnabled = false;
+      miniCtx.drawImage(entry.img, miniOffX, miniOffY, drawW, drawH);
+
+      drawTraitRegionsOnMini(entry);
+
+      // selection rectangle
+      miniCtx.strokeStyle = "#f4b728";
+      miniCtx.lineWidth = 2;
+      const sx = miniOffX + regionX * miniScale;
+      const sy = miniOffY + regionY * miniScale;
+      const sw = REGION_SIZE * miniScale;
+      const sh = REGION_SIZE * miniScale;
+      miniCtx.strokeRect(sx + 0.5, sy + 0.5, sw, sh);
+
+      miniCtx.restore();
+    }
+
+    function drawZoomRegion() {
+      zoomCtx.clearRect(0, 0, zoomCanvas.width, zoomCanvas.height);
+      if (!images.length) return;
+
+      const entry = images[currentIndex];
+      if (!entry.img) return;
+
+      const size = REGION_SIZE;
+      const srcX = regionX;
+      const srcY = regionY;
+
+      const destW = size * CELL_SIZE;
+      const destH = size * CELL_SIZE;
+
+      zoomCanvas.width = destW;
+      zoomCanvas.height = destH;
+
+      zoomCtx.save();
+      zoomCtx.imageSmoothingEnabled = false;
+
+      zoomCtx.drawImage(entry.img, srcX, srcY, size, size, 0, 0, destW, destH);
+
+      // grid
+      zoomCtx.strokeStyle = "rgba(0,0,0,0.55)";
+      zoomCtx.lineWidth = 1;
+      for (let x = 0; x <= destW; x += CELL_SIZE) {
+        zoomCtx.beginPath();
+        zoomCtx.moveTo(x + 0.5, 0);
+        zoomCtx.lineTo(x + 0.5, destH);
+        zoomCtx.stroke();
+      }
+      for (let y = 0; y <= destH; y += CELL_SIZE) {
+        zoomCtx.beginPath();
+        zoomCtx.moveTo(0, y + 0.5);
+        zoomCtx.lineTo(destW, y + 0.5);
+        zoomCtx.stroke();
+      }
+
+      // auto-detected (blue)
+      zoomCtx.fillStyle = "rgba(96,165,250,0.7)";
+      zoomCtx.strokeStyle = "#60a5fa";
+      zoomCtx.lineWidth = 1.2;
+      entry.autoPositions.forEach(key => {
+        const parts = key.split(",");
+        const px = Number(parts[0]), py = Number(parts[1]);
+        if (
+          px >= regionX && px < regionX + REGION_SIZE &&
+          py >= regionY && py < regionY + REGION_SIZE
+        ) {
+          const cx = (px - regionX) * CELL_SIZE;
+          const cy = (py - regionY) * CELL_SIZE;
+          zoomCtx.fillRect(cx + 1, cy + 1, CELL_SIZE - 2, CELL_SIZE - 2);
+          zoomCtx.strokeRect(cx + 0.5, cy + 0.5, CELL_SIZE - 1, CELL_SIZE - 1);
+        }
+      });
+
+      // manual selected (yellow)
+      zoomCtx.fillStyle = "rgba(244,183,40,0.7)";
+      zoomCtx.strokeStyle = "#f4b728";
+      zoomCtx.lineWidth = 2;
+      selectedPixels.forEach(key => {
+        const parts = key.split(",");
+        const px = Number(parts[0]), py = Number(parts[1]);
+        if (
+          px >= regionX && px < regionX + REGION_SIZE &&
+          py >= regionY && py < regionY + REGION_SIZE
+        ) {
+          const cx = (px - regionX) * CELL_SIZE;
+          const cy = (py - regionY) * CELL_SIZE;
+          zoomCtx.fillRect(cx + 1, cy + 1, CELL_SIZE - 2, CELL_SIZE - 2);
+          zoomCtx.strokeRect(cx + 1.5, cy + 1.5, CELL_SIZE - 3, CELL_SIZE - 3);
+        }
+      });
+
+      zoomCtx.restore();
+      updatePixelCountHint();
+    }
+
+    /************ interaction ************/
+    miniCanvas.addEventListener("click", (e) => {
+      if (!images.length) return;
+      const entry = images[currentIndex];
+
+      const rect = miniCanvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+
+      const px = Math.floor((x - miniOffX) / miniScale);
+      const py = Math.floor((y - miniOffY) / miniScale);
+      if (!Number.isFinite(px) || !Number.isFinite(py)) return;
+
+      const clampedX = Math.max(0, Math.min(px, entry.width - 1));
+      const clampedY = Math.max(0, Math.min(py, entry.height - 1));
+      regionX = Math.max(0, Math.min(clampedX - Math.floor(REGION_SIZE / 2), entry.width - REGION_SIZE));
+      regionY = Math.max(0, Math.min(clampedY - Math.floor(REGION_SIZE / 2), entry.height - REGION_SIZE));
+
+      drawMini(entry);
+      drawZoomRegion();
+    });
+
+    zoomCanvas.addEventListener("click", (e) => {
+      if (!images.length) return;
+
+      const rect = zoomCanvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+
+      const col = Math.floor(x / CELL_SIZE);
+      const row = Math.floor(y / CELL_SIZE);
+      if (col < 0 || col >= REGION_SIZE || row < 0 || row >= REGION_SIZE) return;
+
+      const px = regionX + col;
+      const py = regionY + row;
+      const key = `${px},${py}`;
+
+      if (e.ctrlKey || e.metaKey) {
+        if (selectedPixels.has(key)) {
+          selectedPixels.delete(key);
+          maxPixelToastShown = false;
+        }
+      } else {
+        if (!selectedPixels.has(key)) {
+          if (selectedPixels.size >= MAX_PIXELS) {
+            if (!maxPixelToastShown) {
+              notify("Max 20 pixels per trait. Clear some before adding more.", "info");
+              maxPixelToastShown = true;
+            }
+          } else {
+            selectedPixels.add(key);
+          }
+        }
+      }
+      drawZoomRegion();
+    });
+
+    $("clearPixelsBtn").addEventListener("click", () => clearSelection());
+    $("prevImgBtn").addEventListener("click", () => { if (currentIndex > 0) showImage(currentIndex - 1); });
+    $("nextImgBtn").addEventListener("click", () => { if (currentIndex + 1 < images.length) showImage(currentIndex + 1); });
+
+    /************ auto detection ************/
+    function pixelsMatch(a, b, tol = 5) {
+      const r1 = a[0], g1 = a[1], b1 = a[2];
+      const r2 = b[0], g2 = b[1], b2 = b[2];
+      return (
+        Math.abs(r1 - r2) <= tol &&
+        Math.abs(g1 - g2) <= tol &&
+        Math.abs(b1 - b2) <= tol
+      );
+    }
+
+    async function imageMatchesTemplate(entry, tmpl, tol = 5) {
+      const data = await ensureImageData(entry);
+      const w = entry.width;
+      for (let i = 0; i < tmpl.positions.length; i++) {
+        const p = tmpl.positions[i];
+        const x = p.x, y = p.y;
+        if (x < 0 || y < 0 || x >= w || y >= entry.height) return false;
+        const idx = (y * w + x) * 4;
+        const rgba = [data.data[idx], data.data[idx + 1], data.data[idx + 2], data.data[idx + 3]];
+        if (!pixelsMatch(rgba, tmpl.rgba[i], tol)) return false;
+      }
+      return true;
+    }
+
+    async function detectAutoPositions(entry) {
+      entry.autoPositions.clear();
+      entry.autoTraitRegions = {};
+
+      const types = Object.keys(tm.templates);
+      if (!types.length) return;
+
+      for (const t of types) {
+        const valueMap = tm.templates[t] || {};
+        for (const v in valueMap) {
+          const tmpl = valueMap[v];
+          const match = await imageMatchesTemplate(entry, tmpl, 5);
+          if (match) {
+            const key = `${t}_${v}`;
+            let region = entry.autoTraitRegions[key] || { minX: Infinity, minY: Infinity, maxX: -Infinity, maxY: -Infinity };
+
+            tmpl.positions.forEach(p => {
+              entry.autoPositions.add(`${p.x},${p.y}`);
+              if (p.x < region.minX) region.minX = p.x;
+              if (p.y < region.minY) region.minY = p.y;
+              if (p.x > region.maxX) region.maxX = p.x;
+              if (p.y > region.maxY) region.maxY = p.y;
+            });
+
+            entry.autoTraitRegions[key] = region;
+            if (!entry.traits[t]) entry.traits[t] = v;
+          }
+        }
+      }
+    }
+
+    async function autoAssignAllTraits() {
+      for (const entry of images) {
+        // ensure each image data exists before match loops (speeds perception + avoids jitter)
+        await detectAutoPositions(entry);
+      }
+    }
+
+    /************ trait saving ************/
+    $("saveTraitBtn").addEventListener("click", async () => {
+      if (!images.length) return;
+
+      const entry = images[currentIndex];
+      const typeRaw = $("traitTypeInput").value.trim();
+      const value = $("traitValueInput").value.trim();
+
+      if (!typeRaw || !value) {
+        notify("Enter a trait type and value first.", "info");
+        return;
+      }
+      if (!selectedPixels.size) {
+        notify("Select at least one pixel for this trait.", "info");
+        return;
+      }
+
+      const type = tm.normaliseType(typeRaw);
+
+      const positions = [];
+      selectedPixels.forEach(key => {
+        const parts = key.split(",");
+        positions.push({ x: Number(parts[0]), y: Number(parts[1]) });
+      });
+
+      const rgbaList = [];
+      try {
+        const data = await ensureImageData(entry);
+        const w = entry.width;
+        for (const p of positions) {
+          const idx = (p.y * w + p.x) * 4;
+          rgbaList.push([data.data[idx], data.data[idx + 1], data.data[idx + 2], data.data[idx + 3]]);
+        }
+      } catch (e) {
+        console.error(e);
+        notify("Could not sample pixel colours.", "error");
+        return;
+      }
+
+      tm.addTrait(type, value, positions, rgbaList);
+
+      // per-image assignment
+      entry.traits[type] = value;
+      entry.pixelPoints[`${type}_${value}`] = positions.map(p => ({ x: p.x, y: p.y }));
+
+      $("traitTypeInput").value = "";
+      $("traitValueInput").value = "";
+      clearSelection();
+
+      refreshTraitUI();
+      drawMini(entry);
+      updateCurrentImageTraits();
+
+      notify(`Saved trait ${type}: ${value}`, "success");
+    });
+
+    function refreshTraitUI() {
+      const list = $("traitsList");
+      list.innerHTML = "";
+
+      const types = tm.getTraitTypes().sort();
+      const dl = $("traitTypesList");
+      dl.innerHTML = "";
+
+      types.forEach(t => {
+        const opt = document.createElement("option");
+        opt.value = t;
+        dl.appendChild(opt);
+
+        const typeDiv = document.createElement("div");
+        typeDiv.className = "trait-type-label";
+        typeDiv.textContent = `[${t}]`;
+        list.appendChild(typeDiv);
+
+        const values = Array.from(tm.traitMap[t] || []).sort();
+        values.forEach(v => {
+          const valDiv = document.createElement("div");
+          valDiv.className = "trait-value";
+          valDiv.textContent = v;
+          valDiv.dataset.type = t;
+          valDiv.dataset.value = v;
+          valDiv.addEventListener("click", () => openEditTraitModal(t, v));
+          list.appendChild(valDiv);
+        });
+      });
+    }
+
+    $("savesDeleteBtn").addEventListener("click", async () => {
+  if (!selectedSaveName) {
+    notify("Select a save file first.", "info");
+    return;
+  }
+
+  const nameToDelete = selectedSaveName;
+
+  const ok1 = await openConfirmModal({
+    title: "Delete save file",
+    message: `Delete "${nameToDelete}" from /saves?`,
+    hint: "This permanently removes the JSON save file.",
+    okText: "DELETE",
+    danger: true
+  });
+  if (!ok1) return;
+
+  const ok2 = await openConfirmModal({
+    title: "Confirm delete",
+    message: `Really delete "${nameToDelete}"?`,
+    hint: "This cannot be undone.",
+    okText: "DELETE",
+    danger: true
+  });
+  if (!ok2) return;
+
+  console.log("Deleting save via API:", nameToDelete);
+
+  await apiJson("/api/define/saves/" + encodeURIComponent(nameToDelete), {
+    method: "DELETE"
+  });
+
+  notify(`Deleted save: ${nameToDelete}`, "success");
+
+  selectedSaveName = "";
+  $("savesLoadBtn").disabled = true;
+  $("savesDeleteBtn").disabled = true;
+  $("savesHint").textContent = "";
+
+  await fetchSavesList();
+});
+
+
+  function openConfirmModal({ title, message, hint, okText, danger }) {
+  return new Promise((resolve) => {
+    const overlay = $("confirmOverlay");
+    const t = $("confirmTitle");
+    const m = $("confirmMessage");
+    const h = $("confirmHint");
+    const ok = $("confirmOk");
+    const cancel = $("confirmCancel");
+    const closeBtn = $("confirmClose");
+
+    t.textContent = title || "Confirm";
+    m.textContent = message || "Are you sure?";
+    h.textContent = hint || "";
+
+    ok.textContent = okText || "OK";
+    ok.classList.remove("danger");
+    if (danger) ok.classList.add("danger");
+
+    const cleanup = () => {
+      ok.removeEventListener("click", onOk);
+      cancel.removeEventListener("click", onCancel);
+      closeBtn.removeEventListener("click", onCancel);
+      overlay.removeEventListener("click", onBg);
+    };
+
+    const close = (val) => {
+      overlay.classList.remove("active");
+      cleanup();
+      resolve(val);
+    };
+
+    const onOk = (e) => { e.preventDefault(); close(true); };
+    const onCancel = (e) => { e.preventDefault(); close(false); };
+    const onBg = (e) => { if (e.target === overlay) close(false); };
+
+    ok.addEventListener("click", onOk);
+    cancel.addEventListener("click", onCancel);
+    closeBtn.addEventListener("click", onCancel);
+    overlay.addEventListener("click", onBg);
+
+    overlay.classList.add("active");
+  });
+}
+
+    /************ trait edit modal ************/
+    function openEditTraitModal(type, value) {
+      editTraitContext = { type, value };
+      $("editTraitTypeInput").value = type;
+      $("editTraitValueInput").value = value;
+      $("editTraitStatus").textContent = "";
+      $("editTraitOverlay").classList.add("active");
+    }
+
+    function closeEditTraitModal() {
+      $("editTraitOverlay").classList.remove("active");
+      editTraitContext = null;
+    }
+
+    document.querySelectorAll("[data-close-edit]").forEach(el => {
+      el.addEventListener("click", closeEditTraitModal);
+    });
+
+    $("saveTraitEditBtn").addEventListener("click", async () => {
+      if (!editTraitContext) return;
+
+      const oldType = editTraitContext.type;
+      const oldValue = editTraitContext.value;
+      const newType = $("editTraitTypeInput").value.trim();
+      const newValue = $("editTraitValueInput").value.trim();
+
+      if (!newType || !newValue) {
+        $("editTraitStatus").textContent = "Trait type and value can’t be empty.";
+        $("editTraitStatus").className = "modal-status error";
+        notify("Trait type and value can’t be empty.", "error");
+        return;
+      }
+
+      tm.renameTrait(oldType, oldValue, newType, newValue, images);
+      refreshTraitUI();
+      updateCurrentImageTraits();
+
+      // re-run auto detect for current image so blues/tracked traits stay consistent
+      if (images.length) {
+        await detectAutoPositions(images[currentIndex]);
+        drawMini(images[currentIndex]);
+        drawZoomRegion();
+        updateCurrentImageTraits();
+      }
+
+      closeEditTraitModal();
+      notify("Trait updated.", "success");
+    });
+
+    $("deleteTraitBtn").addEventListener("click", async () => {
+      if (!editTraitContext) return;
+
+      const type = editTraitContext.type;
+      const value = editTraitContext.value;
+
+      tm.deleteTrait(type, value, images);
+      refreshTraitUI();
+      updateCurrentImageTraits();
+
+      if (images.length) {
+        await detectAutoPositions(images[currentIndex]);
+        drawMini(images[currentIndex]);
+        drawZoomRegion();
+        updateCurrentImageTraits();
+      }
+
+      closeEditTraitModal();
+      notify("Trait deleted.", "info");
+    });
+
+    /************ export metadata ************/
+    function refreshOrderSelectOptions() {
+      if (!exportTraitTypes.length) return;
+
+      const selects = Array.from(document.querySelectorAll("#orderList select[data-order-select]"));
+      selects.forEach(sel => {
+        const currentVal = (sel.value || "").trim();
+
+        const usedElsewhere = new Set();
+        selects.forEach(other => {
+          if (other === sel) return;
+          const v = (other.value || "").trim();
+          if (v) usedElsewhere.add(v);
+        });
+
+        const previous = currentVal;
+        sel.innerHTML = "";
+
+        const optBlank = document.createElement("option");
+        optBlank.value = "";
+        optBlank.textContent = "(none)";
+        sel.appendChild(optBlank);
+
+        exportTraitTypes.forEach(t => {
+          if (t === previous || !usedElsewhere.has(t)) {
+            const o = document.createElement("option");
+            o.value = t;
+            o.textContent = t;
+            sel.appendChild(o);
+          }
+        });
+
+        sel.value = previous || "";
+      });
+    }
+
+    $("exportMetadataBtn").addEventListener("click", () => {
+      if (!images.length) {
+        notify("Upload images first.", "error");
+        return;
+      }
+      const name = $("collectionNameInput").value.trim();
+      if (!name) {
+        notify("Enter a collection name first.", "error");
+        return;
+      }
+      openExportModal();
+    });
+
+    function openExportModal() {
+      const traitTypes = tm.getTraitTypes().sort();
+      exportTraitTypes = traitTypes.slice();
+
+      const orderList = $("orderList");
+      orderList.innerHTML = "";
+
+      if (!traitTypes.length) {
+        const p = document.createElement("div");
+        p.className = "hint";
+        p.style.padding = "0.2rem 0.1rem";
+        p.textContent = "No traits defined yet. You can still export — attributes will be empty.";
+        orderList.appendChild(p);
+      } else {
+        traitTypes.forEach((t, idx) => {
+          const row = document.createElement("div");
+          row.style.display = "flex";
+          row.style.alignItems = "center";
+          row.style.gap = "0.5rem";
+          row.style.marginBottom = "0.35rem";
+
+          const label = document.createElement("span");
+          label.textContent = `${idx + 1}.`;
+          label.style.fontSize = "0.72rem";
+          label.style.color = "#c9bfa0";
+          label.style.minWidth = "22px";
+
+          const select = document.createElement("select");
+          select.className = "modal-input";
+          select.style.marginBottom = "0";
+          select.dataset.orderSelect = "1";
+
+          const optBlank = document.createElement("option");
+          optBlank.value = "";
+          optBlank.textContent = "(none)";
+          select.appendChild(optBlank);
+
+          traitTypes.forEach(tt => {
+            const o = document.createElement("option");
+            o.value = tt;
+            o.textContent = tt;
+            select.appendChild(o);
+          });
+
+          select.value = t;
+          select.addEventListener("change", refreshOrderSelectOptions);
+
+          row.appendChild(label);
+          row.appendChild(select);
+          orderList.appendChild(row);
+        });
+
+        const hint = document.createElement("div");
+        hint.className = "hint";
+        hint.style.padding = "0.25rem 0.1rem 0.05rem";
+        hint.textContent = "Choose the layer order using the dropdowns. Each one can only be used once.";
+        orderList.appendChild(hint);
+
+        refreshOrderSelectOptions();
+      }
+
+      $("exportIdsInput").value = "";
+      $("exportIdsStatus").textContent = "";
+      $("exportIdsStatus").className = "modal-status";
+
+      // reset download link area
+      const dl = $("exportDownloadWrap");
+      if (dl) {
+      dl.style.display = "none";
+      dl.className = "modal-status";
+      dl.innerHTML = "";
+      }
+
+      // clear previous blob url
+      if (exportObjectUrl) {
+      try { URL.revokeObjectURL(exportObjectUrl); } catch (_) {}
+      exportObjectUrl = null;
+      }
+
+      $("exportOverlay").classList.add("active");
+
+    }
+
+    function closeExportModal() {
+      $("exportOverlay").classList.remove("active");
+      const dl = $("exportDownloadWrap");
+      if (dl) { dl.style.display = "none"; dl.innerHTML = ""; }
+
+      if (exportObjectUrl) {
+        try { URL.revokeObjectURL(exportObjectUrl); } catch (_) {}
+        exportObjectUrl = null;
+      }
+    }
+
+    document.querySelectorAll("[data-close-export]").forEach(el => el.addEventListener("click", closeExportModal));
+    $("exportOverlay").addEventListener("click", (e) => { if (e.target && e.target.id === "exportOverlay") closeExportModal(); });
+
+    $("exportConfirmBtn").addEventListener("click", async () => {
+      if (!images.length) return;
+
+      const collectionName = $("collectionNameInput").value.trim() || "Collection";
+
+      const selects = Array.from($("orderList").querySelectorAll("select[data-order-select]"));
+      const order = [];
+      selects.forEach(sel => {
+        const v = (sel.value || "").trim();
+        if (v && !order.includes(v)) order.push(v);
+      });
+
+      const rawIds = $("exportIdsInput").value;
+      const ids = parseIdList(rawIds);
+      const idStatus = $("exportIdsStatus");
+      idStatus.textContent = "";
+      idStatus.className = "modal-status";
+
+      if (ids.length) {
+        if (ids.length !== images.length) {
+          idStatus.textContent =
+            `Error: you pasted ${ids.length} IDs, but there are ${images.length} images. ` +
+            `Provide exactly one inscription ID per image, or clear the field.`;
+          idStatus.className = "modal-status error";
+          notify("Inscription ID count must match image count for merging.", "error");
+          return;
+        }
+      }
+
+      try {
+        await autoAssignAllTraits();
+      } catch (e) {
+        console.error(e);
+        notify("Auto-detect failed on one or more images.", "error");
+      }
+
+      const out = [];
+      const sortedEntries = images.slice().sort((a,b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
+
+      sortedEntries.forEach((entry, idx) => {
+        const attrsOrdered = {};
+        order.forEach(t => { if (entry.traits[t] != null) attrsOrdered[t] = entry.traits[t]; });
+        Object.keys(entry.traits || {}).forEach(t => { if (!(t in attrsOrdered)) attrsOrdered[t] = entry.traits[t]; });
+
+        out.push({
+          name: `${collectionName} #${idx + 1}`,
+          inscriptionId: ids[idx] || "",
+          attributes: attrsOrdered
+        });
+      });
+
+      const safeName =
+        collectionName.replace(/[^a-z0-9_-]+/gi, "_").replace(/^_+|_+$/g, "") ||
+        "collection";
+
+      const jsonText = JSON.stringify(out, null, 2);
+      const blob = new Blob([jsonText], { type: "application/json" });
+
+      // revoke old
+      if (exportObjectUrl) {
+        try { URL.revokeObjectURL(exportObjectUrl); } catch (_) {}
+        exportObjectUrl = null;
+      }
+
+      exportObjectUrl = URL.createObjectURL(blob);
+
+      // show a real download link (trusted click)
+      const dl = $("exportDownloadWrap");
+      if (dl) {
+        dl.style.display = "block";
+        dl.className = "";
+        dl.innerHTML =
+          `Ready: <a id="exportDownloadLink" class="download-btn" ` +
+          `href="${exportObjectUrl}" download="${safeName}.json">⬇ Download ${safeName}.json</a>`;
+      }
+
+      notify(`Export ready — click the download link in the modal.`, "success");
+
+    });
+
+    /************ save/load (server /saves) ************/
+    function openSavesModal() {
+      selectedSaveName = "";
+      $("savesLoadBtn").disabled = true;
+      $("savesDeleteBtn").disabled = true;
+      $("savesHint").textContent = "";
+      $("savesList").innerHTML = "";
+      $("savesStatus").textContent = "Loading saves…";
+      $("savesStatus").className = "modal-status";
+
+      $("savesOverlay").classList.add("active");
+      fetchSavesList();
+    }
+
+    function closeSavesModal() {
+      $("savesOverlay").classList.remove("active");
+      selectedSaveName = "";
+    }
+
+    async function fetchSavesList() {
+      try {
+        const data = await apiJson("/api/define/saves");
+        const files = Array.isArray(data.files) ? data.files : [];
+
+        if (!files.length) {
+          $("savesStatus").textContent = "No saves found in /saves yet.";
+          $("savesStatus").className = "modal-status";
+          $("savesList").innerHTML = '<div class="hint" style="padding:0.55rem;">(empty)</div>';
+          return;
+        }
+
+        $("savesStatus").textContent = "Select a save file:";
+        $("savesStatus").className = "modal-status ok";
+
+        const list = $("savesList");
+        list.innerHTML = "";
+
+        files.forEach((f) => {
+          const name = String(f.name || "").trim();
+          if (!name) return;
+
+          const row = document.createElement("div");
+          row.className = "file-item";
+          row.dataset.name = name;
+
+          const left = document.createElement("div");
+          left.className = "name";
+          left.textContent = name;
+
+          const right = document.createElement("div");
+          right.className = "meta";
+          const bits = [];
+          if (typeof f.size === "number") bits.push(Math.round(f.size / 1024) + " KB");
+          if (f.mtime) bits.push(String(f.mtime).replace("T", " ").replace("Z", ""));
+          right.textContent = bits.join(" • ");
+
+          row.appendChild(left);
+          row.appendChild(right);
+
+          row.addEventListener("click", () => {
+            list.querySelectorAll(".file-item").forEach(el => el.classList.remove("active"));
+            row.classList.add("active");
+            selectedSaveName = name;
+            $("savesLoadBtn").disabled = false;
+            $("savesDeleteBtn").disabled = false;
+            $("savesHint").textContent = "Selected: " + name;
+          });
+
+          list.appendChild(row);
+        });
+      } catch (e) {
+        console.error(e);
+        $("savesStatus").textContent = "Failed to load saves: " + (e.message || String(e));
+        $("savesStatus").className = "modal-status error";
+      }
+    }
+
+    async function loadSelectedSave() {
+      if (!selectedSaveName) {
+        notify("Select a save first.", "error");
+        return;
+      }
+      try {
+        $("savesStatus").textContent = "Loading " + selectedSaveName + "…";
+        $("savesStatus").className = "modal-status";
+        $("savesLoadBtn").disabled = true;
+
+        const data = await apiJson("/api/define/saves/" + encodeURIComponent(selectedSaveName));
+        const obj = data.data;
+
+        await applyProjectData(obj);
+
+        closeSavesModal();
+        notify("Project loaded.", "success");
+      } catch (e) {
+        console.error(e);
+        $("savesStatus").textContent = "Failed to load: " + (e.message || String(e));
+        $("savesStatus").className = "modal-status error";
+        $("savesLoadBtn").disabled = false;
+        notify("Failed to load save.", "error", 3500);
+      }
+    }
+
+    function openSaveProjectModal() {
+      const defaultName = "traits-project-" + nowStamp() + ".json";
+      $("saveProjectNameInput").value = defaultName;
+      $("saveProjectStatus").textContent = "";
+      $("saveProjectStatus").className = "modal-status";
+      $("saveProjectOverlay").classList.add("active");
+    }
+
+    function closeSaveProjectModal() {
+      $("saveProjectOverlay").classList.remove("active");
+    }
+
+    async function saveProjectToServer() {
+      if (!images.length) {
+        $("saveProjectStatus").textContent = "Upload images first.";
+        $("saveProjectStatus").className = "modal-status error";
+        notify("Upload images first.", "error");
+        return;
+      }
+
+      let name = safeJsonName($("saveProjectNameInput").value);
+
+      const payload = {
+        traits: Object.fromEntries(Object.entries(tm.traitMap).map(([k, set]) => [k, Array.from(set)])),
+        templates: tm.serializeTemplates(),
+        images: images.map(e => ({
+          name: e.name,
+          traits: e.traits,
+          pixelPoints: e.pixelPoints
+        })),
+        lastIndex: currentIndex
+      };
+
+      try {
+        $("saveProjectStatus").textContent = "Saving " + name + "…";
+        $("saveProjectStatus").className = "modal-status";
+        await apiJson("/api/define/saves/" + encodeURIComponent(name), {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+
+        $("saveProjectStatus").textContent = "Saved " + name + " to /saves.";
+        $("saveProjectStatus").className = "modal-status ok";
+        notify("Project saved.", "success");
+        setTimeout(closeSaveProjectModal, 250);
+      } catch (e) {
+        console.error(e);
+        $("saveProjectStatus").textContent = "Save failed: " + (e.message || String(e));
+        $("saveProjectStatus").className = "modal-status error";
+        notify("Save failed.", "error", 3500);
+      }
+    }
+
+    async function applyProjectData(data) {
+      if (!data || typeof data !== "object") throw new Error("Invalid save format.");
+
+      // require uploads loaded
+      if (!images.length) {
+        await listUploadsAndLoad();
+      }
+      if (!images.length) throw new Error("No uploads loaded. Upload images first.");
+
+      // trait sets
+      tm.traitMap = {};
+      const traits = data.traits || {};
+      for (const k in traits) tm.traitMap[k] = new Set(Array.isArray(traits[k]) ? traits[k] : []);
+
+      // templates
+      tm.loadTemplates(data.templates || {});
+
+      // apply per-image trait/pixels by name mapping
+      const byName = new Map(images.map(e => [e.name, e]));
+      const savedImages = Array.isArray(data.images) ? data.images : [];
+      savedImages.forEach(saved => {
+        const entry = byName.get(saved.name);
+        if (entry) {
+          entry.traits = saved.traits || {};
+          entry.pixelPoints = saved.pixelPoints || {};
+          entry.imageData = null; // allow fresh sampling if needed
+        }
+      });
+
+      // index
+      currentIndex = Number.isFinite(data.lastIndex) ? data.lastIndex : (data.lastIndex || 0);
+      currentIndex = Math.max(0, Math.min(currentIndex, images.length - 1));
+
+      refreshTraitUI();
+
+      await showImage(currentIndex);
+    }
+
+    /************ uploads wire-up ************/
+    $("uploadBtn").addEventListener("click", uploadSelectedFiles);
+    $("refreshUploadsBtn").addEventListener("click", listUploadsAndLoad);
+    $("clearUploadsBtn").addEventListener("click", async () => {
+      const ok = await openConfirmModal({
+        title: "Clear uploads",
+        message: "Delete ALL images in the uploads folder?",
+        hint: "This removes files from /uploads on disk. This cannot be undone.",
+        okText: "CLEAR",
+        danger: true
+      });
+
+      if (!ok) return;
+
+      await apiJson("/api/define/uploads", { method: "DELETE" });
+      notify("Cleared uploads.", "success");
+      await listUploadsAndLoad();
+    });
+
+
+
+
+    /************ saves modal bindings ************/
+    $("loadProjectBtn").addEventListener("click", openSavesModal);
+    $("savesLoadBtn").addEventListener("click", loadSelectedSave);
+
+    document.querySelectorAll("[data-close-saves]").forEach(el => el.addEventListener("click", closeSavesModal));
+    $("savesOverlay").addEventListener("click", (e) => { if (e.target && e.target.id === "savesOverlay") closeSavesModal(); });
+
+    /************ save project modal bindings ************/
+    $("saveProjectBtn").addEventListener("click", openSaveProjectModal);
+    $("saveProjectConfirmBtn").addEventListener("click", saveProjectToServer);
+
+    document.querySelectorAll("[data-close-saveproj]").forEach(el => el.addEventListener("click", closeSaveProjectModal));
+    $("saveProjectOverlay").addEventListener("click", (e) => { if (e.target && e.target.id === "saveProjectOverlay") closeSaveProjectModal(); });
+
+    /************ init ************/
+    document.addEventListener("DOMContentLoaded", async () => {
+      const yearSpan = $("yearSpan");
+      if (yearSpan) yearSpan.textContent = new Date().getFullYear();
+
+      refreshTraitUI();
+      updatePixelCountHint();
+      updateCurrentImageTraits();
+
+      // auto-load any existing uploads so user can resume quickly
+      await listUploadsAndLoad();
+    });
+  </script>
+</body>
+</html>

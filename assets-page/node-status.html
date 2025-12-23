@@ -1,0 +1,2654 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0"
+    />
+    <title>Dogecoin Node Status</title>
+
+    <link rel="icon" type="image/png" href="/assets/menu.png" />
+    <link rel="shortcut icon" type="image/png" href="/assets/menu.png" />
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        height: 100%;
+      }
+
+      body {
+        position: relative;
+        min-height: 100vh;
+        font-family: "Space Grotesk", system-ui, -apple-system, BlinkMacSystemFont,
+          "Segoe UI", sans-serif;
+        color: #f6f2e9;
+        padding: 2rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        background:
+          radial-gradient(circle at top left, #3a280e 0, transparent 55%),
+          radial-gradient(circle at bottom right, #b38a2e 0, transparent 55%),
+          linear-gradient(135deg, #05060a 0%, #0a0e18 35%, #05040a 100%);
+        overflow-x: hidden;
+      }
+
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background-image: url("/assets/bg.png");
+        background-size: auto;
+        background-repeat: repeat;
+        pointer-events: none;
+        z-index: -1;
+      }
+
+      .app-container {
+        width: 100%;
+        max-width: 1100px;
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+      }
+
+      .panel {
+        width: 100%;
+        background: radial-gradient(circle at top, #191b22 0, #101118 55%, #07070c 100%);
+        border-radius: 20px;
+        padding: 1.4rem 1.7rem;
+        border: 1px solid rgba(248, 200, 84, 0.45);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8);
+      }
+
+      .hero {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+      }
+
+      .hero-top {
+        display: flex;
+        align-items: center;
+        gap: 1.25rem;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+
+      .logo-wrap {
+        width: 90px;
+        height: 90px;
+        border-radius: 24px;
+        padding: 4px;
+        background: linear-gradient(135deg, #f9d97a, #f5b642);
+        box-shadow: 0 0 25px rgba(244, 198, 80, 0.6);
+      }
+
+      .logo-inner {
+        width: 100%;
+        height: 100%;
+        border-radius: 20px;
+        background: #05060b;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+      }
+
+      .logo-inner img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+      }
+
+      .hero-text {
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+        text-align: left;
+      }
+
+      .title {
+        font-size: 1.7rem;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: #f8d881;
+        text-shadow: 0 0 18px rgba(248, 216, 129, 0.85);
+      }
+
+      .subtitle {
+        font-size: 0.85rem;
+        color: #d4c7a6;
+        opacity: 0.9;
+      }
+
+      .subtitle-small {
+        font-size: 0.75rem;
+        color: #c1b491;
+        opacity: 0.9;
+      }
+
+      .status-actions {
+        margin-top: 0.6rem;
+        display: flex;
+        gap: 0.75rem;
+        align-items: center;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+
+      .status-indicator {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        font-size: 0.78rem;
+        color: #f4e7c3;
+      }
+
+      .status-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 999px;
+        background: rgb(230, 25, 25);
+        box-shadow: 0 0 10px rgba(216, 206, 206, 0.9);
+      }
+
+      .status-dot.online {
+        background: #f4b728;
+        box-shadow: 0 0 10px #f4b728;
+      }
+
+      .btn-small {
+        padding: 0.32rem 0.7rem;
+        border-radius: 999px;
+        border: 1px solid rgba(248, 209, 116, 0.8);
+        background: rgba(5, 6, 12, 0.94);
+        color: #f4e7c3;
+        font-size: 0.7rem;
+        cursor: pointer;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        text-shadow: 0 0 6px rgba(0, 0, 0, 0.7);
+        transition: transform 0.1s ease, box-shadow 0.1s ease,
+          background 0.1s ease, border-color 0.1s ease, color 0.1s ease;
+        white-space: nowrap;
+      }
+
+      .btn-small:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 0 12px rgba(248, 201, 113, 0.9);
+        background: linear-gradient(135deg, #f9d97a, #f1a93a);
+        color: #171307;
+      }
+
+      .main-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 1rem;
+        margin-top: 1.2rem;
+      }
+
+      .sub-panel {
+        background: radial-gradient(circle at top, #181a22 0, #080910 70%);
+        border-radius: 16px;
+        border: 1px solid rgba(248, 200, 84, 0.35);
+        padding: 0.75rem 0.9rem;
+        font-size: 0.75rem;
+        box-shadow:
+          0 0 0 1px rgba(0, 0, 0, 0.7),
+          0 16px 32px rgba(0, 0, 0, 0.8);
+      }
+
+      .sub-panel-wide {
+        grid-column: span 2;
+      }
+
+      .sub-panel-title-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 0.5rem;
+      }
+
+      .sub-panel-title {
+        font-size: 0.8rem;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: #f8d881;
+      }
+
+      .sub-panel-actions {
+        display: flex;
+        gap: 0.35rem;
+        flex-wrap: wrap;
+      }
+
+      .sub-panel pre {
+        white-space: pre-wrap;
+        word-break: break-word;
+        font-size: 0.7rem;
+        color: #f6f2e9;
+      }
+
+      .panel-hint {
+        margin-top: 0.35rem;
+        font-size: 0.65rem;
+        opacity: 0.78;
+        color: #c2b79b;
+      }
+
+      .table-scroll {
+        max-height: 445px;
+        overflow-y: auto;
+        border-radius: 10px;
+        border: 1px solid rgba(248, 209, 116, 0.3);
+        background: #05060a;
+      }
+
+      .table-scroll table {
+        width: 100%;
+        border-collapse: collapse;
+        table-layout: fixed;
+        font-size: 0.7rem;
+      }
+
+      .table-scroll th,
+      .table-scroll td {
+        padding: 0.25rem 0.35rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        text-align: left;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .table-scroll thead th {
+        font-weight: 600;
+        color: #f8d881;
+        background: rgba(248, 209, 116, 0.05);
+      }
+
+      .table-scroll tbody tr {
+        cursor: pointer;
+      }
+
+      .table-scroll tbody tr:hover {
+        background: rgba(248, 209, 116, 0.08);
+      }
+
+      .scroll-pre {
+        max-height: 260px;
+        overflow-y: auto;
+        border-radius: 10px;
+        border: 1px solid rgba(248, 209, 116, 0.3);
+        padding: 0.4rem 0.5rem;
+        background: #05060a;
+        font-size: 0.7rem;
+      }
+
+      .footer {
+        margin-top: 1rem;
+        font-size: 0.7rem;
+        text-align: center;
+        color: #b3a688;
+      }
+
+      .status-bar {
+        margin-top: 0.75rem;
+        font-size: 0.7rem;
+        text-align: center;
+        opacity: 0.9;
+        color: #e9ddbe;
+      }
+
+      .status-bar.error {
+        color: #ff6b6b;
+      }
+
+      .confirmations-ok {
+        color: #f4b728;
+        text-shadow: 0 0 4px #f4b728;
+      }
+
+      .break-all {
+        word-break: break-all;
+      }
+
+      /* UTXO groups */
+
+      .utxo-groups {
+        margin-top: 0.6rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+
+      .utxo-group {
+        border-radius: 12px;
+        border: 1px solid rgba(248, 209, 116, 0.35);
+        background: radial-gradient(circle at top, #181a24 0, #05060a 80%);
+        overflow: hidden;
+      }
+
+      .utxo-group-header {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.45rem 0.6rem;
+        cursor: pointer;
+      }
+
+      .utxo-group-main {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        flex: 1;
+      }
+
+      .utxo-group-checkbox {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .utxo-group-checkbox input[type="checkbox"] {
+        width: 15px;
+        height: 15px;
+        accent-color: #f8d881;
+        cursor: pointer;
+      }
+
+      .utxo-group-label {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #f8d881;
+      }
+
+      .utxo-group-summary {
+        font-size: 0.68rem;
+        color: #d6ccb2;
+      }
+
+      .utxo-group-toggle {
+        margin-left: auto;
+        font-size: 0.8rem;
+        opacity: 0.9;
+      }
+
+      .utxo-group-body {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.18s ease;
+      }
+
+      .utxo-group.expanded .utxo-group-body {
+        max-height: 280px; /* enough for list; scroll inside table */
+      }
+
+      .utxo-group-body-inner {
+        padding: 0.4rem 0.5rem 0.5rem;
+      }
+
+      .utxo-table-wrap {
+        max-height: 220px;
+        overflow-y: auto;
+        border-radius: 8px;
+        border: 1px solid rgba(248, 209, 116, 0.25);
+        background: #05060a;
+      }
+
+      .utxo-table-wrap table {
+        width: 100%;
+        border-collapse: collapse;
+        table-layout: fixed;
+        font-size: 0.68rem;
+      }
+
+      .utxo-table-wrap th,
+      .utxo-table-wrap td {
+        padding: 0.25rem 0.3rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.09);
+        text-align: left;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .utxo-table-wrap thead th {
+        color: #f8d881;
+        background: rgba(248, 209, 116, 0.06);
+        font-weight: 600;
+      }
+
+      .utxo-table-wrap tbody tr {
+        cursor: pointer;
+      }
+
+      .utxo-table-wrap tbody tr:hover {
+        background: rgba(248, 209, 116, 0.08);
+      }
+
+      .utxo-checkbox {
+        width: 14px;
+        height: 14px;
+        accent-color: #f8d881;
+        cursor: pointer;
+      }
+
+      #sendUtxoHint {
+        margin-top: 0.4rem;
+      }
+
+      /* Inline TX checker embed */
+
+      .tx-embed-wrap {
+        margin-top: 0.5rem;
+        display: none;
+        flex-direction: column;
+        gap: 0.4rem;
+      }
+
+      .tx-embed-header {
+        display: flex;
+        gap: 0.4rem;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+
+      .tx-embed-row {
+        display: flex;
+        gap: 0.4rem;
+        min-height: 0;
+      }
+
+      .tx-embed-panel {
+        flex: 1;
+        border-radius: 10px;
+        background: #05060a;
+        border: 1px solid #f4b728;
+        padding: 0.4rem;
+        font-size: 0.7rem;
+        overflow: hidden;
+      }
+
+      .tx-embed-title {
+        font-size: 0.68rem;
+        margin-bottom: 0.25rem;
+        color: #f4b728ad;
+      }
+
+      .tx-embed-panel pre {
+        white-space: pre-wrap;
+        word-break: break-word;
+        max-height: 200px;
+        overflow-y: auto;
+        font-size: 0.65rem;
+        color: #f4e7c3;
+      }
+
+      .status-line {
+        margin-top: 0.7rem;
+        font-size: 0.75rem;
+        text-align: center;
+        color: #d8cba4;
+      }
+
+      .status-line.gold {
+        color: #f6d47e;
+      }
+
+      /* MODALS / OVERLAYS */
+
+      .modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(2, 3, 8, 0.86);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 1300;
+      }
+
+      .modal-overlay.active {
+        display: flex;
+      }
+
+      .modal {
+        width: 100%;
+        max-width: 480px;
+        background: radial-gradient(circle at top, #181a25 0, #05060b 65%);
+        border-radius: 16px;
+        border: 1px solid rgba(247, 208, 115, 0.75);
+        padding: 1rem 1.2rem;
+        box-shadow: 0 22px 50px rgba(0, 0, 0, 0.9);
+        font-size: 0.7rem;
+      }
+
+      .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.75rem;
+      }
+
+      .modal-title {
+        font-size: 0.8rem;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: #f8d881;
+      }
+
+      .modal-close {
+        cursor: pointer;
+        font-size: 0.75rem;
+        padding: 0.25rem 0.7rem;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, 0.78);
+        background: rgba(0, 0, 0, 0.65);
+        color: #ffffff;
+      }
+
+      .modal-body {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+
+      .modal-label {
+        font-size: 0.7rem;
+        margin-bottom: 0.18rem;
+        color: #f8d881;
+      }
+
+      .modal-input,
+      .modal-textarea,
+      .modal-select {
+        width: 100%;
+        padding: 0.45rem 0.6rem;
+        border-radius: 999px;
+        border: 1px solid rgba(248, 209, 116, 0.6);
+        background: rgba(5, 6, 12, 0.94);
+        color: #f6f2e9;
+        font-family: "Space Grotesk", system-ui, -apple-system, BlinkMacSystemFont,
+          "Segoe UI", sans-serif;
+        font-size: 0.7rem;
+        outline: none;
+      }
+
+      .modal-textarea {
+        border-radius: 10px;
+        min-height: 70px;
+        resize: vertical;
+      }
+
+      .modal-footer {
+        margin-top: 0.75rem;
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+      }
+
+      .modal-hint {
+        font-size: 0.65rem;
+        opacity: 0.85;
+        color: #d6ccb2;
+      }
+
+      .modal-toggle-row {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        font-size: 0.67rem;
+      }
+
+      .modal-checkbox {
+        width: 14px;
+        height: 14px;
+        accent-color: #f8d881;
+      }
+
+      .fee-row {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-top: 0.25rem;
+      }
+
+      .fee-slider {
+        flex: 1;
+      }
+
+      /* scrollbar styling for scroll areas */
+      .table-scroll::-webkit-scrollbar,
+      .scroll-pre::-webkit-scrollbar,
+      .tx-embed-panel pre::-webkit-scrollbar,
+      .utxo-table-wrap::-webkit-scrollbar {
+        width: 8px;
+      }
+
+      .table-scroll::-webkit-scrollbar-track,
+      .scroll-pre::-webkit-scrollbar-track,
+      .tx-embed-panel pre::-webkit-scrollbar-track,
+      .utxo-table-wrap::-webkit-scrollbar-track {
+        background: #05060a;
+      }
+
+      .table-scroll::-webkit-scrollbar-thumb,
+      .scroll-pre::-webkit-scrollbar-thumb,
+      .tx-embed-panel pre::-webkit-scrollbar-thumb,
+      .utxo-table-wrap::-webkit-scrollbar-thumb {
+        background: #f4b728;
+        border-radius: 999px;
+      }
+
+      .table-scroll::-webkit-scrollbar-thumb:hover,
+      .scroll-pre::-webkit-scrollbar-thumb:hover,
+      .tx-embed-panel pre::-webkit-scrollbar-thumb:hover,
+      .utxo-table-wrap::-webkit-scrollbar-thumb:hover {
+        background: #ffd46d;
+      }
+
+      /* ===== Wallet history grouping ===== */
+
+      #historyTable tbody tr.history-group-row {
+        cursor: pointer;
+        user-select: none;
+      }
+
+      #historyTable tbody tr.history-group-row:hover {
+        background: rgba(248, 209, 116, 0.10);
+      }
+
+      .history-group-cell {
+        display: flex;
+        align-items: center;
+        gap: 0.45rem;
+      }
+
+      .history-group-arrow {
+        display: inline-flex;
+        width: 16px;
+        justify-content: center;
+        opacity: 0.95;
+        color: #f8d881;
+        text-shadow: 0 0 6px rgba(248, 216, 129, 0.35);
+      }
+
+      .history-group-date {
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .history-group-count {
+        margin-left: auto;
+        font-size: 0.66rem;
+        opacity: 0.9;
+        color: #d8cba4;
+      }
+
+      #historyTable tbody tr.history-child-row {
+        background: rgba(255, 255, 255, 0.03);
+        cursor: pointer;
+      }
+
+      #historyTable tbody tr.history-child-row:hover {
+        background: rgba(248, 209, 116, 0.08);
+      }
+
+      .history-child-indent {
+        position: relative;
+        padding-left: 1.15rem !important;
+      }
+
+      .history-child-indent::before {
+        content: "↳";
+        position: absolute;
+        left: 0.35rem;
+        top: 50%;
+        transform: translateY(-50%);
+        opacity: 0.75;
+        color: #cbbf9b;
+      }
+
+
+      @media (max-width: 780px) {
+        body {
+          padding: 1.3rem;
+        }
+        .panel {
+          padding: 1.1rem 1.2rem;
+        }
+        .hero {
+          gap: 0.7rem;
+        }
+        .title {
+          font-size: 1.45rem;
+        }
+        .main-grid {
+          grid-template-columns: 1fr;
+        }
+        .sub-panel-wide {
+          grid-column: span 1;
+        }
+        .tx-embed-row {
+          flex-direction: column;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="menuMount"></div>
+
+    <div class="app-container">
+      <div class="panel">
+        <div class="hero">
+          <div class="hero-top">
+            <div class="logo-wrap">
+              <div class="logo-inner">
+                <img src="/assets/logo.png" alt="Dogecoin Logo" />
+              </div>
+            </div>
+            <div class="hero-text">
+              <div class="title">Dogecoin Node Status</div>
+              <div class="subtitle">
+                Transparent wallet overview, UTXOs and mempool from your local Dogecoin node.
+              </div>
+              <div class="subtitle-small">
+                Uses your <code>NODE_RPC_*</code> settings from <code>.env</code>.
+              </div>
+            </div>
+          </div>
+
+          <div class="status-actions">
+            <div class="status-indicator">
+              <div id="statusDot" class="status-dot"></div>
+              <span id="statusText">Checking node…</span>
+            </div>
+            <button id="walletRefreshBtn" class="btn-small">REFRESH</button>
+            <button id="openRpcConfigBtn" class="btn-small">RPC SETTINGS</button>
+          </div>
+        </div>
+
+        <div class="main-grid">
+          <!-- Node Overview -->
+          <div class="sub-panel">
+            <div class="sub-panel-title">Node Overview</div>
+            <pre id="overviewPre" class="scroll-pre">Loading...</pre>
+          </div>
+
+          <!-- Connections -->
+          <div class="sub-panel">
+            <div class="sub-panel-title">Connections</div>
+            <pre id="connectionsPre" class="scroll-pre">Loading...</pre>
+          </div>
+
+          <!-- Mempool -->
+          <div class="sub-panel">
+            <div class="sub-panel-title">Mempool</div>
+            <pre id="mempoolPre" class="scroll-pre">Loading...</pre>
+          </div>
+
+          <!-- Wallet balances + UTXOs -->
+          <div class="sub-panel">
+            <div class="sub-panel-title-row">
+              <div class="sub-panel-title">Wallet Balances & UTXOs</div>
+              <div class="sub-panel-actions">
+                <button id="importKeyBtn" class="btn-small">IMPORT KEY</button>
+                <button id="sendDogeBtn" class="btn-small">SEND DOGE</button>
+              </div>
+            </div>
+
+            <div class="table-scroll" style="margin-bottom:0.45rem;">
+              <table id="walletTable">
+                <thead>
+                  <tr>
+                    <th>Wallet</th>
+                    <th>Balance</th>
+                    <th>Unconf</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td colspan="3">Loading…</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="panel-hint">
+              Imported keys still share the same underlying wallet; balances shown are totals per label.
+            </div>
+
+            <div style="margin-top:0.6rem;">
+              <div class="sub-panel-title" style="font-size:0.72rem;">
+                Wallet UTXOs
+              </div>
+              <div class="panel-hint">
+                Click a wallet group to expand. Tick the group to select all UTXOs, or pick individual UTXOs for sending.
+              </div>
+
+              <div id="utxoGroups" class="utxo-groups">
+                <!-- filled by JS -->
+              </div>
+
+              <div
+                id="sendUtxoHint"
+                class="panel-hint"
+                style="margin-top:0.4rem;"
+              >
+                Selected UTXOs: 0 (total 0.00000000 DOGE)
+              </div>
+            </div>
+          </div>
+
+          <!-- Wallet transactions (wide) -->
+          <div class="sub-panel sub-panel-wide">
+            <div class="sub-panel-title-row">
+              <div class="sub-panel-title">Wallet Transactions</div>
+              <div class="sub-panel-actions">
+                <button id="historyRefreshBtn" class="btn-small">
+                  REFRESH HISTORY
+                </button>
+                <button id="txInlineCheckBtn" class="btn-small">
+                  CHECK TX
+                </button>
+              </div>
+            </div>
+
+            <!-- Default view: history table -->
+            <div id="historyView" class="table-scroll">
+              <table id="historyTable">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>TXID</th>
+                    <th>Amt</th>
+                    <th>Fee</th>
+                    <th>Address</th>
+                    <th>Conf</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td colspan="6">Loading…</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Inline TX checker -->
+            <div id="txCheckerView" class="tx-embed-wrap">
+              <div class="tx-embed-header">
+                <input
+                  id="txCheckInput"
+                  class="modal-input"
+                  placeholder="Enter TXID..."
+                />
+                <button id="txCheckGoBtn" class="btn-small">CHECK</button>
+                <button id="txCheckerBackBtn" class="btn-small">BACK</button>
+              </div>
+              <div class="tx-embed-row">
+                <div class="tx-embed-panel">
+                  <div class="tx-embed-title">Summary</div>
+                  <pre id="txSummaryPre">Enter a TXID above.</pre>
+                </div>
+                <div class="tx-embed-panel">
+                  <div class="tx-embed-title">Raw JSON</div>
+                  <pre id="txRawPre">...</pre>
+                </div>
+              </div>
+            </div>
+
+            <div class="panel-hint">
+              Wallet transactions from your node (incoming and outgoing). Click a row for full details or use CHECK TX to inspect any TXID.
+            </div>
+          </div>
+        </div>
+
+        <div id="statusBar" class="status-bar"></div>
+
+        <div class="footer">
+        Doginals Node Tools • Made By Heimdall
+      </div>
+    </div>
+
+    <!-- Import Private Key Modal -->
+    <div id="importModalOverlay" class="modal-overlay">
+      <div class="modal">
+        <div class="modal-header">
+          <div class="modal-title">Import Private Key</div>
+          <button id="importModalClose" class="modal-close">Close</button>
+        </div>
+        <div class="modal-body">
+          <div>
+            <div class="modal-label">Private Key (WIF)</div>
+            <textarea
+              id="importPrivKeyInput"
+              class="modal-textarea"
+              placeholder="Enter your Dogecoin WIF private key..."
+            ></textarea>
+          </div>
+          <div>
+            <div class="modal-label">Label / Name</div>
+            <input
+              id="importLabelInput"
+              class="modal-input"
+              placeholder="e.g. Cold Wallet"
+            />
+          </div>
+          <div class="modal-toggle-row">
+            <input
+              id="importRescanCheckbox"
+              type="checkbox"
+              class="modal-checkbox"
+              checked
+            />
+            <label for="importRescanCheckbox">Rescan blockchain</label>
+          </div>
+          <div class="modal-hint">
+            If this key has no past history, you can disable rescan to save time.
+          </div>
+          <div
+            id="importStatus"
+            class="modal-hint"
+            style="margin-top:0.45rem; min-height:0.9rem;"
+          ></div>
+        </div>
+        <div class="modal-footer">
+          <button id="importCancelBtn" class="btn-small">Cancel</button>
+          <button id="importConfirmBtn" class="btn-small">Import</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Send DOGE Modal -->
+    <div id="sendModalOverlay" class="modal-overlay">
+      <div class="modal">
+        <div class="modal-header">
+          <div class="modal-title">Send DOGE</div>
+          <button id="sendModalClose" class="modal-close">Close</button>
+        </div>
+        <div class="modal-body">
+          <div>
+            <div class="modal-label">From Wallet</div>
+            <select id="sendWalletSelect" class="modal-select">
+              <option value="">Loading...</option>
+            </select>
+          </div>
+
+          <div>
+            <div class="modal-label">Amount (DOGE)</div>
+            <div style="display:flex;gap:0.4rem;align-items:center;">
+              <input
+                id="sendAmountInput"
+                class="modal-input"
+                placeholder="0.0"
+                inputmode="decimal"
+                style="flex:1;"
+              />
+              <button id="sendMaxBtn" class="btn-small" type="button">
+                MAX
+              </button>
+            </div>
+            <div id="sendAmountHint" class="modal-hint">
+              Max: ...
+            </div>
+          </div>
+
+          <div class="fee-row">
+            <div class="modal-label" style="margin-bottom:0;">Fee</div>
+            <input
+              id="feeSlider"
+              class="fee-slider"
+              type="range"
+              min="0.01"
+              max="0.1"
+              step="0.01"
+            />
+            <div id="feeValueLabel" class="modal-hint" style="min-width:4rem;text-align:right;">
+              0.02 DOGE
+            </div>
+          </div>
+
+          <div class="modal-toggle-row" style="margin-top:0.25rem;">
+            <input
+              id="deductFeeCheckbox"
+              type="checkbox"
+              class="modal-checkbox"
+              checked
+            />
+            <label for="deductFeeCheckbox">
+              Deduct fee from total (MAX uses total − fee)
+            </label>
+          </div>
+
+          <div>
+            <div class="modal-label">Destination Address</div>
+            <input
+              id="sendAddressInput"
+              class="modal-input"
+              placeholder="D..."
+            />
+          </div>
+
+          <div
+            id="sendUtxoHintModal"
+            class="modal-hint"
+            style="margin-top:0.4rem;"
+          >
+            Selected UTXOs: 0 (total 0.00000000 DOGE)
+          </div>
+
+          <!-- TXID + STATUS AREA -->
+          <div
+            id="sendTxSection"
+            style="
+              display: none;
+              margin-top: 0.6rem;
+              border-top: 1px solid rgba(255, 255, 255, 0.2);
+              padding-top: 0.5rem;
+            "
+          >
+            <div class="modal-label">Last TXID</div>
+            <div
+              id="sendTxidDisplay"
+              class="modal-hint break-all"
+              style="margin-bottom: 0.35rem;"
+            ></div>
+            <button
+              id="sendCheckStatusBtn"
+              class="btn-small"
+              type="button"
+              style="margin-bottom: 0.3rem;"
+            >
+              CHECK STATUS
+            </button>
+            <div
+              id="sendConfirmationsDisplay"
+              class="modal-hint"
+              style="min-height: 0.7rem;"
+            ></div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button id="sendCancelBtn" class="btn-small">Cancel</button>
+          <button id="sendConfirmBtn" class="btn-small">Send</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Wallet TX Detail Modal -->
+    <div id="txDetailOverlay" class="modal-overlay">
+      <div class="modal">
+        <div class="modal-header">
+          <div class="modal-title">Transaction Details</div>
+          <button id="txDetailClose" class="modal-close">Close</button>
+        </div>
+        <div class="modal-body">
+          <div>
+            <div class="modal-label">TXID</div>
+            <div
+              id="txDetailTxid"
+              class="modal-hint break-all"
+              style="margin-bottom: 0.25rem;"
+            ></div>
+            <button id="txDetailCopyTxidBtn" class="btn-small" type="button">
+              Copy TXID
+            </button>
+          </div>
+
+          <div>
+            <div class="modal-label">Address</div>
+            <div
+              id="txDetailAddress"
+              class="modal-hint break-all"
+              style="margin-bottom: 0.25rem;"
+            ></div>
+            <button id="txDetailCopyAddrBtn" class="btn-small" type="button">
+              Copy Address
+            </button>
+          </div>
+
+          <div>
+            <div class="modal-label">Amount / Fee</div>
+            <div id="txDetailAmount" class="modal-hint"></div>
+          </div>
+
+          <div>
+            <div class="modal-label">Category / Time</div>
+            <div id="txDetailMeta" class="modal-hint"></div>
+          </div>
+
+          <div
+            style="
+              margin-top: 0.5rem;
+              border-top: 1px solid rgba(255, 255, 255, 0.2);
+              padding-top: 0.4rem;
+            "
+          >
+            <button id="txDetailCheckBtn" class="btn-small" type="button">
+              CHECK STATUS
+            </button>
+            <div
+              id="txDetailConf"
+              class="modal-hint"
+              style="margin-top: 0.3rem;"
+            ></div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button id="txDetailCloseBtn" class="btn-small">Close</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- UTXO Detail Modal -->
+    <div id="utxoDetailOverlay" class="modal-overlay">
+      <div class="modal">
+        <div class="modal-header">
+          <div class="modal-title">UTXO Details</div>
+          <button id="utxoDetailClose" class="modal-close">Close</button>
+        </div>
+        <div class="modal-body">
+          <div>
+            <div class="modal-label">TXID / VOUT</div>
+            <div
+              id="utxoDetailTxid"
+              class="modal-hint break-all"
+              style="margin-bottom: 0.25rem;"
+            ></div>
+          </div>
+
+          <div>
+            <div class="modal-label">Address / Label</div>
+            <div id="utxoDetailAddress" class="modal-hint break-all"></div>
+          </div>
+
+          <div>
+            <div class="modal-label">Amount / Confirmations</div>
+            <div id="utxoDetailAmount" class="modal-hint"></div>
+          </div>
+
+          <div>
+            <div class="modal-label">Received Time</div>
+            <div id="utxoDetailTime" class="modal-hint"></div>
+          </div>
+
+          <div style="margin-top: 0.3rem;">
+            <div class="modal-label">TX Summary</div>
+            <div id="utxoDetailSummary" class="modal-hint"></div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button id="utxoDetailCloseBtn" class="btn-small">Close</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- RPC Settings Modal -->
+    <div id="rpcModalOverlay" class="modal-overlay">
+      <div class="modal">
+        <div class="modal-header">
+          <div class="modal-title">RPC Settings</div>
+          <button id="rpcModalClose" class="modal-close">Close</button>
+        </div>
+        <div class="modal-body">
+          <div>
+            <div class="modal-label">NODE_RPC_URL</div>
+            <input
+              id="rpcUrlInput"
+              class="modal-input"
+              type="text"
+              value="http://127.0.0.1:22555"
+            />
+          </div>
+
+          <div style="margin-top:0.4rem;">
+            <div class="modal-label">NODE_RPC_USER</div>
+            <input
+              id="rpcUserInput"
+              class="modal-input"
+              type="text"
+              placeholder="RPC username"
+            />
+          </div>
+
+          <div style="margin-top:0.4rem;">
+            <div class="modal-label">NODE_RPC_PASS</div>
+            <input
+              id="rpcPassInput"
+              class="modal-input"
+              type="password"
+              placeholder="RPC password"
+            />
+          </div>
+
+          <div
+            id="rpcModalStatus"
+            class="modal-hint"
+            style="min-height:0.9rem;margin-top:0.45rem;"
+          ></div>
+
+          <div class="modal-hint" style="margin-top:0.25rem;">
+            These values are written into your local <code>.env</code> next to
+            <code>viewer.js</code>. The viewer switches to them immediately;
+            external scripts may still require a restart.
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button id="rpcModalCancelBtn" class="btn-small">Cancel</button>
+          <button id="rpcModalSaveBtn" class="btn-small">Save</button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const $ = (id) => document.getElementById(id);
+
+      function setStatus(msg, isError) {
+        const statusBar = $("statusBar");
+        if (!statusBar) return;
+        statusBar.textContent = msg || "";
+        if (isError) statusBar.classList.add("error");
+        else statusBar.classList.remove("error");
+      }
+
+      // ---------------- GLOBAL MENU IMPORT ----------------
+      async function loadGlobalMenu() {
+        const mount = document.getElementById("menuMount");
+        if (!mount) return;
+
+        try {
+          const res = await fetch("/assets-page/menu.html", { cache: "no-store" });
+          if (!res.ok) throw new Error("HTTP " + res.status);
+          const html = await res.text();
+          mount.insertAdjacentHTML("afterbegin", html);
+          setupImportedMenu();
+        } catch (err) {
+          console.error("Failed to load shared menu:", err);
+        }
+      }
+
+      function setupImportedMenu() {
+        const menuWrapper = document.getElementById("dogeMenuWrapper");
+        const menuBtn = document.getElementById("dogeMenuBtn");
+        const popup = document.getElementById("dogeMenuPopup");
+        if (!menuWrapper || !menuBtn || !popup) return;
+
+        menuBtn.addEventListener("click", (ev) => {
+          ev.stopPropagation();
+          popup.classList.toggle("active");
+        });
+
+        document.addEventListener("click", (ev) => {
+          if (!menuWrapper.contains(ev.target)) {
+            popup.classList.remove("active");
+          }
+        });
+      }
+
+      // ---------------- NODE STATUS LOGIC ----------------
+
+      let lastWallets = [];
+      let walletHistory = [];
+      let allUtxos = [];
+      const selectedUtxoKeys = new Set(); // "txid:vout"
+      let lastSendTxid = null;
+      let currentDetailTx = null;
+      let currentUtxoDetail = null;
+
+      const FEE_MIN = 0.01;
+      const FEE_MAX = 0.1;
+      const FEE_STEP = 0.01;
+      const FEE_DEFAULT = 0.02;
+
+      function utxoKey(u) {
+        return `${u.txid}:${u.vout}`;
+      }
+
+      function truncateMiddle(str, front, back) {
+        if (!str) return "";
+        if (str.length <= front + back + 3) return str;
+        return str.slice(0, front) + "..." + str.slice(-back);
+      }
+
+      function getCurrentFee() {
+        const slider = $("feeSlider");
+        if (!slider) return FEE_DEFAULT;
+        const v = parseFloat(slider.value);
+        if (!Number.isFinite(v)) return FEE_DEFAULT;
+        return Math.min(FEE_MAX, Math.max(FEE_MIN, v));
+      }
+
+      function updateFeeLabel() {
+        const label = $("feeValueLabel");
+        if (!label) return;
+        const f = getCurrentFee();
+        label.textContent = f.toFixed(2) + " DOGE";
+      }
+
+      function sumSelectedUtxos() {
+        let total = 0;
+        allUtxos.forEach((u) => {
+          if (selectedUtxoKeys.has(utxoKey(u))) {
+            total += Number(u.amount || 0);
+          }
+        });
+        return total;
+      }
+
+      function updateSelectedUtxosHint() {
+        const hint = $("sendUtxoHint");
+        const hintModal = $("sendUtxoHintModal");
+        let count = 0;
+        let total = 0;
+
+        allUtxos.forEach((u) => {
+          if (selectedUtxoKeys.has(utxoKey(u))) {
+            count++;
+            total += Number(u.amount || 0);
+          }
+        });
+
+        const text =
+          "Selected UTXOs: " +
+          count +
+          " (total " +
+          total.toFixed(8) +
+          " DOGE)";
+
+        if (hint) hint.textContent = text;
+        if (hintModal) hintModal.textContent = text;
+      }
+
+      async function loadNodeStatus() {
+        const statusDot = $("statusDot");
+        const statusText = $("statusText");
+        const overviewPre = $("overviewPre");
+        const connectionsPre = $("connectionsPre");
+        const mempoolPre = $("mempoolPre");
+        const walletTableBody = $("walletTable").querySelector("tbody");
+
+        try {
+          setStatus("Querying node...", false);
+          statusText.textContent = "Querying node...";
+
+          const res = await fetch("/api/node/status", { cache: "no-store" });
+          if (!res.ok) throw new Error("HTTP " + res.status);
+
+          const data = await res.json();
+
+          const connected = !!data.connected;
+          if (connected) {
+            statusDot.classList.add("online");
+            statusText.textContent = "Node: ONLINE";
+          } else {
+            statusDot.classList.remove("online");
+            statusText.textContent = "Node: OFFLINE";
+          }
+
+          const bi = data.blockchainInfo || {};
+          const ni = data.networkInfo || {};
+          const mi = data.mempoolInfo || {};
+
+          const overviewLines = [];
+          if (bi.chain !== undefined) overviewLines.push("Chain: " + bi.chain);
+          if (bi.blocks !== undefined) overviewLines.push("Blocks: " + bi.blocks);
+          if (bi.headers !== undefined) overviewLines.push("Headers: " + bi.headers);
+          if (bi.bestblockhash !== undefined)
+            overviewLines.push("Best Block: " + bi.bestblockhash);
+          if (bi.difficulty !== undefined)
+            overviewLines.push("Difficulty: " + bi.difficulty);
+          if (ni.version !== undefined)
+            overviewLines.push(
+              "Version: " + (ni.subversion || "") + " (" + ni.version + ")"
+            );
+
+          overviewPre.textContent =
+            overviewLines.length > 0 ? overviewLines.join("\n") : "No overview data.";
+
+          const connLines = [];
+          if (ni.connections !== undefined)
+            connLines.push("Peer connections: " + ni.connections);
+          if (ni.localaddresses && ni.localaddresses.length) {
+            connLines.push("");
+            connLines.push("Local addresses:");
+            ni.localaddresses.forEach((a) => {
+              connLines.push(
+                "  " +
+                  (a.address || "-") +
+                  ":" +
+                  (a.port || "-") +
+                  " (score " +
+                  (a.score || 0) +
+                  ")"
+              );
+            });
+          }
+          connectionsPre.textContent =
+            connLines.length > 0 ? connLines.join("\n") : "No connection data.";
+
+          const memLines = [];
+          if (mi.size !== undefined) memLines.push("TXs in mempool: " + mi.size);
+          if (mi.bytes !== undefined) memLines.push("Bytes in mempool: " + mi.bytes);
+
+          const pending = Array.isArray(data.pendingTxs) ? data.pendingTxs : [];
+          if (pending.length) {
+            memLines.push("");
+            memLines.push("Transactions:");
+            pending.forEach((tx, i) => {
+              const line =
+                i + 1 + ". " +
+                truncateMiddle(tx.txid || "-", 10, 10) +
+                " | fee: " +
+                (tx.fee !== undefined ? tx.fee : "?") +
+                " | size: " +
+                (tx.size !== undefined ? tx.size : "?");
+              memLines.push(line);
+            });
+          }
+
+          mempoolPre.textContent =
+            memLines.length > 0 ? memLines.join("\n") : "No mempool data.";
+
+          walletTableBody.innerHTML = "";
+          lastWallets = Array.isArray(data.wallets) ? data.wallets : [];
+
+          if (!lastWallets.length) {
+            const tr = document.createElement("tr");
+            const td = document.createElement("td");
+            td.colSpan = 3;
+            td.textContent = "No wallet data.";
+            tr.appendChild(td);
+            walletTableBody.appendChild(tr);
+          } else {
+            lastWallets.forEach((w, idx) => {
+              const tr = document.createElement("tr");
+              const nameTd = document.createElement("td");
+              const balTd = document.createElement("td");
+              const unconfTd = document.createElement("td");
+
+              nameTd.textContent = w.name || "wallet-" + (idx + 1);
+              balTd.textContent =
+                w.balance !== undefined ? w.balance.toString() : "0";
+              unconfTd.textContent =
+                w.unconfirmed !== undefined ? w.unconfirmed.toString() : "0";
+
+              tr.appendChild(nameTd);
+              tr.appendChild(balTd);
+              tr.appendChild(unconfTd);
+              walletTableBody.appendChild(tr);
+            });
+          }
+
+          setStatus("", false);
+        } catch (err) {
+          console.error(err);
+          statusDot.classList.remove("online");
+          statusText.textContent = "Node: ERROR";
+          overviewPre.textContent = "Error: " + err.message;
+          connectionsPre.textContent = "Error.";
+          mempoolPre.textContent = "Error.";
+          walletTableBody.innerHTML = "";
+          const tr = document.createElement("tr");
+          const td = document.createElement("td");
+          td.colSpan = 3;
+          td.textContent = "Error loading wallet data.";
+          tr.appendChild(td);
+          walletTableBody.appendChild(tr);
+          setStatus("Node error: " + err.message, true);
+        }
+      }
+
+      async function loadWalletHistory() {
+  const tbody = $("historyTable").querySelector("tbody");
+
+  // Track which txids are expanded (persists across refreshes while page is open)
+  // (If you want this global instead, move it above and keep one instance.)
+  if (!window.__expandedTxGroups) window.__expandedTxGroups = new Set();
+  const expandedTxGroups = window.__expandedTxGroups;
+
+  try {
+    tbody.innerHTML =
+      '<tr><td colspan="6">Loading wallet transactions...</td></tr>';
+
+    const res = await fetch("/api/node/history", { cache: "no-store" });
+    if (!res.ok) throw new Error("HTTP " + res.status);
+
+    const data = await res.json();
+    walletHistory = Array.isArray(data.txs) ? data.txs : data;
+
+    // Sort raw entries newest-first (keeps behavior consistent)
+    walletHistory.sort((a, b) => (b.time || 0) - (a.time || 0));
+
+    // ---- Group by txid ----
+    const groupMap = new Map(); // txid -> entries[]
+    for (const tx of walletHistory) {
+      const id = tx && tx.txid ? tx.txid : "";
+      if (!id) continue;
+      if (!groupMap.has(id)) groupMap.set(id, []);
+      groupMap.get(id).push(tx);
+    }
+
+    // Convert to groups with summary metadata
+    const groups = Array.from(groupMap.entries()).map(([txid, entries]) => {
+      // newest time in group (entries are already sorted by time desc, but be safe)
+      const groupTime = entries.reduce((max, t) => Math.max(max, t.time || 0), 0);
+
+      // Net sum amount across entries
+      const netAmount = entries.reduce((sum, t) => sum + Number(t.amount || 0), 0);
+
+      // Fee: pick first defined fee (often present on "send" line)
+      let fee = null;
+      for (const t of entries) {
+        if (t.fee !== undefined && t.fee !== null && t.fee !== "") {
+          fee = t.fee;
+          break;
+        }
+      }
+
+      // Confirmations: pick the max confirmations found (usually same across)
+      let confirmations = null;
+      for (const t of entries) {
+        const c = Number(t.confirmations);
+        if (Number.isFinite(c)) {
+          confirmations = confirmations === null ? c : Math.max(confirmations, c);
+        }
+      }
+
+      // Address: if all same non-empty address, show it, else "Multiple"
+      const addresses = entries
+        .map((t) => (t.address ? String(t.address) : "").trim())
+        .filter(Boolean);
+      let addressLabel = "-";
+      if (!addresses.length) {
+        addressLabel = "-";
+      } else {
+        const first = addresses[0];
+        const allSame = addresses.every((a) => a === first);
+        addressLabel = allSame ? first : "Multiple";
+      }
+
+      // Category: optional (not shown in table, but could be useful later)
+      // const categories = entries.map(e => e.category).filter(Boolean);
+
+      return {
+        txid,
+        entries,
+        groupTime,
+        netAmount,
+        fee,
+        confirmations,
+        addressLabel,
+      };
+    });
+
+    // Sort groups newest-first
+    groups.sort((a, b) => (b.groupTime || 0) - (a.groupTime || 0));
+
+    tbody.innerHTML = "";
+
+    if (!groups.length) {
+      const tr = document.createElement("tr");
+      const td = document.createElement("td");
+      td.colSpan = 6;
+      td.textContent = "No wallet transactions.";
+      tr.appendChild(td);
+      tbody.appendChild(tr);
+      return;
+    }
+
+    // Helper: create a td with text
+    function tdText(text) {
+      const td = document.createElement("td");
+      td.textContent = text;
+      return td;
+    }
+
+    // Helper: render child rows for a group
+    function renderChildRows(group, insertAfterTr) {
+      const rows = [];
+
+      group.entries.forEach((tx) => {
+        const tr = document.createElement("tr");
+        tr.className = "history-child-row";
+
+        const dateTd = document.createElement("td");
+        dateTd.className = "history-child-indent";
+        dateTd.textContent = tx.time
+          ? new Date(tx.time * 1000).toLocaleDateString()
+          : "-";
+
+        const txidTd = tdText(truncateMiddle(tx.txid || "-", 10, 10));
+        const amtTd = tdText(tx.amount !== undefined ? tx.amount.toString() : "-");
+        const feeTd = tdText(tx.fee !== undefined ? tx.fee.toString() : "-");
+
+        const addr = tx.address || "";
+        const addrTd = tdText(addr ? truncateMiddle(addr, 5, 5) : "-");
+
+        const confTd = tdText(
+          tx.confirmations !== undefined ? tx.confirmations.toString() : "-"
+        );
+
+        tr.appendChild(dateTd);
+        tr.appendChild(txidTd);
+        tr.appendChild(amtTd);
+        tr.appendChild(feeTd);
+        tr.appendChild(addrTd);
+        tr.appendChild(confTd);
+
+        // Clicking a child opens modal (same behavior as before)
+        tr.addEventListener("click", (e) => {
+          e.stopPropagation();
+          openTxDetail(tx);
+        });
+
+        rows.push(tr);
+      });
+
+      // Insert rows immediately after the parent row
+      let ref = insertAfterTr;
+      rows.forEach((r) => {
+        ref.insertAdjacentElement("afterend", r);
+        ref = r;
+      });
+
+      return rows;
+    }
+
+    // Helper: remove child rows belonging to a txid
+    function removeChildRows(txid) {
+      tbody.querySelectorAll(`tr.history-child-row[data-parent="${txid}"]`).forEach((r) => {
+        r.remove();
+      });
+    }
+
+    // Render group rows
+    groups.forEach((group) => {
+      const tr = document.createElement("tr");
+      tr.className = "history-group-row";
+      tr.dataset.txid = group.txid;
+
+      // Build display values
+      const dateText = group.groupTime
+        ? new Date(group.groupTime * 1000).toLocaleDateString()
+        : "-";
+
+      const netText =
+        group.netAmount !== undefined ? group.netAmount.toString() : "-";
+
+      const feeText =
+        group.fee !== null && group.fee !== undefined ? String(group.fee) : "-";
+
+      const addrText =
+        group.addressLabel && group.addressLabel !== "Multiple"
+          ? truncateMiddle(group.addressLabel, 5, 5)
+          : group.addressLabel || "-";
+
+      const confText =
+        group.confirmations !== null && group.confirmations !== undefined
+          ? String(group.confirmations)
+          : "-";
+
+      // Arrow + count badge in Date column (keeps columns aligned)
+      const arrowTd = document.createElement("td");
+      arrowTd.className = "history-group-cell";
+
+      const arrow = document.createElement("span");
+      arrow.className = "history-group-arrow";
+      const isExpanded = expandedTxGroups.has(group.txid);
+      arrow.textContent = isExpanded ? "▲" : "▼";
+
+      const count = document.createElement("span");
+      count.className = "history-group-count";
+      count.textContent = `(${group.entries.length})`;
+
+      const dateSpan = document.createElement("span");
+      dateSpan.className = "history-group-date";
+      dateSpan.textContent = dateText;
+
+      arrowTd.appendChild(arrow);
+      arrowTd.appendChild(dateSpan);
+      arrowTd.appendChild(count);
+
+      tr.appendChild(arrowTd);
+      tr.appendChild(tdText(truncateMiddle(group.txid || "-", 10, 10)));
+      tr.appendChild(tdText(netText));
+      tr.appendChild(tdText(feeText));
+      tr.appendChild(tdText(addrText));
+      tr.appendChild(tdText(confText));
+
+      // Toggle expand/collapse
+      tr.addEventListener("click", () => {
+        const currentlyExpanded = expandedTxGroups.has(group.txid);
+
+        if (currentlyExpanded) {
+          // collapse
+          expandedTxGroups.delete(group.txid);
+          arrow.textContent = "▼";
+
+          // remove child rows for this txid
+          tbody
+            .querySelectorAll(`tr.history-child-row[data-parent="${group.txid}"]`)
+            .forEach((r) => r.remove());
+        } else {
+          // expand
+          expandedTxGroups.add(group.txid);
+          arrow.textContent = "▲";
+
+          // Render child rows and tag them
+          const childRows = renderChildRows(group, tr);
+          childRows.forEach((r) => {
+            r.dataset.parent = group.txid;
+          });
+        }
+      });
+
+      tbody.appendChild(tr);
+
+      // If expanded, render children immediately
+      if (expandedTxGroups.has(group.txid)) {
+        const childRows = renderChildRows(group, tr);
+        childRows.forEach((r) => {
+          r.dataset.parent = group.txid;
+        });
+      }
+    });
+  } catch (err) {
+    console.error(err);
+    tbody.innerHTML =
+      '<tr><td colspan="6">Error loading transaction history.</td></tr>';
+    setStatus("History error: " + err.message, true);
+  }
+}
+
+      async function loadUtxos() {
+        const groupsContainer = $("utxoGroups");
+        try {
+          groupsContainer.innerHTML = "<div class='panel-hint'>Loading UTXOs...</div>";
+          const res = await fetch("/api/wallet/utxos", { cache: "no-store" });
+          if (!res.ok) throw new Error("HTTP " + res.status);
+          const data = await res.json();
+          allUtxos = Array.isArray(data.utxos) ? data.utxos : [];
+
+          renderUtxoGroups();
+        } catch (err) {
+          console.error(err);
+          groupsContainer.innerHTML =
+            "<div class='panel-hint'>Error loading UTXOs.</div>";
+          setStatus("UTXO error: " + err.message, true);
+        }
+      }
+
+      function groupUtxosByLabel() {
+        const map = new Map();
+        allUtxos.forEach((u) => {
+          const label = u.label ? String(u.label) : "default";
+          if (!map.has(label)) map.set(label, []);
+          map.get(label).push(u);
+        });
+        return map;
+      }
+
+      function renderUtxoGroups() {
+        const container = $("utxoGroups");
+        container.innerHTML = "";
+
+        const groups = groupUtxosByLabel();
+        const labels = Array.from(groups.keys()).sort();
+
+        if (!labels.length) {
+          const div = document.createElement("div");
+          div.className = "panel-hint";
+          div.textContent = "No UTXOs found.";
+          container.appendChild(div);
+          updateSelectedUtxosHint();
+          return;
+        }
+
+        labels.forEach((label) => {
+          const utxos = groups.get(label) || [];
+          let groupTotal = 0;
+          utxos.forEach((u) => {
+            groupTotal += Number(u.amount || 0);
+          });
+
+          const groupDiv = document.createElement("div");
+          groupDiv.className = "utxo-group";
+
+          const header = document.createElement("div");
+          header.className = "utxo-group-header";
+
+          const checkboxWrap = document.createElement("div");
+          checkboxWrap.className = "utxo-group-checkbox";
+          const groupCb = document.createElement("input");
+          groupCb.type = "checkbox";
+          groupCb.className = "utxo-checkbox";
+          checkboxWrap.appendChild(groupCb);
+
+          const main = document.createElement("div");
+          main.className = "utxo-group-main";
+
+          const labelEl = document.createElement("div");
+          labelEl.className = "utxo-group-label";
+          labelEl.textContent = label;
+
+          const summaryEl = document.createElement("div");
+          summaryEl.className = "utxo-group-summary";
+          summaryEl.textContent =
+            utxos.length +
+            " UTXOs • total " +
+            groupTotal.toFixed(8) +
+            " DOGE";
+
+          const toggle = document.createElement("div");
+          toggle.className = "utxo-group-toggle";
+          toggle.textContent = "▼";
+
+          main.appendChild(labelEl);
+          main.appendChild(summaryEl);
+
+          header.appendChild(checkboxWrap);
+          header.appendChild(main);
+          header.appendChild(toggle);
+
+          const body = document.createElement("div");
+          body.className = "utxo-group-body";
+
+          const bodyInner = document.createElement("div");
+          bodyInner.className = "utxo-group-body-inner";
+
+          const tableWrap = document.createElement("div");
+          tableWrap.className = "utxo-table-wrap";
+
+          const table = document.createElement("table");
+          const thead = document.createElement("thead");
+          thead.innerHTML =
+            "<tr><th style='width:2rem;'>Sel</th><th>Address</th><th>TXID</th><th>Amt</th></tr>";
+          const tbody = document.createElement("tbody");
+
+          utxos.forEach((u) => {
+            const tr = document.createElement("tr");
+
+            const selTd = document.createElement("td");
+            const addrTd = document.createElement("td");
+            const txidTd = document.createElement("td");
+            const amtTd = document.createElement("td");
+
+            const cb = document.createElement("input");
+            cb.type = "checkbox";
+            cb.className = "utxo-checkbox";
+
+            const key = utxoKey(u);
+            if (selectedUtxoKeys.has(key)) cb.checked = true;
+
+            cb.addEventListener("click", (e) => {
+              e.stopPropagation();
+            });
+
+            cb.addEventListener("change", () => {
+              if (cb.checked) selectedUtxoKeys.add(key);
+              else selectedUtxoKeys.delete(key);
+              syncGroupCheckboxState(groups, label, groupCb);
+              updateSelectedUtxosHint();
+            });
+
+            selTd.appendChild(cb);
+
+            addrTd.textContent = truncateMiddle(u.address || "-", 5, 5);
+            txidTd.textContent = truncateMiddle(u.txid || "-", 10, 10);
+            amtTd.textContent =
+              u.amount !== undefined ? u.amount.toString() : "-";
+
+            tr.appendChild(selTd);
+            tr.appendChild(addrTd);
+            tr.appendChild(txidTd);
+            tr.appendChild(amtTd);
+
+            tr.addEventListener("click", (e) => {
+              if (e.target === cb) return;
+              openUtxoDetail(u);
+            });
+
+            tbody.appendChild(tr);
+          });
+
+          table.appendChild(thead);
+          table.appendChild(tbody);
+          tableWrap.appendChild(table);
+          bodyInner.appendChild(tableWrap);
+          body.appendChild(bodyInner);
+
+          groupDiv.appendChild(header);
+          groupDiv.appendChild(body);
+          container.appendChild(groupDiv);
+
+          // group checkbox behaviour
+          groupCb.addEventListener("click", (e) => {
+            e.stopPropagation();
+          });
+
+          groupCb.addEventListener("change", () => {
+            const checked = groupCb.checked;
+            utxos.forEach((u) => {
+              const key = utxoKey(u);
+              if (checked) selectedUtxoKeys.add(key);
+              else selectedUtxoKeys.delete(key);
+            });
+            // reflect in row checkboxes
+            tbody.querySelectorAll("input.utxo-checkbox").forEach((cbRow) => {
+              cbRow.checked = checked;
+            });
+            updateSelectedUtxosHint();
+          });
+
+          header.addEventListener("click", (e) => {
+            // clicking on header (but not on checkboxes) toggles expansion
+            if (e.target === groupCb) return;
+            groupDiv.classList.toggle("expanded");
+            toggle.textContent = groupDiv.classList.contains("expanded") ? "▲" : "▼";
+          });
+
+          // initial state: collapsed, and group checkbox derived from selections
+          syncGroupCheckboxState(groups, label, groupCb);
+        });
+
+        updateSelectedUtxosHint();
+      }
+
+      function syncGroupCheckboxState(groupMap, label, groupCb) {
+        const utxos = groupMap.get(label) || [];
+        if (!utxos.length) {
+          groupCb.checked = false;
+          groupCb.indeterminate = false;
+          return;
+        }
+        let selectedCount = 0;
+        utxos.forEach((u) => {
+          if (selectedUtxoKeys.has(utxoKey(u))) selectedCount++;
+        });
+        if (selectedCount === 0) {
+          groupCb.checked = false;
+          groupCb.indeterminate = false;
+        } else if (selectedCount === utxos.length) {
+          groupCb.checked = true;
+          groupCb.indeterminate = false;
+        } else {
+          groupCb.checked = false;
+          groupCb.indeterminate = true;
+        }
+      }
+
+      // ----- Import Key Modal -----
+      function openImportModal() {
+        $("importStatus").textContent = "";
+        $("importStatus").style.color = "";
+        $("importModalOverlay").classList.add("active");
+      }
+      function closeImportModal() {
+        $("importModalOverlay").classList.remove("active");
+      }
+
+      async function doImportPrivKey() {
+        const priv = $("importPrivKeyInput").value.trim();
+        const label = $("importLabelInput").value.trim();
+        const rescan = $("importRescanCheckbox").checked;
+        const statusEl = $("importStatus");
+        statusEl.textContent = "";
+        statusEl.style.color = "";
+
+        if (!priv) {
+          setStatus("Private key is required.", true);
+          statusEl.textContent = "Private key is required.";
+          statusEl.style.color = "#ff6b6b";
+          return;
+        }
+
+        try {
+          setStatus("Importing private key...", false);
+          statusEl.textContent = "Importing key...";
+          const res = await fetch("/api/wallet/import-privkey", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ privkey: priv, label, rescan }),
+          });
+          const data = await res.json().catch(() => ({}));
+          if (!res.ok) {
+            throw new Error(data.error || data.detail || "Import failed");
+          }
+
+          await loadNodeStatus();
+          await loadWalletHistory();
+          await loadUtxos();
+
+          statusEl.textContent = "Wallet imported successfully.";
+          statusEl.style.color = "#37ff7f";
+          setStatus("Private key imported successfully.", false);
+        } catch (err) {
+          console.error(err);
+          statusEl.textContent = "Error: " + err.message;
+          statusEl.style.color = "#ff6b6b";
+          setStatus("Import error: " + err.message, true);
+        }
+      }
+
+      // ----- Send DOGE Modal -----
+      function getSelectedWalletBalance() {
+        if (!lastWallets.length) return 0;
+        const selName = $("sendWalletSelect").value;
+        const w =
+          lastWallets.find((x) => (x.name || "") === selName) || lastWallets[0];
+        return Number(w.balance || 0);
+      }
+
+      function updateSendAmountHint() {
+        const bal = getSelectedWalletBalance();
+        const totalSelected = sumSelectedUtxos();
+        const fee = getCurrentFee();
+
+        const base = totalSelected > 0 ? totalSelected : bal;
+        const max = Math.max(0, base - fee);
+
+        $("sendAmountHint").textContent =
+          "Max (with current fee " +
+          fee.toFixed(2) +
+          " DOGE): " +
+          max.toFixed(8) +
+          " DOGE";
+      }
+
+      function openSendModal() {
+        const sel = $("sendWalletSelect");
+        sel.innerHTML = "";
+        if (!lastWallets.length) {
+          const opt = document.createElement("option");
+          opt.value = "";
+          opt.textContent = "No wallet data";
+          sel.appendChild(opt);
+        } else {
+          lastWallets.forEach((w, idx) => {
+            const opt = document.createElement("option");
+            opt.value = w.name || "wallet-" + (idx + 1);
+            opt.textContent =
+              (w.name || "wallet-" + (idx + 1)) +
+              " (" +
+              (w.balance !== undefined ? w.balance : 0) +
+              " DOGE)";
+            sel.appendChild(opt);
+          });
+        }
+
+        // reset slider + label
+        const slider = $("feeSlider");
+        if (slider) slider.value = FEE_DEFAULT.toFixed(2);
+        updateFeeLabel();
+
+        $("deductFeeCheckbox").checked = true;
+
+        $("sendAmountInput").value = "";
+        $("sendAddressInput").value = "";
+
+        lastSendTxid = null;
+        $("sendTxSection").style.display = "none";
+        $("sendTxidDisplay").textContent = "";
+        const confEl = $("sendConfirmationsDisplay");
+        confEl.textContent = "";
+        confEl.classList.remove("confirmations-ok");
+
+        updateSendAmountHint();
+        updateSelectedUtxosHint();
+
+        $("sendModalOverlay").classList.add("active");
+      }
+
+      function closeSendModal() {
+        $("sendModalOverlay").classList.remove("active");
+      }
+
+      function setMaxAmountFromSelection() {
+        const totalSelected = sumSelectedUtxos();
+        const bal = getSelectedWalletBalance();
+        const fee = getCurrentFee();
+        const deduct = $("deductFeeCheckbox").checked;
+
+        const base = totalSelected > 0 ? totalSelected : bal;
+
+        let max = base;
+        if (deduct) {
+          max = Math.max(0, base - fee);
+        }
+
+        $("sendAmountInput").value = max.toFixed(8);
+      }
+
+      async function doSendDoge() {
+        const walletName = $("sendWalletSelect").value;
+        const amountStr = $("sendAmountInput").value.trim();
+        const addr = $("sendAddressInput").value.trim();
+        const fee = getCurrentFee();
+
+        const bal = getSelectedWalletBalance();
+        const totalSelected = sumSelectedUtxos();
+        const base = totalSelected > 0 ? totalSelected : bal;
+
+        const amount = Number(amountStr);
+
+        if (!addr) {
+          setStatus("Destination address required.", true);
+          return;
+        }
+        if (!amountStr || !isFinite(amount) || amount <= 0) {
+          setStatus("Amount must be > 0.", true);
+          return;
+        }
+
+        // Ensure amount + fee doesn't exceed base
+        if (amount + fee > base + 1e-8) {
+          setStatus(
+            "Amount + fee exceeds available balance/selected UTXOs.",
+            true
+          );
+          return;
+        }
+
+        const utxosForSend = allUtxos.filter((u) =>
+          selectedUtxoKeys.has(utxoKey(u))
+        );
+        const utxoPayload = utxosForSend.map((u) => ({
+          txid: u.txid,
+          vout: u.vout,
+        }));
+
+        try {
+          setStatus("Sending DOGE...", false);
+          const res = await fetch("/api/wallet/send", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              walletName,
+              address: addr,
+              amount,
+              utxos: utxoPayload,
+              fee,
+            }),
+          });
+          const data = await res.json().catch(() => ({}));
+          if (!res.ok) {
+            throw new Error(data.error || data.detail || "Send failed");
+          }
+
+          lastSendTxid = data.txid;
+          const nowStr = new Date().toLocaleString();
+          $("sendTxidDisplay").textContent =
+            (data.txid || "?") + " (sent at " + nowStr + ")";
+          const confEl = $("sendConfirmationsDisplay");
+          confEl.textContent = "Click CHECK STATUS to query confirmations.";
+          confEl.classList.remove("confirmations-ok");
+          $("sendTxSection").style.display = "block";
+
+          setStatus("DOGE sent. TXID is shown in the modal.", false);
+          await loadNodeStatus();
+          await loadWalletHistory();
+          await loadUtxos();
+        } catch (err) {
+          console.error(err);
+          setStatus("Send error: " + err.message, true);
+        }
+      }
+
+      async function checkSendStatus() {
+        if (!lastSendTxid) {
+          setStatus("No TXID to check yet.", true);
+          return;
+        }
+
+        try {
+          setStatus("Checking send status...", false);
+          const confEl = $("sendConfirmationsDisplay");
+          confEl.textContent = "Loading...";
+          confEl.classList.remove("confirmations-ok");
+
+          const res = await fetch("/api/tx/check", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ txid: lastSendTxid }),
+          });
+          const data = await res.json().catch(() => ({}));
+          if (!res.ok) {
+            throw new Error(data.error || data.detail || "Check failed");
+          }
+
+          const tx = data.tx || data;
+          const conf =
+            tx.confirmations !== undefined ? tx.confirmations : "unknown";
+          let timeStr = "unknown";
+          if (tx.blocktime || tx.time) {
+            const ts = (tx.blocktime || tx.time) * 1000;
+            if (Number.isFinite(ts)) {
+              timeStr = new Date(ts).toLocaleString();
+            }
+          }
+
+          confEl.textContent =
+            "Confirmations: " + conf + " | Time: " + timeStr;
+
+          const confNum = Number(conf);
+          if (Number.isFinite(confNum) && confNum > 0) {
+            confEl.classList.add("confirmations-ok");
+          } else {
+            confEl.classList.remove("confirmations-ok");
+          }
+
+          setStatus("Send status updated.", false);
+        } catch (err) {
+          console.error(err);
+          const confEl = $("sendConfirmationsDisplay");
+          confEl.textContent = "Error: " + err.message;
+          confEl.classList.remove("confirmations-ok");
+          setStatus("TX status error: " + err.message, true);
+        }
+      }
+
+      // ----- Wallet TX detail modal -----
+      function openTxDetail(tx) {
+        currentDetailTx = tx || null;
+        const idEl = $("txDetailTxid");
+        const addrEl = $("txDetailAddress");
+        const amtEl = $("txDetailAmount");
+        const metaEl = $("txDetailMeta");
+        const confEl = $("txDetailConf");
+
+        idEl.textContent = tx.txid || "-";
+        addrEl.textContent = tx.address || "-";
+
+        amtEl.textContent =
+          "Amount: " +
+          (tx.amount !== undefined ? tx.amount : "?") +
+          " DOGE | Fee: " +
+          (tx.fee !== undefined ? tx.fee : "?") +
+          " DOGE";
+
+        let timeStr = "unknown";
+        if (tx.time) {
+          const d = new Date(tx.time * 1000);
+          timeStr = d.toLocaleString();
+        }
+
+        metaEl.textContent =
+          "Category: " + (tx.category || "-") + " | Time: " + timeStr;
+
+        confEl.textContent =
+          "Confirmations: " +
+          (tx.confirmations !== undefined ? tx.confirmations : "unknown");
+        confEl.classList.remove("confirmations-ok");
+        const confNum = Number(tx.confirmations);
+        if (Number.isFinite(confNum) && confNum > 0) {
+          confEl.classList.add("confirmations-ok");
+        }
+
+        $("txDetailOverlay").classList.add("active");
+      }
+
+      function closeTxDetail() {
+        $("txDetailOverlay").classList.remove("active");
+        currentDetailTx = null;
+      }
+
+      async function checkTxDetailStatus() {
+        if (!currentDetailTx || !currentDetailTx.txid) {
+          setStatus("No transaction selected.", true);
+          return;
+        }
+        try {
+          setStatus("Checking transaction status...", false);
+          const confEl = $("txDetailConf");
+          confEl.textContent = "Loading...";
+          confEl.classList.remove("confirmations-ok");
+
+          const res = await fetch("/api/tx/check", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ txid: currentDetailTx.txid }),
+          });
+          const data = await res.json().catch(() => ({}));
+          if (!res.ok) {
+            throw new Error(data.error || data.detail || "Check failed");
+          }
+
+          const tx = data.tx || data;
+          const conf =
+            tx.confirmations !== undefined ? tx.confirmations : "unknown";
+          confEl.textContent = "Confirmations: " + conf;
+
+          const confNum = Number(conf);
+          if (Number.isFinite(confNum) && confNum > 0) {
+            confEl.classList.add("confirmations-ok");
+          } else {
+            confEl.classList.remove("confirmations-ok");
+          }
+
+          setStatus("Transaction status updated.", false);
+        } catch (err) {
+          console.error(err);
+          const confEl = $("txDetailConf");
+          confEl.textContent = "Error: " + err.message;
+          confEl.classList.remove("confirmations-ok");
+          setStatus("TX status error: " + err.message, true);
+        }
+      }
+
+      async function copyToClipboard(text) {
+        try {
+          await navigator.clipboard.writeText(text || "");
+          setStatus("Copied to clipboard.", false);
+        } catch (e) {
+          setStatus("Copy failed.", true);
+        }
+      }
+
+      // ----- UTXO detail modal -----
+      function openUtxoDetail(u) {
+        currentUtxoDetail = u;
+        $("utxoDetailTxid").textContent =
+          (u.txid || "-") + " / vout " + (u.vout ?? "?");
+        $("utxoDetailAddress").textContent =
+          (u.address || "-") + "  |  label: " + (u.label || "default");
+        $("utxoDetailAmount").textContent =
+          "Amount: " +
+          (u.amount !== undefined ? u.amount : "?") +
+          " DOGE  |  Confirmations: " +
+          (u.confirmations !== undefined ? u.confirmations : "unknown");
+        $("utxoDetailTime").textContent = "Loading time from node...";
+        $("utxoDetailSummary").textContent = "";
+
+        $("utxoDetailOverlay").classList.add("active");
+
+        fetch("/api/tx/check", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ txid: u.txid }),
+        })
+          .then((r) => r.json())
+          .then((data) => {
+            const tx = data.tx || data || {};
+            let timeStr = "unknown";
+            if (tx.blocktime || tx.time) {
+              const ts = (tx.blocktime || tx.time) * 1000;
+              if (Number.isFinite(ts)) {
+                timeStr = new Date(ts).toLocaleString();
+              }
+            }
+            $("utxoDetailTime").textContent = timeStr;
+
+            const lines = [];
+            if (Array.isArray(tx.details)) {
+              tx.details.forEach((d, i) => {
+                lines.push(
+                  `${i + 1}. ${d.category || ""} ${d.amount || ""} DOGE -> ${
+                    d.address || ""
+                  }`
+                );
+              });
+            }
+            $("utxoDetailSummary").textContent = lines.join(" | ");
+          })
+          .catch((err) => {
+            console.error("utxo detail tx check error", err);
+            $("utxoDetailTime").textContent = "Error loading time.";
+          });
+      }
+
+      function closeUtxoDetail() {
+        $("utxoDetailOverlay").classList.remove("active");
+        currentUtxoDetail = null;
+      }
+
+      // ----- inline TX checker -----
+      async function doCheckTx() {
+        const txid = $("txCheckInput").value.trim();
+        if (!txid) {
+          setStatus("TXID required for check.", true);
+          return;
+        }
+
+        try {
+          setStatus("Checking transaction...", false);
+          $("txSummaryPre").textContent = "Loading...";
+          $("txRawPre").textContent = "Loading...";
+
+          const res = await fetch("/api/tx/check", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ txid }),
+          });
+          const data = await res.json().catch(() => ({}));
+          if (!res.ok) {
+            throw new Error(data.error || data.detail || "Check failed");
+          }
+
+          const tx = data.tx || data;
+          const lines = [];
+          if (tx.amount !== undefined)
+            lines.push("Amount: " + tx.amount + " DOGE");
+          if (tx.fee !== undefined) lines.push("Fee: " + tx.fee + " DOGE");
+          if (tx.confirmations !== undefined)
+            lines.push("Confirmations: " + tx.confirmations);
+          if (tx.blockhash) lines.push("Blockhash: " + tx.blockhash);
+          if (tx.blocktime)
+            lines.push(
+              "Block time: " + new Date(tx.blocktime * 1000).toISOString()
+            );
+          if (Array.isArray(tx.details) && tx.details.length) {
+            lines.push("");
+            lines.push("Details:");
+            tx.details.forEach((d, i) => {
+              lines.push(
+                `  ${i + 1}. ${d.category || ""} ${d.amount || ""} DOGE -> ${
+                  d.address || ""
+                }`
+              );
+            });
+          }
+
+          $("txSummaryPre").textContent =
+            lines.length ? lines.join("\n") : "No summary fields.";
+
+          $("txRawPre").textContent = JSON.stringify(tx, null, 2);
+
+          setStatus("TX check complete.", false);
+        } catch (err) {
+          console.error(err);
+          $("txSummaryPre").textContent = "Error: " + err.message;
+          $("txRawPre").textContent = "Error.";
+          setStatus("TX check error: " + err.message, true);
+        }
+      }
+
+      // ----- RPC Settings -----
+      const DEFAULT_RPC_URL = "http://127.0.0.1:22555";
+
+      function openRpcModal() {
+        const overlay = $("rpcModalOverlay");
+        if (!overlay) return;
+
+        const urlInput = $("rpcUrlInput");
+        const statusEl = $("rpcModalStatus");
+
+        if (urlInput && !urlInput.value.trim()) {
+          urlInput.value = DEFAULT_RPC_URL;
+        }
+        if (statusEl) {
+          statusEl.textContent = "";
+          statusEl.style.color = "#d1d5db";
+        }
+
+        overlay.classList.add("active");
+      }
+
+      function closeRpcModal() {
+        const overlay = $("rpcModalOverlay");
+        if (!overlay) return;
+        overlay.classList.remove("active");
+      }
+
+      async function saveRpcSettings() {
+        const url = ($("rpcUrlInput").value || "").trim() || DEFAULT_RPC_URL;
+        const user = ($("rpcUserInput").value || "").trim();
+        const pass = ($("rpcPassInput").value || "").trim();
+        const statusEl = $("rpcModalStatus");
+
+        try {
+          if (statusEl) {
+            statusEl.textContent = "Saving settings...";
+            statusEl.style.color = "#d1d5db";
+          }
+
+          const res = await fetch("/api/dev/rpc-config/save", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ url, user, pass }),
+          });
+
+          const data = await res.json().catch(() => ({}));
+          if (!res.ok || !data.ok) {
+            throw new Error(data.error || data.detail || "Save failed");
+          }
+
+          if (statusEl) {
+            statusEl.textContent = "Saved. RPC settings updated.";
+            statusEl.style.color = "#37ff7f";
+          }
+
+          loadNodeStatus();
+          setStatus("RPC settings saved.", false);
+
+          setTimeout(closeRpcModal, 900);
+        } catch (err) {
+          console.error("RPC save error", err);
+          if (statusEl) {
+            statusEl.textContent = "Error: " + err.message;
+            statusEl.style.color = "#ff6b6b";
+          }
+          setStatus("RPC save error: " + err.message, true);
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", () => {
+        const yearSpan = $("yearSpan");
+        if (yearSpan) yearSpan.textContent = new Date().getFullYear();
+
+        loadGlobalMenu();
+
+        // Node status + wallet data
+        loadNodeStatus();
+        loadWalletHistory();
+        loadUtxos();
+
+        // import modal
+        $("importKeyBtn").addEventListener("click", openImportModal);
+        $("importModalClose").addEventListener("click", closeImportModal);
+        $("importCancelBtn").addEventListener("click", closeImportModal);
+        $("importConfirmBtn").addEventListener("click", doImportPrivKey);
+
+        // send modal
+        $("sendDogeBtn").addEventListener("click", openSendModal);
+        $("sendModalClose").addEventListener("click", closeSendModal);
+        $("sendCancelBtn").addEventListener("click", closeSendModal);
+        $("sendWalletSelect").addEventListener("change", updateSendAmountHint);
+        $("sendConfirmBtn").addEventListener("click", doSendDoge);
+        $("sendCheckStatusBtn").addEventListener("click", checkSendStatus);
+        $("sendMaxBtn").addEventListener("click", setMaxAmountFromSelection);
+        $("feeSlider").addEventListener("input", () => {
+          updateFeeLabel();
+          updateSendAmountHint();
+        });
+        $("deductFeeCheckbox").addEventListener("change", updateSendAmountHint);
+
+        // UTXO detail modal
+        $("utxoDetailClose").addEventListener("click", closeUtxoDetail);
+        $("utxoDetailCloseBtn").addEventListener("click", closeUtxoDetail);
+        $("utxoDetailOverlay").addEventListener("click", (e) => {
+          if (e.target.id === "utxoDetailOverlay") closeUtxoDetail();
+        });
+
+        // TX detail modal
+        $("txDetailCopyTxidBtn").addEventListener("click", () => {
+          const txt = $("txDetailTxid").textContent || "";
+          copyToClipboard(txt);
+        });
+        $("txDetailCopyAddrBtn").addEventListener("click", () => {
+          const txt = $("txDetailAddress").textContent || "";
+          copyToClipboard(txt);
+        });
+        $("txDetailCheckBtn").addEventListener("click", checkTxDetailStatus);
+        $("txDetailClose").addEventListener("click", closeTxDetail);
+        $("txDetailCloseBtn").addEventListener("click", closeTxDetail);
+        $("txDetailOverlay").addEventListener("click", (e) => {
+          if (e.target.id === "txDetailOverlay") closeTxDetail();
+        });
+
+        // wallet balances + history refresh
+        $("walletRefreshBtn").addEventListener("click", () => {
+          loadNodeStatus();
+          loadWalletHistory();
+          loadUtxos();
+        });
+
+        // history refresh
+        $("historyRefreshBtn").addEventListener("click", loadWalletHistory);
+
+        // inline TX checker toggle
+        $("txInlineCheckBtn").addEventListener("click", () => {
+          $("historyView").style.display = "none";
+          $("txCheckerView").style.display = "flex";
+        });
+        $("txCheckerBackBtn").addEventListener("click", () => {
+          $("txCheckerView").style.display = "none";
+          $("historyView").style.display = "block";
+        });
+        $("txCheckGoBtn").addEventListener("click", doCheckTx);
+        $("txCheckInput").addEventListener("keydown", (e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            doCheckTx();
+          }
+        });
+
+        // RPC modal
+        const rpcBtn = $("openRpcConfigBtn");
+        if (rpcBtn) {
+          rpcBtn.addEventListener("click", openRpcModal);
+        }
+        $("rpcModalClose").addEventListener("click", closeRpcModal);
+        $("rpcModalCancelBtn").addEventListener("click", closeRpcModal);
+        $("rpcModalOverlay").addEventListener("click", (e) => {
+          if (e.target.id === "rpcModalOverlay") closeRpcModal();
+        });
+        $("rpcModalSaveBtn").addEventListener("click", (e) => {
+          e.preventDefault();
+          saveRpcSettings();
+        });
+
+        // initialise fee label
+        const slider = $("feeSlider");
+        if (slider) slider.value = FEE_DEFAULT.toFixed(2);
+        updateFeeLabel();
+      });
+    </script>
+  </body>
+</html>

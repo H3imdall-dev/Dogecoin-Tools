@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>Model Viewer</title>
+
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      background: #05060b;
+      overflow: hidden;
+      font-family: system-ui, -apple-system, Segoe UI, sans-serif;
+    }
+
+    #root {
+      position: absolute;
+      inset: 0;
+    }
+
+    /* Hidden by default; we only show HUD when there is an error */
+    #hud {
+      position: absolute;
+      left: 14px;
+      top: 14px;
+      right: 14px;
+      display: none;
+      flex-direction: column;
+      gap: 8px;
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    #hud.active {
+      display: flex;
+    }
+
+    .pill {
+      pointer-events: none;
+      display: inline-block;
+      max-width: 100%;
+      padding: 10px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(248, 209, 116, 0.35);
+      background: rgba(0,0,0,0.45);
+      color: #f6d47e;
+      font-size: 12px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    #error {
+      position: absolute;
+      inset: 0;
+      padding: 16px;
+      display: none;
+      color: #ff9a9a;
+      background: radial-gradient(circle at top, #181a25 0, #05060b 70%);
+      z-index: 10;
+      overflow: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    canvas { display: block; }
+  </style>
+
+  <!-- Local import map (NO CDN). Requires these files to exist:
+       /assets-page/three/three.module.js
+       /assets-page/three/jsm/controls/OrbitControls.js
+       /assets-page/three/jsm/loaders/GLTFLoader.js
+       /assets-page/three/jsm/loaders/DRACOLoader.js
+       /assets-page/three/draco/draco_decoder.js
+       /assets-page/three/draco/draco_wasm_wrapper.js
+       /assets-page/three/draco/draco_decoder.wasm
+  -->
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "/assets-page/three/three.module.js",
+      "three/addons/": "/assets-page/three/jsm/"
+    }
+  }
+  </script>
+</head>
+
+<body>
+  <div id="root"></div>
+
+  <!-- HUD is now error-only (hidden on success) -->
+  <div id="hud">
+    <div class="pill" id="pillSrc">Loading: –</div>
+    <div class="pill" id="pillHint">Drag: rotate • Wheel: zoom • Right-drag: pan</div>
+    <div class="pill" id="pillStatus">Booting renderer…</div>
+  </div>
+
+  <pre id="error"></pre>
+
+  <script type="module">
+    import * as THREE from "three";
+    import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+    import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+    import { DRACOLoader } from "three/addons/loaders/DRACOLoader.js";
+
+    const $ = (id) => document.getElementById(id);
+
+    const params = new URLSearchParams(location.search);
+    let src = params.get("src");
+
+    // Normalize src a bit for safety (allow absolute, or root-relative, or relative)
+    if (src) {
+      try { src = decodeURIComponent(src); } catch (_) {}
+      if (!/^https?:\/\//i.test(src) && !src.startsWith("/")) src = "/" + src;
+    }
+
+    // We do NOT show the HUD in normal operation.
+    // If we hit an error, we show HUD + error text.
+
+    if (!src) {
+      fail("No src provided.\n\nUse:\n  model-viewer.html?src=/content/<file>.glb\n  model-viewer.html?src=/content/<file>.gltf\n\nYou can also pass an HTML that references a .gltf/.glb, and this viewer will try to discover it.");
+      throw new Error("No src");
+    }
+
+    // WebGL sanity check BEFORE creating the renderer
+    if (!webglAvailable()) {
+      fail(
+        "WebGL is unavailable in this browser/session.\n\n" +
+        "This is NOT something the server can 'add'. WebGL must be supported & enabled by the browser/GPU.\n\n" +
+        "Try:\n" +
+        "- Enable Hardware Acceleration in browser settings\n" +
+        "- Disable extensions that inject 'lockdown/SES'\n" +
+        "- Try a fresh Chrome profile / Incognito (extensions off)\n" +
+        "- Avoid Remote Desktop / VM GPU restrictions\n" +
+        "- Update GPU drivers\n"
+      );
+      throw new Error("WebGL unavailable");
+    }
+
+    const root = $("root");
+    let renderer, scene, camera, controls;
+
+    // Keep references for cleanup
+    let activeGltf = null;
+    let draco = null;
+
+    boot().catch((e) => {
+      fail("Viewer boot failed.\n\n" + (e?.stack || e?.message || String(e)));
+    });
+
+    async function boot() {
+      renderer = new THREE.WebGLRenderer({
+        antialias: true,
+        alpha: false,
+        powerPreference: "high-performance"
+      });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.outputColorSpace = THREE.SRGBColorSpace;
+      root.appendChild(renderer.domElement);
+
+      scene = new THREE.Scene();
+      scene.background = new THREE.Color(0x05060b);
+
+      camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.01, 5000);
+      camera.position.set(0, 1.0, 3.0);
+
+      controls = new OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true;
+      controls.dampingFactor = 0.06;
+      controls.target.set(0, 0, 0);
+      controls.update();
+
+      // ===== Brighter lighting rig (fix dark models) =====
+      // 1) Hemisphere: strong fill
+      const hemi = new THREE.HemisphereLight(0xffffff, 0x2a2a35, 10.0);
+      scene.add(hemi);
+
+      // 2) Key light
+      const key = new THREE.DirectionalLight(0xffffff, 10.0);
+      key.position.set(8, 12, 10);
+      scene.add(key);
+
+      // 3) Fill light (opposite side)
+      const fill = new THREE.DirectionalLight(0xffffff, 5.0);
+      fill.position.set(-10, 6, 4);
+      scene.add(fill);
+
+      // 4) Rim/back light (gives edge separation)
+      const rim = new THREE.DirectionalLight(0xfff1cc, 10.0);
+      rim.position.set(-6, 8, -12);
+      scene.add(rim);
+
+      // 5) Stronger ambient so metallic models don't go black
+      const amb = new THREE.AmbientLight(0xffffff, 0.4);
+      scene.add(amb);
+
+      // Optional: subtle ground to help perception (can remove if you want pure background)
+      const groundGeo = new THREE.PlaneGeometry(50, 50);
+      const groundMat = new THREE.MeshStandardMaterial({
+        color: 0x0a0b12,
+        roughness: 1.0,
+        metalness: 0.0
+      });
+      const ground = new THREE.Mesh(groundGeo, groundMat);
+      ground.rotation.x = -Math.PI / 2;
+      ground.position.y = -0.0001;
+      ground.visible = false; // keep invisible; set true if you want a faint floor
+      scene.add(ground);
+
+      // Resolve src to actual model url
+      const resolved = await resolveModelUrl(src);
+
+      await loadModel(resolved);
+
+      // Render loop
+      function tick() {
+        requestAnimationFrame(tick);
+        controls.update();
+        renderer.render(scene, camera);
+      }
+      tick();
+
+      window.addEventListener("resize", () => {
+        if (!renderer || !camera) return;
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+      });
+    }
+
+    async function resolveModelUrl(inputUrl) {
+      const lower = inputUrl.toLowerCase();
+      if (lower.endsWith(".glb") || lower.endsWith(".gltf")) return inputUrl;
+
+      let ct = "";
+      try {
+        const r = await fetch(inputUrl, { method: "HEAD", cache: "no-store" });
+        if (r.ok) ct = (r.headers.get("content-type") || "").toLowerCase();
+      } catch (_) {}
+
+      if (!ct) {
+        try {
+          const r = await fetch(inputUrl, { method: "GET", cache: "no-store" });
+          if (r.ok) ct = (r.headers.get("content-type") || "").toLowerCase();
+
+          if (!ct.includes("text/html")) {
+            return inputUrl;
+          }
+
+          const html = await r.text();
+          const found = findFirstModelReferenceInHtml(html, inputUrl);
+          if (found) return found;
+          return inputUrl;
+        } catch (_) {
+          return inputUrl;
+        }
+      }
+
+      if (ct.includes("text/html")) {
+        try {
+          const r = await fetch(inputUrl, { cache: "no-store" });
+          const html = await r.text();
+          const found = findFirstModelReferenceInHtml(html, inputUrl);
+          if (found) return found;
+        } catch (_) {}
+        return inputUrl;
+      }
+
+      return inputUrl;
+    }
+
+    function findFirstModelReferenceInHtml(htmlText, htmlUrl) {
+      const candidates = [];
+
+      {
+        const re = /<model-viewer[^>]*\ssrc\s*=\s*["']([^"']+)["']/ig;
+        let m;
+        while ((m = re.exec(htmlText))) candidates.push(m[1]);
+      }
+
+      {
+        const re = /\s(?:src|href)\s*=\s*["']([^"']+\.(?:gltf|glb))["']/ig;
+        let m;
+        while ((m = re.exec(htmlText))) candidates.push(m[1]);
+      }
+
+      {
+        const re = /([A-Za-z0-9_./%-]+?\.(?:gltf|glb))/ig;
+        let m;
+        while ((m = re.exec(htmlText))) candidates.push(m[1]);
+      }
+
+      const first = candidates.find(Boolean);
+      if (!first) return null;
+
+      try {
+        const abs = new URL(first, window.location.origin + htmlUrl).toString();
+        const u = new URL(abs);
+        if (u.origin === window.location.origin) return u.pathname + u.search + u.hash;
+        return abs;
+      } catch (_) {
+        return first;
+      }
+    }
+
+    async function loadModel(modelUrl) {
+      cleanupPreviousModel();
+
+      const loader = new GLTFLoader();
+
+      draco = new DRACOLoader();
+      draco.setDecoderPath("/assets-page/three/draco/");
+      draco.setDecoderConfig({ type: "wasm" });
+      loader.setDRACOLoader(draco);
+
+      const basePath = modelUrl.includes("/")
+        ? modelUrl.slice(0, modelUrl.lastIndexOf("/") + 1)
+        : "/";
+
+      loader.setResourcePath(basePath);
+
+      return new Promise((resolve, reject) => {
+        loader.load(
+          modelUrl,
+          (gltf) => {
+            activeGltf = gltf;
+
+            const obj = gltf.scene || gltf.scenes?.[0];
+            if (!obj) {
+              fail("Loaded GLTF/GLB but no scene found inside.");
+              reject(new Error("No scene in gltf"));
+              return;
+            }
+
+            // Ensure textures are treated as sRGB where appropriate
+            obj.traverse((n) => {
+              if (n.isMesh && n.material) {
+                n.material.side = THREE.DoubleSide;
+                if (n.material.map) n.material.map.colorSpace = THREE.SRGBColorSpace;
+              }
+            });
+
+            scene.add(obj);
+            frameObject(obj);
+
+            resolve();
+          },
+          () => {
+            // no HUD/status on success path
+          },
+          (err) => {
+            const msg =
+              "GLTF/GLB load failed.\n\n" +
+              (err?.message || String(err)) +
+              "\n\nCommon causes:\n" +
+              "- If this is .gltf: missing .bin or textures (must be served at the same relative paths)\n" +
+              "- Bad content-type/rewrites returning HTML instead of the model\n" +
+              "- Corrupted/truncated file in /content cache\n" +
+              "- Draco-compressed model but missing decoder files under /assets-page/three/draco/\n";
+            fail(msg, modelUrl);
+            reject(err);
+          }
+        );
+      });
+    }
+
+    function frameObject(obj) {
+      const box = new THREE.Box3().setFromObject(obj);
+      const size = box.getSize(new THREE.Vector3());
+      const center = box.getCenter(new THREE.Vector3());
+
+      obj.position.sub(center);
+
+      const maxDim = Math.max(size.x, size.y, size.z) || 1;
+      const fitDist = maxDim * 1.6;
+
+      camera.position.set(0, maxDim * 0.35, fitDist);
+      camera.near = Math.max(0.001, fitDist / 1000);
+      camera.far = Math.max(2000, fitDist * 10);
+      camera.updateProjectionMatrix();
+
+      controls.target.set(0, 0, 0);
+      controls.update();
+    }
+
+    function cleanupPreviousModel() {
+      if (!activeGltf) return;
+
+      const obj = activeGltf.scene || activeGltf.scenes?.[0];
+      if (obj && scene) scene.remove(obj);
+
+      if (obj) {
+        obj.traverse((n) => {
+          if (n.isMesh) {
+            n.geometry?.dispose?.();
+            const mat = n.material;
+            if (mat) {
+              for (const k in mat) {
+                const v = mat[k];
+                if (v && v.isTexture) v.dispose?.();
+              }
+              mat.dispose?.();
+            }
+          }
+        });
+      }
+
+      activeGltf = null;
+
+      if (draco) {
+        draco.dispose?.();
+        draco = null;
+      }
+    }
+
+    function fail(msg, modelUrl = src) {
+      // Show HUD only when there's an error
+      const hud = $("hud");
+      hud.classList.add("active");
+
+      $("pillSrc").textContent = "Loading: " + (modelUrl || "—");
+      $("pillStatus").textContent = "Model failed to load.";
+
+      const el = $("error");
+      el.style.display = "block";
+      el.textContent = msg;
+    }
+
+    function webglAvailable() {
+      try {
+        const c = document.createElement("canvas");
+        return !!(
+          c.getContext("webgl2", { failIfMajorPerformanceCaveat: true }) ||
+          c.getContext("webgl", { failIfMajorPerformanceCaveat: true }) ||
+          c.getContext("experimental-webgl")
+        );
+      } catch {
+        return false;
+      }
+    }
+  </script>
+</body>
+</html>

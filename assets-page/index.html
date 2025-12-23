@@ -1,0 +1,1166 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0"
+    />
+    <title>Doginal Viewer</title>
+    <link rel="icon" type="image/png" href="/assets/menu.png" />
+    <link rel="shortcut icon" type="image/png" href="/assets/menu.png" />
+
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        height: 100%;
+      }
+
+      body {
+        position: relative;
+        min-height: 100vh;
+        font-family: "Space Grotesk", system-ui, -apple-system, BlinkMacSystemFont,
+          "Segoe UI", sans-serif;
+        color: #f6f2e9;
+        padding: 2rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        background:
+          radial-gradient(circle at top left, #3a280e 0, transparent 55%),
+          radial-gradient(circle at bottom right, #b38a2e 0, transparent 55%),
+          linear-gradient(135deg, #05060a 0%, #0a0e18 35%, #05040a 100%);
+        overflow-x: hidden;
+      }
+
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background-image: url("/assets/bg.png");
+        background-size: auto;
+        background-repeat: repeat;
+        pointer-events: none;
+        z-index: -1;
+      }
+
+      .app-container {
+        width: 100%;
+        max-width: 1100px;
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+      }
+
+      .panel {
+        width: 100%;
+        background: radial-gradient(circle at top, #191b22 0, #101118 55%, #07070c 100%);
+        border-radius: 20px;
+        padding: 1.5rem 1.75rem;
+        border: 1px solid rgba(248, 200, 84, 0.45);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8);
+      }
+
+      .hero {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+      }
+
+      .hero-top {
+        display: flex;
+        align-items: center;
+        gap: 1.25rem;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+
+      .logo-wrap {
+        width: 90px;
+        height: 90px;
+        border-radius: 24px;
+        padding: 4px;
+        background: linear-gradient(135deg, #f9d97a, #f5b642);
+        box-shadow: 0 0 25px rgba(244, 198, 80, 0.6);
+      }
+
+      .logo-inner {
+        width: 100%;
+        height: 100%;
+        border-radius: 20px;
+        background: #05060b;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+      }
+
+      .logo-inner img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+      }
+
+      .hero-text {
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+      }
+
+      .title {
+        font-size: 1.7rem;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: #f8d881;
+        text-shadow: 0 0 18px rgba(248, 216, 129, 0.85);
+      }
+
+      .subtitle {
+        font-size: 0.85rem;
+        color: #d4c7a6;
+        opacity: 0.9;
+      }
+
+      .hero-bottom {
+        width: 100%;
+        margin-top: 0.75rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.4rem;
+      }
+
+      .search-bar {
+        display: flex;
+        justify-content: center;
+        gap: 0.6rem;
+        width: 100%;
+        max-width: 640px;
+      }
+
+      .search-input {
+        flex: 1;
+        min-width: 0;
+        padding: 0.7rem 1rem;
+        border-radius: 999px;
+        border: 1px solid rgba(249, 209, 116, 0.75);
+        background: rgba(4, 6, 12, 0.94);
+        color: #f6f2e9;
+        font-size: 0.85rem;
+        outline: none;
+        box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.7) inset;
+      }
+
+      .search-input::placeholder {
+        color: rgba(206, 190, 143, 0.6);
+      }
+
+      .search-button {
+        padding: 0.7rem 1.4rem;
+        border-radius: 999px;
+        border: none;
+        background: linear-gradient(135deg, #f9d97a, #f1a93a);
+        color: #171307;
+        font-weight: 600;
+        font-size: 0.85rem;
+        cursor: pointer;
+        box-shadow: 0 4px 16px rgba(248, 201, 113, 0.7);
+        transition: transform 0.12s ease, box-shadow 0.12s ease,
+          filter 0.12s ease;
+      }
+
+      .search-button:hover {
+        transform: translateY(-1px);
+        filter: brightness(1.02);
+        box-shadow: 0 8px 22px rgba(248, 201, 113, 0.85);
+      }
+
+      .helper {
+        font-size: 0.7rem;
+        color: #b9ae8f;
+        opacity: 0.85;
+      }
+
+      .viewer {
+        display: none;
+        margin-top: 0.5rem;
+        gap: 1rem;
+      }
+      .viewer.active {
+        display: flex;
+      }
+
+      .viewer-main {
+        flex: 2;
+        background: radial-gradient(circle at top, #181a22 0, #080910 70%);
+        border-radius: 16px;
+        border: 1px solid rgba(255, 214, 120, 0.28);
+        padding: 1rem 1.1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+
+      .meta-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.6rem;
+        font-size: 0.75rem;
+        color: #d0c7af;
+      }
+
+      .meta-row span.label {
+        color: #b4954c;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        font-size: 0.7rem;
+      }
+
+      .meta-row span.value {
+        font-weight: 500;
+      }
+
+      .viewer-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+      }
+
+      .viewer-btn {
+        padding: 0.4rem 0.9rem;
+        border-radius: 999px;
+        border: 1px solid rgba(248, 209, 116, 0.7);
+        background: rgba(5, 6, 12, 0.9);
+        color: #f4e7c3;
+        font-size: 0.75rem;
+        cursor: pointer;
+        transition: 0.12s ease;
+      }
+      .viewer-btn:hover:not(:disabled) {
+        transform: translateY(-1px);
+        box-shadow: 0 0 12px rgba(248, 209, 116, 0.7);
+      }
+      .viewer-btn:disabled {
+        opacity: 0.4;
+        cursor: default;
+      }
+
+      .viewer-content {
+        background: radial-gradient(circle at top left, #232633 0, #14151d 45%, #05060a 100%);
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.04);
+        padding: 1rem;
+        overflow: hidden;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 600px;
+        height: 600px;
+        max-width: 100%;
+        max-height: 70vh;
+        margin: 0 auto;
+      }
+      .viewer-content img,
+      .viewer-content iframe {
+        width: 100%;
+        height: 100%;
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+        border-radius: 8px;
+        border: none;
+        background: #000;
+      }
+      .viewer-content pre {
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        border-radius: 8px;
+        background: #050608;
+        padding: 0.75rem;
+        font-size: 0.75rem;
+        line-height: 1.35;
+        color: #e4dfd0;
+      }
+
+      .info-panel {
+        flex: 1;
+        max-width: 380px;
+
+        /* ⭐ THE FIX: lock panel height so it never grows */
+        max-height: 800px;        /* you can adjust (580–620 works perfect) */
+        height: 800px;
+
+        background: radial-gradient(circle at top, #161823 0, #05060a 70%);
+        border-radius: 16px;
+        border: 1px solid rgba(248, 209, 116, 0.55); /* Dogecoin gold */
+        box-shadow: 0 0 22px rgba(248, 209, 116, 0.25);
+
+        padding: 0.9rem;
+        display: none;
+        flex-direction: column;
+        gap: 0.5rem;
+        overflow: hidden;         /* ⭐ prevents panel itself from expanding */
+      }
+
+      .info-panel.active {
+        display: flex;
+      }
+
+      .info-header {
+        font-size: 0.8rem;
+        color: #f8d97a;           /* Dogecoin gold */
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+      }
+
+      .info-body {
+        background: #020308;
+        border-radius: 10px;
+        padding: 0.6rem;
+        font-size: 0.7rem;
+        color: #f8e7b7;           /* gold-tinted text */
+        white-space: pre-wrap;
+
+        flex: 1;
+        overflow-y: auto;         /* ⭐ scrolls inside */
+        overflow-x: hidden;       /* no horizontal scroll */
+        max-height: 100%;         /* ⭐ never exceeds panel */
+      }
+
+      .info-footer {
+        display: flex;
+        gap: 0.5rem;
+        margin-top: 0.4rem;
+      }
+
+      .footer {
+        margin-top: 1.2rem;
+        font-size: 0.7rem;
+        text-align: center;
+        opacity: 0.82;
+        color: #c9bfa0;
+      }
+
+      /* ===============================
+   GOLD THEMED SCROLLBAR (WebKit)
+   =============================== */
+
+    .info-body::-webkit-scrollbar {
+      width: 10px;                 /* width of scrollbar */
+    }
+
+    .info-body::-webkit-scrollbar-track {
+      background: rgba(10, 10, 16, 0.6); /* dark background */
+      border-radius: 10px;
+    }
+
+    .info-body::-webkit-scrollbar-thumb {
+      background: linear-gradient(135deg, #f9d97a, #f1a93a); /* Dogecoin gold */
+      border-radius: 10px;
+      border: 2px solid rgba(20, 20, 20, 0.9);              /* subtle dark outline */
+      box-shadow: 0 0 6px rgba(249, 217, 122, 0.6);
+    }
+
+    .info-body::-webkit-scrollbar-thumb:hover {
+      background: linear-gradient(135deg, #ffe9a9, #f6c45a);
+      box-shadow: 0 0 10px rgba(255, 220, 140, 0.9);
+    }
+
+    /* Firefox scrollbar styling */
+    .info-body {
+      scrollbar-color: #f9d97a rgba(10,10,16,0.6);  /* thumb + track */
+      scrollbar-width: thin;
+    }
+
+
+
+      .status-bar {
+        text-align: center;
+        margin-top: 0.35rem;
+        font-size: 0.7rem;
+        color: #cbbf9b;
+      }
+      .status-error {
+        color: #ff7b7b;
+      }
+
+      .overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(2, 3, 8, 0.96);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+      }
+      .overlay.active {
+        display: flex;
+      }
+      #overlayInner {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 1.2rem;
+      }
+      #overlayInner img,
+      #overlayInner iframe {
+        width: 100%;
+        height: 100%;
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+        border-radius: 10px;
+        border: none;
+        background: #000;
+      }
+      #overlayInner pre {
+        width: 100%;
+        max-height: 100%;
+        overflow: auto;
+        background: #050608;
+        border-radius: 10px;
+        padding: 1rem;
+        font-size: 0.75rem;
+        color: #f4f1e7;
+      }
+
+      .close-btn {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        padding: 0.35rem 0.75rem;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, 0.78);
+        background: rgba(0, 0, 0, 0.65);
+        color: #fff;
+        cursor: pointer;
+        font-size: 0.8rem;
+        z-index: 99999; /* keep above DRC-20 fullscreen overlay */
+      }
+
+
+      .decode-modal {
+        position: fixed;
+        inset: 0;
+        background: rgba(3, 4, 10, 0.78);
+        backdrop-filter: blur(6px);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 2000;
+      }
+      .decode-modal.active {
+        display: flex;
+      }
+
+      .decode-box {
+        background: radial-gradient(circle at top, #181a25 0, #05060b 65%);
+        border-radius: 18px;
+        border: 1px solid rgba(247, 208, 115, 0.75);
+        padding: 1.8rem 2.2rem;
+        width: 340px;
+        box-shadow: 0 18px 40px rgba(0, 0, 0, 0.85);
+        text-align: center;
+      }
+
+      .decode-title {
+        font-size: 1rem;
+        color: #f7d97d;
+        margin-bottom: 0.7rem;
+      }
+
+      .decode-meta {
+        font-size: 0.8rem;
+        color: #d7c79f;
+      }
+      .decode-meta div {
+        margin: 0.2rem 0;
+      }
+
+      .decode-separator {
+        margin-top: 0.6rem;
+        padding-top: 0.5rem;
+        border-top: 1px solid rgba(247, 208, 115, 0.25);
+      }
+
+      #menuMount {
+        position: fixed;
+        right: 1rem;
+        bottom: 1rem;
+        z-index: 3000;
+        pointer-events: none;
+      }
+
+      #menuMount > * {
+        pointer-events: auto;
+      }
+
+      @media (max-width: 780px) {
+        body {
+          padding: 1.3rem;
+        }
+        .panel {
+          padding: 1.1rem 1.2rem;
+        }
+        .viewer {
+          flex-direction: column;
+        }
+        .info-panel {
+          max-width: 100%;
+        }
+        .viewer-content {
+          width: 100%;
+          height: min(600px, 70vh);
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="menuMount"></div>
+
+    <div class="decode-modal" id="decodeModal">
+      <div class="decode-box">
+        <div class="decode-title">Decoding doginal…</div>
+        <div class="decode-meta">
+          <div>Chunks: <span id="decChunks">0</span></div>
+          <div>Estimated total: <span id="decTotal">–</span></div>
+          <div>Remaining: <span id="decRemain">–</span></div>
+
+          <div class="decode-separator">
+            <div>Recursive deps: <span id="decDepDone">0</span> / <span id="decDepTotal">–</span></div>
+            <div>Remaining deps: <span id="decDepRemain">–</span></div>
+            <div>Current dep: <span id="decCurDepIndex">–</span> — chunks remaining: <span id="decCurDepRemain">–</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="app-container">
+      <div class="panel hero">
+        <div class="hero-top">
+          <div class="logo-wrap">
+            <div class="logo-inner">
+              <img src="/assets/logo.png" alt="Doginal logo" />
+            </div>
+          </div>
+          <div class="hero-text">
+            <div class="title">Doginal Viewer</div>
+            <div class="subtitle">
+              View Doginals by inscription TXID and render recursive content from
+              your node.<br> Decrypt my on chain website and tools paste this id below <br>will take a while to decode all this info<br>946a4ef754a26f9cd6042d38121e38dec29e9e8ced43e00e5774370f177bc80di0
+            </div>
+          </div>
+        </div>
+
+        <div class="hero-bottom">
+          <form id="searchForm" class="search-bar">
+            <input
+              id="txInput"
+              class="search-input"
+              placeholder="Enter inscription TXID (e.g. b7a6...be16i0)"
+              autocomplete="off"
+            />
+            <button class="search-button" type="submit">Load</button>
+          </form>
+          <div class="helper">
+            Uses your <code>/content</code> folder &amp; full node to reconstruct
+            Doginals.
+          </div>
+          <div class="footer">
+            Doginals Decoder • Made By Heimdall
+            <div class="status-bar" id="status"></div>
+        </div>
+        </div>
+      </div>
+
+      <div class="panel viewer" id="viewer">
+        <div class="viewer-main">
+          <div class="meta-row">
+            <span class="label">TXID</span>
+            <span class="value" id="metaTx">–</span>
+            <span class="label">TYPE</span>
+            <span class="value" id="metaType">–</span>
+            <span class="label">SIZE</span>
+            <span class="value" id="metaSize">–</span>
+          </div>
+
+          <div class="viewer-actions">
+            <button class="viewer-btn" id="btnDownload" disabled>
+              Download
+            </button>
+            <button class="viewer-btn" id="btnFullscreen" disabled>
+              Fullscreen
+            </button>
+            <button class="viewer-btn" id="btnInfo" disabled>Info</button>
+          </div>
+
+          <div class="viewer-content" id="viewerContent">
+            <span style="opacity:0.7;font-size:0.8rem;">
+              No inscription loaded.
+            </span>
+          </div>
+        </div>
+
+        <div class="info-panel" id="infoPanel">
+          <div class="info-header">Inscription Info</div>
+          <div class="info-body" id="infoBody">Info panel closed.</div>
+          <div class="info-footer">
+            <button class="viewer-btn" id="btnRefreshInfo" disabled>
+              Refresh
+            </button>
+            <button class="viewer-btn" id="btnCopyInfo" disabled>Copy</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="overlay" id="overlay">
+      <button class="close-btn" id="closeOverlay">Close</button>
+      <div id="overlayInner"></div>
+    </div>
+
+    <script>
+      const $ = (id) => document.getElementById(id);
+
+      // --- DRC-20 helper loader (shared with explore) ---
+      let drc20HelpersPromise = null;
+
+      async function ensureDRC20HelpersLoaded() {
+        // Already loaded?
+        if (window.DRC20CSS && window.DRC20CSS.buildDrc20Card) return;
+
+        if (!drc20HelpersPromise) {
+          drc20HelpersPromise = (async () => {
+            try {
+              const res = await fetch("/assets-page/drc20css.html", { cache: "no-store" });
+              if (!res.ok) throw new Error("HTTP " + res.status);
+
+              const html = await res.text();
+              const tmp = document.createElement("div");
+              tmp.innerHTML = html;
+
+              // Inject styles
+              tmp.querySelectorAll("style").forEach((styleEl) => {
+                document.head.appendChild(styleEl.cloneNode(true));
+              });
+
+              // Run scripts
+              tmp.querySelectorAll("script").forEach((scriptEl) => {
+                const s = document.createElement("script");
+                if (scriptEl.src) {
+                  s.src = scriptEl.src;
+                } else {
+                  s.textContent = scriptEl.textContent;
+                }
+                document.body.appendChild(s);
+              });
+            } catch (e) {
+              console.error("Failed to load DRC-20 helpers:", e);
+              drc20HelpersPromise = null; // allow retry
+              throw e;
+            }
+          })();
+        }
+
+        return drc20HelpersPromise;
+      }
+
+    
+      const modal = $("decodeModal");
+      const decChunks = $("decChunks");
+      const decTotal = $("decTotal");
+      const decRemain = $("decRemain");
+      const decDepDone = $("decDepDone");
+      const decDepTotal = $("decDepTotal");
+      const decDepRemain = $("decDepRemain");
+      const decCurDepIndex = $("decCurDepIndex");
+      const decCurDepRemain = $("decCurDepRemain");
+    
+      let sse = null;
+      let currentMeta = null;
+    
+      function resetModal() {
+        decChunks.textContent = "0";
+        decTotal.textContent = "–";
+        decRemain.textContent = "–";
+        decDepDone.textContent = "0";
+        decDepTotal.textContent = "–";
+        decDepRemain.textContent = "–";
+        decCurDepIndex.textContent = "–";
+        decCurDepRemain.textContent = "–";
+      }
+    
+      function showModal() {
+        resetModal();
+        modal.classList.add("active");
+      }
+      function hideModal() {
+        modal.classList.remove("active");
+      }
+    
+      function connectSSE(txid) {
+        if (sse) sse.close();
+        sse = new EventSource("/api/progress/" + encodeURIComponent(txid));
+    
+        sse.onmessage = (ev) => {
+          try {
+            const data = JSON.parse(ev.data);
+            if (!data || data.error) return;
+    
+            if (data.chunksFound != null) {
+              decChunks.textContent = data.chunksFound;
+            }
+    
+            let globalRemain = null;
+            if (data.estimatedTotal != null) {
+              decTotal.textContent = data.estimatedTotal;
+              if (data.chunksFound != null) {
+                const remain =
+                  data.estimatedTotal - data.chunksFound >= 0
+                    ? data.estimatedTotal - data.chunksFound
+                    : 0;
+                decRemain.textContent = remain;
+                globalRemain = remain;
+              }
+            }
+    
+            if (data.depTotal != null) {
+              decDepTotal.textContent = data.depTotal;
+            }
+            if (data.depDone != null) {
+              decDepDone.textContent = data.depDone;
+              if (data.depTotal != null) {
+                const dRem =
+                  data.depTotal - data.depDone >= 0
+                    ? data.depTotal - data.depDone
+                    : 0;
+                decDepRemain.textContent = dRem;
+              }
+            }
+    
+            if (data.currentDepIndex != null) {
+              decCurDepIndex.textContent = data.currentDepIndex;
+            } else if (data.depTotal != null && data.depDone != null) {
+              const nextIndex =
+                data.depDone < data.depTotal ? data.depDone + 1 : data.depTotal;
+              decCurDepIndex.textContent =
+                data.depTotal > 0 ? nextIndex : "–";
+            }
+    
+            if (data.currentDepRemainingChunks != null) {
+              decCurDepRemain.textContent = data.currentDepRemainingChunks;
+            } else if (globalRemain != null) {
+              decCurDepRemain.textContent = globalRemain;
+            }
+          } catch (_) {}
+        };
+    
+        sse.onerror = () => {};
+      }
+    
+      function setStatus(msg, error = false) {
+        const el = $("status");
+        el.textContent = msg || "";
+        el.classList.toggle("status-error", !!error);
+      }
+    
+      function renderContent(meta) {
+        currentMeta = meta;
+
+        const viewer = $("viewer");
+        viewer.classList.add("active");
+
+        $("metaTx").textContent = meta.inscriptionId || meta.txid || "–";
+        $("metaType").textContent = meta.mimeType || "unknown";
+        $("metaSize").textContent =
+          (meta.size != null ? meta.size.toLocaleString() : "–") + " bytes";
+
+        const box = $("viewerContent");
+        box.innerHTML = "";
+
+        const url = meta.url;
+        const type = (meta.mimeType || "").toLowerCase();
+
+        const isHtml =
+          type.includes("html") || (url && url.toLowerCase().endsWith(".html"));
+        const isJson =
+          type.includes("json") || (url && url.toLowerCase().endsWith(".json"));
+
+        const lowerUrl = (url || "").toLowerCase();
+        const isModel =
+          lowerUrl.endsWith(".glb") ||
+          lowerUrl.endsWith(".gltf") ||
+          type.includes("model/gltf") ||
+          type.includes("gltf-binary") ||
+          type.includes("model/");
+        const isAudio =
+          type.startsWith("audio/") ||
+          /\.(mp3|wav|ogg|flac|m4a|aac)$/i.test(lowerUrl);
+        const isVideo =
+          type.startsWith("video/") ||
+          /\.(mp4|webm|mov|avi|mkv)$/i.test(lowerUrl);
+
+        if (type.startsWith("image/")) {
+          const img = document.createElement("img");
+          img.src = url;
+          img.alt = meta.inscriptionId || meta.txid || "";
+          box.appendChild(img);
+
+        } else if (isModel) {
+          // 3D models (GLB/GLTF) -> render inside our Three.js iframe viewer
+          const iframe = document.createElement("iframe");
+          iframe.src = "/assets-page/model-viewer.html?src=" + encodeURIComponent(url);
+          box.appendChild(iframe);
+
+        } else if (isAudio) {
+          // Audio should NEVER autoplay
+          const audio = document.createElement("audio");
+          audio.controls = true;
+          audio.preload = "metadata";
+          audio.autoplay = false;
+          audio.src = url;
+          audio.style.width = "100%";
+          box.appendChild(audio);
+
+        } else if (isVideo) {
+          // Video should NEVER autoplay
+          const video = document.createElement("video");
+          video.controls = true;
+          video.preload = "metadata";
+          video.autoplay = false;
+          video.src = url;
+          video.style.width = "100%";
+          video.style.height = "100%";
+          video.style.maxWidth = "100%";
+          video.style.maxHeight = "100%";
+          video.style.objectFit = "contain";
+          box.appendChild(video);
+
+        } else if (isHtml) {
+          const iframe = document.createElement("iframe");
+          iframe.src = url;
+          box.appendChild(iframe);
+
+        } else if (isJson || type.startsWith("text/")) {
+          // Text / JSON → maybe a DRC-20 overlay
+          const pre = document.createElement("pre");
+          pre.textContent = "// loading text…";
+          box.appendChild(pre);
+
+          (async () => {
+            try {
+              const r = await fetch(url);
+              const t = await r.text();
+
+              let usedDrc = false;
+              try {
+                await ensureDRC20HelpersLoaded();
+                if (
+                  window.DRC20CSS &&
+                  window.DRC20CSS.parse &&
+                  window.DRC20CSS.buildDrc20Card
+                ) {
+                  const info = window.DRC20CSS.parse(t);
+                  if (info) {
+                    // Render nice full DRC-20 overlay instead of raw text
+                    usedDrc = true;
+                    box.innerHTML = "";
+                    window.DRC20CSS.buildDrc20Card(box, t, { variant: "full" });
+                  }
+                }
+              } catch (e) {
+                console.warn("DRC-20 overlay failed, falling back to text:", e);
+              }
+
+              if (!usedDrc) {
+                pre.textContent = t;
+              }
+            } catch (e) {
+              pre.textContent = "Failed: " + e.message;
+            }
+          })();
+
+        } else {
+          const iframe = document.createElement("iframe");
+          iframe.src = url;
+          box.appendChild(iframe);
+        }
+
+        $("btnDownload").disabled = false;
+        $("btnFullscreen").disabled = false;
+        $("btnInfo").disabled = false;
+      }
+
+    
+      $("btnDownload").onclick = () => {
+        if (!currentMeta) return;
+        const a = document.createElement("a");
+        a.href = currentMeta.url;
+        a.download =
+          currentMeta.filename ||
+          (currentMeta.inscriptionId || currentMeta.txid || "inscription");
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+      };
+    
+      $("btnFullscreen").onclick = () => {
+  if (!currentMeta) return;
+  const overlay = $("overlay");
+  const inner = $("overlayInner");
+  inner.innerHTML = "";
+
+  const url = currentMeta.url;
+  const type = (currentMeta.mimeType || "").toLowerCase();
+
+  const isHtml =
+    type.includes("html") || (url && url.toLowerCase().endsWith(".html"));
+  const isJson =
+    type.includes("json") || (url && url.toLowerCase().endsWith(".json"));
+
+  const lowerUrl = (url || "").toLowerCase();
+  const isModel =
+    lowerUrl.endsWith(".glb") ||
+    lowerUrl.endsWith(".gltf") ||
+    type.includes("model/gltf") ||
+    type.includes("gltf-binary") ||
+    type.includes("model/");
+  const isAudio =
+    type.startsWith("audio/") ||
+    /\.(mp3|wav|ogg|flac|m4a|aac)$/i.test(lowerUrl);
+  const isVideo =
+    type.startsWith("video/") ||
+    /\.(mp4|webm|mov|avi|mkv)$/i.test(lowerUrl);
+
+  if (type.startsWith("image/")) {
+    const img = document.createElement("img");
+    img.src = url;
+    img.alt = currentMeta.inscriptionId || currentMeta.txid || "";
+    inner.appendChild(img);
+
+  } else if (isModel) {
+    const iframe = document.createElement("iframe");
+    iframe.src = "/assets-page/model-viewer.html?src=" + encodeURIComponent(url);
+    inner.appendChild(iframe);
+
+  } else if (isAudio) {
+    const audio = document.createElement("audio");
+    audio.controls = true;
+    audio.preload = "metadata";
+    audio.autoplay = false;
+    audio.src = url;
+    audio.style.width = "100%";
+    inner.appendChild(audio);
+
+  } else if (isVideo) {
+    const video = document.createElement("video");
+    video.controls = true;
+    video.preload = "metadata";
+    video.autoplay = false;
+    video.src = url;
+    video.style.width = "100%";
+    video.style.height = "100%";
+    video.style.objectFit = "contain";
+    inner.appendChild(video);
+
+  } else if (isHtml) {
+    const iframe = document.createElement("iframe");
+    iframe.src = url;
+    inner.appendChild(iframe);
+
+  } else if (isJson || type.startsWith("text/")) {
+    // Text / JSON fullscreen → try DRC-20 overlay first
+    const pre = document.createElement("pre");
+    pre.textContent = "// loading text…";
+    inner.appendChild(pre);
+
+    (async () => {
+      try {
+        const r = await fetch(url);
+        const t = await r.text();
+
+        let usedDrc = false;
+        try {
+          await ensureDRC20HelpersLoaded();
+          if (
+            window.DRC20CSS &&
+            window.DRC20CSS.parse &&
+            window.DRC20CSS.buildDrc20Card
+          ) {
+            const info = window.DRC20CSS.parse(t);
+            if (info) {
+              usedDrc = true;
+              inner.innerHTML = "";
+              window.DRC20CSS.buildDrc20Card(inner, t, { variant: "full" });
+            }
+          }
+        } catch (e) {
+          console.warn("DRC-20 overlay (fullscreen) failed, fallback to text:", e);
+        }
+
+        if (!usedDrc) {
+          pre.textContent = t;
+        }
+      } catch (e) {
+        pre.textContent = "Failed: " + e.message;
+      }
+    })();
+
+  } else {
+    const iframe = document.createElement("iframe");
+    iframe.src = url;
+    inner.appendChild(iframe);
+  }
+
+  overlay.classList.add("active");
+};
+
+    
+      $("closeOverlay").onclick = () =>
+        $("overlay").classList.remove("active");
+    
+      $("btnInfo").onclick = () => {
+        const panel = $("infoPanel");
+        panel.classList.toggle("active");
+        if (panel.classList.contains("active")) {
+          loadInspect();
+        }
+      };
+    
+      $("btnRefreshInfo").onclick = () => loadInspect();
+    
+      $("btnCopyInfo").onclick = () => {
+        const text = $("infoBody").textContent || "";
+        navigator.clipboard.writeText(text).then(
+          () => setStatus("Inspect data copied.", false),
+          () => setStatus("Clipboard copy failed.", true)
+        );
+      };
+    
+      function loadInspect() {
+        if (!currentMeta) return;
+        const txid = currentMeta.txid || currentMeta.inscriptionId;
+        if (!txid) return;
+    
+        $("btnRefreshInfo").disabled = true;
+        $("btnCopyInfo").disabled = true;
+        $("infoBody").textContent = "Loading…";
+    
+        fetch("/api/inspect/" + encodeURIComponent(txid))
+          .then((r) => r.json())
+          .then((data) => {
+            $("infoBody").textContent = data.rawText || "(no output)";
+            $("btnRefreshInfo").disabled = false;
+            $("btnCopyInfo").disabled = false;
+          })
+          .catch((e) => {
+            $("infoBody").textContent = "Error: " + e.message;
+          });
+      }
+    
+      $("searchForm").onsubmit = async (e) => {
+        e.preventDefault();
+        const txid = $("txInput").value.trim();
+        if (!txid) return;
+    
+        setStatus("Starting decode…", false);
+        showModal();
+        connectSSE(txid);
+    
+        try {
+          const res = await fetch(
+            "/api/inscription/" + encodeURIComponent(txid)
+          );
+          if (!res.ok) {
+            throw new Error(await res.text());
+          }
+          const meta = await res.json();
+    
+          if (sse) {
+            sse.close();
+            sse = null;
+          }
+          hideModal();
+          setStatus(
+            meta.fromCache ? "Loaded from cache." : "Loaded from chain.",
+            false
+          );
+          renderContent(meta);
+        } catch (err) {
+          if (sse) {
+            sse.close();
+            sse = null;
+          }
+          hideModal();
+          console.error(err);
+          setStatus("Error: " + err.message, true);
+        }
+      };
+    
+// ---- Shared Doge menu ----
+function initDogeMenu() {
+  const wrapper = document.getElementById("dogeMenuWrapper");
+  const btn = document.getElementById("dogeMenuBtn");
+  const popup = document.getElementById("dogeMenuPopup");
+  if (!wrapper || !btn || !popup) {
+    console.warn("Doginal menu elements not found in scope");
+    return;
+  }
+
+  // Toggle on button click
+  btn.addEventListener("click", (ev) => {
+    ev.stopPropagation();
+    popup.classList.toggle("active");
+  });
+
+  // Close when clicking outside
+  document.addEventListener("click", (ev) => {
+    if (!wrapper.contains(ev.target)) {
+      popup.classList.remove("active");
+    }
+  });
+}
+
+(async function loadMenu() {
+  try {
+    const res = await fetch("/assets-page/menu.html", { cache: "no-store" });
+    if (!res.ok) {
+      console.error("Menu fetch failed with HTTP", res.status);
+      return;
+    }
+
+    const html = await res.text();
+    const mount = document.getElementById("menuMount");
+    if (!mount) return;
+
+    // inserting via innerHTML runs the <style> fine
+    mount.innerHTML = html;
+
+    // now wire up behaviour
+    initDogeMenu();
+  } catch (e) {
+    console.error("Failed to load shared menu:", e);
+  }
+})();
+
+    </script>
+    
+  </body>
+</html>

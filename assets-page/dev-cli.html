@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0"
+    />
+    <title>Dogecoin Dev Console</title>
+
+    <!-- Favicon (same as rest of site) -->
+    <link rel="icon" type="image/png" href="/assets/menu.png" />
+    <link rel="shortcut icon" type="image/png" href="/assets/menu.png" />
+
+    <!-- Font -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        height: 100%;
+      }
+
+      body {
+        position: relative;
+        min-height: 100vh;
+        font-family: "Space Grotesk", system-ui, -apple-system, BlinkMacSystemFont,
+          "Segoe UI", sans-serif;
+        color: #f6f2e9;
+        padding: 2rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        background:
+          radial-gradient(circle at top left, #3a280e 0, transparent 55%),
+          radial-gradient(circle at bottom right, #b38a2e 0, transparent 55%),
+          linear-gradient(135deg, #05060a 0%, #0a0e18 35%, #05040a 100%);
+        overflow-x: hidden;
+      }
+
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background-image: url("/assets/bg.png");
+        background-size: auto;
+        background-repeat: repeat;
+        pointer-events: none;
+        z-index: -1;
+      }
+
+      .app-container {
+        width: 100%;
+        max-width: 1100px;
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+      }
+
+      .panel-main {
+        width: 100%;
+        background: radial-gradient(circle at top, #191b22 0, #101118 55%, #07070c 100%);
+        border-radius: 20px;
+        padding: 1.6rem 1.8rem 1.3rem;
+        border: 1px solid rgba(248, 200, 84, 0.45);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.85);
+        display: flex;
+        flex-direction: column;
+        gap: 1.2rem;
+      }
+
+      /* HERO */
+
+      .hero {
+        display: flex;
+        flex-direction: column;
+        gap: 0.8rem;
+      }
+
+      .hero-top {
+        display: flex;
+        align-items: center;
+        gap: 1.1rem;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+
+      .round-logo {
+        width: 86px;
+        height: 86px;
+        border-radius: 999px;
+        padding: 4px;
+        background: linear-gradient(135deg, #f9d97a, #f5b642);
+        box-shadow: 0 0 25px rgba(244, 198, 80, 0.6);
+      }
+
+      .round-logo-inner {
+        width: 100%;
+        height: 100%;
+        border-radius: 999px;
+        background: #05060b;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+      }
+
+      .round-logo-inner img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+      }
+
+      .hero-text {
+        display: flex;
+        flex-direction: column;
+        gap: 0.3rem;
+      }
+
+      .hero-kicker {
+        font-size: 0.7rem;
+        color: #f6d47e;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        opacity: 0.9;
+      }
+
+      .hero-title {
+        font-size: 1.6rem;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: #f8d881;
+        text-shadow: 0 0 18px rgba(248, 216, 129, 0.85);
+      }
+
+      .hero-sub {
+        font-size: 0.85rem;
+        color: #d4c7a6;
+        opacity: 0.9;
+      }
+
+      .hero-sub small {
+        font-size: 0.78em;
+        opacity: 0.9;
+      }
+
+      /* GRID OF PANELS */
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 1rem;
+      }
+
+      .cmd-panel {
+        background: radial-gradient(circle at top, #171822 0, #05060b 70%);
+        border-radius: 16px;
+        border: 1px solid rgba(248, 200, 84, 0.4);
+        padding: 0.9rem 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.55rem;
+        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.75);
+      }
+
+      .cmd-panel-title {
+        font-size: 0.82rem;
+        color: #f6d47e;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+
+      .cmd-panel-desc {
+        font-size: 0.75rem;
+        color: #c1b491;
+        opacity: 0.9;
+      }
+
+      .cmd-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.7rem;
+        margin-top: 0.3rem;
+      }
+
+      /* COMMAND BUTTON TILES */
+
+      .cmd-btn {
+        position: relative;
+        border: none;
+        background: none;
+        padding: 0;
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.35rem;
+        font: inherit;
+        color: inherit;
+      }
+
+      .cmd-img-wrap {
+        position: relative;
+        width: 120px;
+        max-width: 100%;
+        border-radius: 16px;
+        overflow: hidden;
+        border: 1px solid rgba(248, 200, 84, 0.7);
+        box-shadow:
+          0 0 0 1px rgba(0, 0, 0, 0.8),
+          0 12px 20px rgba(0, 0, 0, 0.9);
+        background: radial-gradient(circle at top, #2a2120 0, #05050a 80%);
+        transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease;
+      }
+
+      .cmd-img-wrap img {
+        width: 100%;
+        height: auto;
+        display: block;
+        object-fit: cover;
+      }
+
+      /* shimmer overlay */
+      .cmd-img-wrap::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          120deg,
+          transparent 0%,
+          rgba(255, 255, 255, 0.25) 45%,
+          transparent 100%
+        );
+        transform: translateX(-130%);
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      .cmd-btn:hover .cmd-img-wrap {
+        transform: translateY(-2px) scale(1.02);
+        border-color: rgba(255, 218, 141, 1);
+        box-shadow:
+          0 0 16px rgba(248, 200, 84, 0.85),
+          0 18px 26px rgba(0, 0, 0, 1);
+      }
+
+      .cmd-btn:hover .cmd-img-wrap::before {
+        opacity: 1;
+        animation: button-shimmer 0.85s linear;
+      }
+
+      @keyframes button-shimmer {
+        from {
+          transform: translateX(-130%);
+        }
+        to {
+          transform: translateX(130%);
+        }
+      }
+
+      .cmd-label {
+        font-size: 0.72rem;
+        text-transform: lowercase;
+        color: #f8d881;
+        letter-spacing: 0.06em;
+      }
+
+      .footer {
+        margin-top: 0.4rem;
+        font-size: 0.72rem;
+        color: #b3a688;
+        text-align: center;
+      }
+
+      .footer code {
+        font-size: 0.72rem;
+      }
+
+      /* MODAL */
+
+      .modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(3, 4, 10, 0.92);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 1300;
+      }
+
+      .modal-overlay.active {
+        display: flex;
+      }
+
+      .modal {
+        width: min(720px, 96vw);
+        background: radial-gradient(circle at top, #191b23 0, #05060b 70%);
+        border-radius: 18px;
+        border: 1px solid rgba(248, 200, 84, 0.7);
+        padding: 1rem 1.3rem 0.9rem;
+        box-shadow: 0 22px 45px rgba(0, 0, 0, 0.95);
+        font-size: 0.75rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.6rem;
+      }
+
+      .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 0.4rem;
+      }
+
+      .modal-title {
+        font-size: 0.85rem;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: #f7d97d;
+      }
+
+      .modal-close {
+        cursor: pointer;
+        font-size: 0.8rem;
+        padding: 0.2rem 0.7rem;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, 0.8);
+        background: rgba(0, 0, 0, 0.7);
+        color: #ffffff;
+      }
+
+      .modal-body {
+        display: flex;
+        flex-direction: column;
+        gap: 0.45rem;
+      }
+
+      .modal-desc {
+        font-size: 0.74rem;
+        color: #d4c7a6;
+      }
+
+      .modal-label {
+        font-size: 0.7rem;
+        color: #f6d47e;
+        margin-bottom: 0.12rem;
+      }
+
+      .modal-input,
+      .modal-textarea {
+        width: 100%;
+        padding: 0.45rem 0.7rem;
+        border-radius: 999px;
+        border: 1px solid rgba(248, 200, 84, 0.7);
+        background: rgba(5, 6, 12, 0.96);
+        color: #f6f2e9;
+        font-family: "Space Grotesk", system-ui, sans-serif;
+        font-size: 0.72rem;
+        outline: none;
+      }
+
+      .modal-textarea {
+        border-radius: 10px;
+        min-height: 64px;
+        resize: vertical;
+      }
+
+      .modal-footer {
+        margin-top: 0.5rem;
+        display: flex;
+        justify-content: space-between;
+        gap: 0.6rem;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+
+      .modal-status {
+        font-size: 0.7rem;
+        min-height: 0.9rem;
+      }
+
+      .modal-status.error {
+        color: #ff6b6b;
+      }
+
+      .modal-status.ok {
+        color: #6cfad0;
+      }
+
+      .modal-actions {
+        display: flex;
+        gap: 0.4rem;
+      }
+
+      .pill-btn {
+        padding: 0.3rem 0.9rem;
+        border-radius: 999px;
+        border: 1px solid rgba(248, 200, 84, 0.9);
+        background: rgba(5, 6, 12, 0.95);
+        color: #f4e7c3;
+        font-size: 0.7rem;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        cursor: pointer;
+      }
+
+      .pill-btn:hover {
+        box-shadow: 0 0 12px rgba(247, 208, 115, 0.9);
+      }
+
+      .response-box {
+        margin-top: 0.4rem;
+        border-radius: 10px;
+        background: #020308;
+        border: 1px solid rgba(248, 200, 84, 0.7);
+        box-shadow: 0 0 12px rgba(248, 200, 84, 0.55);
+        padding: 0.5rem;
+      }
+
+      .response-box pre {
+        max-height: 260px;
+        overflow-y: auto;
+        font-family: "SFMono-Regular", ui-monospace, Menlo, Monaco, Consolas,
+          "Liberation Mono", "Courier New", monospace;
+        font-size: 0.68rem;
+        white-space: pre-wrap;
+        word-break: break-word;
+        color: #f7e0af;
+      }
+
+      /* nice slim scrollbar for response and other scroll areas */
+      .response-box pre::-webkit-scrollbar {
+        width: 7px;
+      }
+      .response-box pre::-webkit-scrollbar-track {
+        background: #05060b;
+      }
+      .response-box pre::-webkit-scrollbar-thumb {
+        background: #f4b728;
+        border-radius: 999px;
+      }
+      .response-box pre::-webkit-scrollbar-thumb:hover {
+        background: #ffd164;
+      }
+
+      textarea.modal-textarea::-webkit-scrollbar,
+      .modal-textarea::-webkit-scrollbar {
+        width: 7px;
+      }
+      textarea.modal-textarea::-webkit-scrollbar-thumb,
+      .modal-textarea::-webkit-scrollbar-thumb {
+        background: #f4b728;
+        border-radius: 999px;
+      }
+
+      @media (max-width: 780px) {
+        body {
+          padding: 1.3rem;
+        }
+        .panel-main {
+          padding: 1.1rem 1.2rem;
+        }
+        .hero-title {
+          font-size: 1.35rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="menuMount"></div>
+
+    <div class="app-container">
+      <div class="panel-main">
+        <div class="hero">
+          <div class="hero-top">
+            <div class="round-logo">
+              <div class="round-logo-inner">
+                <img src="/assets/logo.png" alt="Dogecoin logo" />
+              </div>
+            </div>
+            <div class="hero-text">
+              <div class="hero-kicker">Dogecoin Node Control</div>
+              <div class="hero-title">Dev CLI Console</div>
+              <div class="hero-sub">
+                Click a cartridge, tweak any arguments, and run the matching
+                <code>dogecoin-cli</code> RPC against your node.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid">
+          <!-- 1–4 -->
+          <div class="cmd-panel">
+            <div class="cmd-panel-title">Node / Chain</div>
+            <div class="cmd-panel-desc">
+              Quick view of chain height, sync status and peers for your Dogecoin node.
+            </div>
+            <div class="cmd-list">
+              <button class="cmd-btn" data-cmd="getblockchaininfo">
+                <div class="cmd-img-wrap">
+                  <img src="/assets/buttons/1.png" alt="getblockchaininfo" />
+                </div>
+                <div class="cmd-label">getblockchaininfo</div>
+              </button>
+
+              <button class="cmd-btn" data-cmd="getnetworkinfo">
+                <div class="cmd-img-wrap">
+                  <img src="/assets/buttons/2.png" alt="getnetworkinfo" />
+                </div>
+                <div class="cmd-label">getnetworkinfo</div>
+              </button>
+
+              <button class="cmd-btn" data-cmd="getconnectioncount">
+                <div class="cmd-img-wrap">
+                  <img src="/assets/buttons/3.png" alt="getconnectioncount" />
+                </div>
+                <div class="cmd-label">getconnectioncount</div>
+              </button>
+
+              <button class="cmd-btn" data-cmd="getbestblockhash">
+                <div class="cmd-img-wrap">
+                  <img src="/assets/buttons/4.png" alt="getbestblockhash" />
+                </div>
+                <div class="cmd-label">getbestblockhash</div>
+              </button>
+            </div>
+          </div>
+
+          <!-- 5–7 -->
+          <div class="cmd-panel">
+            <div class="cmd-panel-title">Wallet & Addresses</div>
+            <div class="cmd-panel-desc">
+              Inspect Dogecoin addresses, check validity and peek at balances / keys.
+            </div>
+            <div class="cmd-list">
+              <button class="cmd-btn" data-cmd="validateaddress">
+                <div class="cmd-img-wrap">
+                  <img src="/assets/buttons/5.png" alt="validateaddress" />
+                </div>
+                <div class="cmd-label">validateaddress</div>
+              </button>
+
+              <button class="cmd-btn" data-cmd="dumpprivkey">
+                <div class="cmd-img-wrap">
+                  <img src="/assets/buttons/6.png" alt="dumpprivkey" />
+                </div>
+                <div class="cmd-label">dumpprivkey</div>
+              </button>
+
+              <button class="cmd-btn" data-cmd="getbalance">
+                <div class="cmd-img-wrap">
+                  <img src="/assets/buttons/7.png" alt="getbalance" />
+                </div>
+                <div class="cmd-label">getbalance</div>
+              </button>
+            </div>
+          </div>
+
+          <!-- 8 -->
+          <div class="cmd-panel">
+            <div class="cmd-panel-title">UTXOs</div>
+            <div class="cmd-panel-desc">
+              List and filter unspent outputs for debugging tools or Doginal scripts.
+            </div>
+            <div class="cmd-list">
+              <button class="cmd-btn" data-cmd="listunspent">
+                <div class="cmd-img-wrap">
+                  <img src="/assets/buttons/8.png" alt="listunspent" />
+                </div>
+                <div class="cmd-label">listunspent</div>
+              </button>
+            </div>
+          </div>
+
+          <!-- 9–11 -->
+          <div class="cmd-panel">
+            <div class="cmd-panel-title">Transactions</div>
+            <div class="cmd-panel-desc">
+              Inspect wallet transactions, raw tx hex and decoded JSON.
+            </div>
+            <div class="cmd-list">
+              <button class="cmd-btn" data-cmd="gettransaction">
+                <div class="cmd-img-wrap">
+                  <img src="/assets/buttons/9.png" alt="gettransaction" />
+                </div>
+                <div class="cmd-label">gettransaction</div>
+              </button>
+
+              <button class="cmd-btn" data-cmd="getrawtransaction">
+                <div class="cmd-img-wrap">
+                  <img src="/assets/buttons/10.png" alt="getrawtransaction" />
+                </div>
+                <div class="cmd-label">getrawtransaction</div>
+              </button>
+
+              <button class="cmd-btn" data-cmd="decoderawtransaction">
+                <div class="cmd-img-wrap">
+                  <img src="/assets/buttons/11.png" alt="decoderawtransaction" />
+                </div>
+                <div class="cmd-label">decoderawtransaction</div>
+              </button>
+            </div>
+          </div>
+
+          <!-- 12 & blocks -->
+          <div class="cmd-panel">
+            <div class="cmd-panel-title">Blocks & Raw Builder</div>
+            <div class="cmd-panel-desc">
+              Look up blocks by height or hash, or assemble raw transactions by hand.
+            </div>
+            <div class="cmd-list">
+              <button class="cmd-btn" data-cmd="getblockhash">
+                <div class="cmd-img-wrap">
+                  <img src="/assets/buttons/12.png" alt="getblockhash" />
+                </div>
+                <div class="cmd-label">getblockhash</div>
+              </button>
+
+              <button class="cmd-btn" data-cmd="getblock">
+                <div class="cmd-img-wrap">
+                  <img src="/assets/buttons/1.png" alt="getblock" />
+                </div>
+                <div class="cmd-label">getblock</div>
+              </button>
+
+              <button class="cmd-btn" data-cmd="createrawtransaction">
+                <div class="cmd-img-wrap">
+                  <img src="/assets/buttons/2.png" alt="createrawtransaction" />
+                </div>
+                <div class="cmd-label">createrawtransaction</div>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="footer">
+         Dogecoin Node Dev Console • Made By Heimdall
+        </div>
+      </div>
+    </div>
+
+    <!-- COMMAND MODAL -->
+    <div id="cmdModalOverlay" class="modal-overlay">
+      <div class="modal">
+        <div class="modal-header">
+          <div class="modal-title" id="cmdModalTitle">COMMAND</div>
+          <button id="cmdModalClose" class="modal-close">Close</button>
+        </div>
+
+        <div class="modal-body">
+          <div class="modal-desc" id="cmdModalDesc"></div>
+
+          <div id="cmdArgsContainer"></div>
+
+          <div class="modal-footer">
+            <div class="modal-status" id="cmdModalStatus"></div>
+            <div class="modal-actions">
+              <button id="cmdCancelBtn" class="pill-btn" type="button">
+                Close
+              </button>
+              <button id="cmdRunBtn" class="pill-btn" type="button">
+                Run
+              </button>
+            </div>
+          </div>
+
+          <div class="response-box">
+            <pre id="cmdResponsePre">// raw JSON response will appear here</pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const $ = (id) => document.getElementById(id);
+
+      // ---- Shared Doge menu ----
+      function initDogeMenu() {
+        const wrapper = document.getElementById("dogeMenuWrapper");
+        const btn = document.getElementById("dogeMenuBtn");
+        const popup = document.getElementById("dogeMenuPopup");
+        if (!wrapper || !btn || !popup) {
+          console.warn("Doginal menu elements not found in scope");
+          return;
+        }
+
+        btn.addEventListener("click", (ev) => {
+          ev.stopPropagation();
+          popup.classList.toggle("active");
+        });
+
+        document.addEventListener("click", (ev) => {
+          if (!wrapper.contains(ev.target)) {
+            popup.classList.remove("active");
+          }
+        });
+      }
+
+      async function loadMenu() {
+        try {
+          const res = await fetch("/assets-page/menu.html", { cache: "no-store" });
+          if (!res.ok) {
+            console.error("Menu fetch failed with HTTP", res.status);
+            return;
+          }
+
+          const html = await res.text();
+          const mount = document.getElementById("menuMount");
+          if (!mount) return;
+
+          mount.innerHTML = html;
+          initDogeMenu();
+        } catch (e) {
+          console.error("Failed to load shared menu:", e);
+        }
+      }
+
+      // -------- COMMAND DEFINITIONS (Dogecoin CLI) --------
+      const COMMANDS = {
+        getblockchaininfo: {
+          label: "getblockchaininfo",
+          desc: "Shows chain name, height, and sync progress.",
+          args: [],
+        },
+        getnetworkinfo: {
+          label: "getnetworkinfo",
+          desc: "General p2p/network info, node version, warnings.",
+          args: [],
+        },
+        getconnectioncount: {
+          label: "getconnectioncount",
+          desc: "Returns how many peers your node is connected to.",
+          args: [],
+        },
+        getbestblockhash: {
+          label: "getbestblockhash",
+          desc: "Hash of the latest known block.",
+          args: [],
+        },
+        validateaddress: {
+          label: "validateaddress",
+          desc: "Check if an address is valid and belongs to this wallet.",
+          args: [
+            {
+              name: "address",
+              placeholder: "D... (Dogecoin address)",
+            },
+          ],
+        },
+        dumpprivkey: {
+          label: "dumpprivkey",
+          desc: "Return the WIF private key for a given address.",
+          args: [
+            {
+              name: "address",
+              placeholder: "D... (Dogecoin address)",
+            },
+          ],
+        },
+        getbalance: {
+          label: "getbalance",
+          desc: "Overall wallet balance (spendable DOGE).",
+          args: [],
+        },
+        listunspent: {
+          label: "listunspent",
+          desc:
+            'List UTXOs. Leave addresses blank for all, or provide JSON like ["D...","D..."].',
+          args: [
+            {
+              name: "minconf",
+              placeholder: "min confirmations (e.g. 0)",
+              defaultValue: "0",
+            },
+            {
+              name: "maxconf",
+              placeholder: "max confirmations (e.g. 9999999)",
+              defaultValue: "9999999",
+            },
+            {
+              name: "addresses",
+              placeholder: '["D...","D..."] or empty',
+              defaultValue: "",
+            },
+          ],
+        },
+        gettransaction: {
+          label: "gettransaction",
+          desc:
+            "Wallet-view of a transaction (only txs involving this wallet).",
+          args: [
+            {
+              name: "txid",
+              placeholder: "transaction id",
+            },
+          ],
+        },
+        getrawtransaction: {
+          label: "getrawtransaction",
+          desc:
+            "Network view of a transaction. Second arg is verbose flag (1 or 0).",
+          args: [
+            {
+              name: "txid",
+              placeholder: "transaction id",
+            },
+            {
+              name: "verbose",
+              placeholder: "1 for JSON, 0 for hex",
+              defaultValue: "1",
+            },
+          ],
+        },
+        decoderawtransaction: {
+          label: "decoderawtransaction",
+          desc:
+            "Decode a raw transaction hex string into JSON (use getrawtransaction txid 0 to get the hex first).",
+          args: [
+            {
+              name: "hex",
+              placeholder: "raw tx hex (NOT txid)",
+            },
+          ],
+        },
+        getblockhash: {
+          label: "getblockhash",
+          desc: "Block hash by height.",
+          args: [
+            {
+              name: "height",
+              placeholder: "block height",
+            },
+          ],
+        },
+        getblock: {
+          label: "getblock",
+          desc: "Block JSON by hash. Optional verbosity (0,1,2).",
+          args: [
+            {
+              name: "blockhash",
+              placeholder: "block hash",
+            },
+            {
+              name: "verbosity",
+              placeholder: "0, 1 or 2 (default 1)",
+              defaultValue: "1",
+            },
+          ],
+        },
+        createrawtransaction: {
+          label: "createrawtransaction",
+          desc:
+            "Create a raw transaction. Provide full JSON for inputs and outputs.",
+          args: [
+            {
+              name: "inputs",
+              placeholder:
+                'JSON array of inputs, e.g. [{"txid":"...","vout":0}]',
+              defaultValue: "[]",
+              multiline: true,
+            },
+            {
+              name: "outputs",
+              placeholder:
+                'JSON object of outputs, e.g. {"D...":1.0}',
+              defaultValue: "{}",
+              multiline: true,
+            },
+          ],
+        },
+      };
+
+      let currentCommandId = null;
+
+      function openCmdModal(cmdId) {
+        const def = COMMANDS[cmdId];
+        if (!def) return;
+
+        currentCommandId = cmdId;
+
+        $("cmdModalTitle").textContent = def.label;
+        $("cmdModalDesc").textContent =
+          def.desc +
+          "  Input types: numbers, true/false, or JSON (e.g. [\"D...\"]).";
+        $("cmdModalStatus").textContent = "";
+        $("cmdModalStatus").classList.remove("error", "ok");
+        $("cmdResponsePre").textContent =
+          "// raw JSON response will appear here";
+
+        const argsContainer = $("cmdArgsContainer");
+        argsContainer.innerHTML = "";
+        if (!def.args || !def.args.length) {
+          const p = document.createElement("p");
+          p.className = "modal-label";
+          p.textContent = "This command takes no parameters.";
+          argsContainer.appendChild(p);
+        } else {
+          def.args.forEach((a, idx) => {
+            const wrap = document.createElement("div");
+            const label = document.createElement("div");
+            label.className = "modal-label";
+            label.textContent = `${idx + 1}. ${a.name}`;
+            const input = a.multiline
+              ? document.createElement("textarea")
+              : document.createElement("input");
+            input.className = a.multiline ? "modal-textarea" : "modal-input";
+            input.placeholder = a.placeholder || "";
+            if (a.defaultValue !== undefined) {
+              input.value = a.defaultValue;
+            }
+            input.dataset.argName = a.name;
+            wrap.appendChild(label);
+            wrap.appendChild(input);
+            argsContainer.appendChild(wrap);
+          });
+        }
+
+        $("cmdModalOverlay").classList.add("active");
+      }
+
+      function closeCmdModal() {
+        $("cmdModalOverlay").classList.remove("active");
+        currentCommandId = null;
+      }
+
+      async function runCurrentCommand() {
+        if (!currentCommandId) return;
+        const def = COMMANDS[currentCommandId];
+        const statusEl = $("cmdModalStatus");
+        statusEl.textContent = "";
+        statusEl.classList.remove("error", "ok");
+
+        let args = [];
+        if (def.args && def.args.length) {
+          const argsContainer = $("cmdArgsContainer");
+          const inputs = argsContainer.querySelectorAll("input,textarea");
+          inputs.forEach((input) => {
+            const v = (input.value || "").trim();
+            if (v !== "") {
+              args.push(v);
+            }
+          });
+        }
+
+        statusEl.textContent = "Running...";
+        $("cmdResponsePre").textContent = "// waiting for node response";
+
+        try {
+          const res = await fetch("/api/dev/cli/run", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              command: currentCommandId,
+              args,
+            }),
+          });
+          const data = await res.json().catch(() => ({}));
+          if (!res.ok) {
+            statusEl.textContent =
+              "Error: " + (data.error || data.detail || res.status);
+            statusEl.classList.add("error");
+            $("cmdResponsePre").textContent = JSON.stringify(data, null, 2);
+            return;
+          }
+          statusEl.textContent = "OK";
+          statusEl.classList.add("ok");
+          $("cmdResponsePre").textContent = JSON.stringify(data, null, 2);
+        } catch (err) {
+          console.error(err);
+          statusEl.textContent = "Error: " + err.message;
+          statusEl.classList.add("error");
+          $("cmdResponsePre").textContent = "Error: " + err.message;
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", () => {
+        const yearSpan = $("yearSpan");
+        if (yearSpan) yearSpan.textContent = new Date().getFullYear();
+
+        loadMenu();
+
+        // command tiles
+        document.querySelectorAll(".cmd-btn[data-cmd]").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            const cmd = btn.getAttribute("data-cmd");
+            openCmdModal(cmd);
+          });
+        });
+
+        // modal controls
+        $("cmdModalClose").addEventListener("click", closeCmdModal);
+        $("cmdCancelBtn").addEventListener("click", closeCmdModal);
+        $("cmdRunBtn").addEventListener("click", runCurrentCommand);
+        $("cmdModalOverlay").addEventListener("click", (e) => {
+          if (e.target.id === "cmdModalOverlay") closeCmdModal();
+        });
+      });
+    </script>
+  </body>
+</html>

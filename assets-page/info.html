@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Doginals Tooling • Info</title>
+  <link rel="icon" type="image/png" href="/assets/menu.png" />
+  <link rel="shortcut icon" type="image/png" href="/assets/menu.png" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      position: relative;
+      min-height: 100vh;
+      font-family: "Space Grotesk", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: #f6f2e9;
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background:
+        radial-gradient(circle at top left, #3a280e 0, transparent 55%),
+        radial-gradient(circle at bottom right, #b38a2e 0, transparent 55%),
+        linear-gradient(135deg, #05060a 0%, #0a0e18 35%, #05040a 100%);
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background-image: url("/assets/bg.png");
+      background-size: auto;
+      background-repeat: repeat;
+      pointer-events: none;
+      z-index: -1;
+      opacity: 0.95;
+    }
+
+    #menuMount { position: relative; z-index: 1200; width: 100%; }
+
+    .app-container {
+      width: 100%;
+      max-width: 1100px;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .content-card {
+      width: 100%;
+      background: radial-gradient(circle at top, #191b22 0, #101118 55%, #07070c 100%);
+      border-radius: 20px;
+      padding: 1.4rem 1.7rem;
+      border: 1px solid rgba(248, 200, 84, 0.45);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8);
+    }
+
+    .hero {
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+      align-items: center;
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+
+    .round-logo {
+      width: 90px;
+      height: 90px;
+      border-radius: 24px;
+      padding: 4px;
+      background: linear-gradient(135deg, #f9d97a, #f5b642);
+      box-shadow: 0 0 25px rgba(244, 198, 80, 0.6);
+      overflow: hidden;
+    }
+    .round-logo img {
+      width: 100%;
+      height: 100%;
+      border-radius: 20px;
+      object-fit: contain;
+      background: #05060b;
+    }
+
+    .hero-subtitle-small {
+      font-size: 0.75rem;
+      color: #c1b491;
+      opacity: 0.9;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .main-title {
+      font-size: 1.7rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #f8d881;
+      text-shadow: 0 0 18px rgba(248, 216, 129, 0.85);
+    }
+
+    .hero-subtitle-main {
+      font-size: 0.85rem;
+      color: #d4c7a6;
+      opacity: 0.92;
+      max-width: 860px;
+      line-height: 1.6;
+    }
+
+    .pill-inline {
+      display: inline-block;
+      padding: 0.12rem 0.45rem;
+      border-radius: 999px;
+      border: 1px solid rgba(248, 209, 116, 0.45);
+      font-size: 0.65rem;
+      color: #f4e7c3;
+      background: rgba(5, 6, 12, 0.6);
+      opacity: 0.95;
+      margin: 0 0.12rem;
+      word-break: break-word;
+    }
+
+    .panel {
+      width: 100%;
+      background: radial-gradient(circle at top, #181a22 0, #080910 70%);
+      border-radius: 16px;
+      border: 1px solid rgba(248, 200, 84, 0.35);
+      padding: 1rem 1.1rem;
+      font-size: 0.78rem;
+      box-shadow:
+        0 0 0 1px rgba(0, 0, 0, 0.7),
+        0 16px 32px rgba(0, 0, 0, 0.7);
+    }
+
+    .section-title {
+      font-size: 0.85rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #f8d881;
+      margin-bottom: 0.35rem;
+    }
+
+    .hint {
+      font-size: 0.72rem;
+      color: #d6ccb2;
+      opacity: 0.9;
+      line-height: 1.55;
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.9rem;
+      margin-top: 0.75rem;
+    }
+
+    .info-card {
+      border: 1px solid rgba(248, 209, 116, 0.25);
+      border-radius: 16px;
+      padding: 0.9rem 1rem;
+      background: rgba(0, 0, 0, 0.18);
+    }
+
+    .info-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      text-decoration: none;
+      color: #f4e7c3;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-size: 0.72rem;
+      padding: 0.35rem 0.75rem;
+      border-radius: 999px;
+      border: 1px solid rgba(248, 209, 116, 0.75);
+      background: rgba(5, 6, 12, 0.94);
+      transition: transform 0.1s ease, box-shadow 0.1s ease,
+        background 0.1s ease, border-color 0.1s ease, color 0.1s ease;
+      white-space: nowrap;
+    }
+
+    .info-link:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 0 12px rgba(248, 201, 113, 0.9);
+      background: linear-gradient(135deg, #f9d97a, #f1a93a);
+      color: #171307;
+    }
+
+    .info-card p { margin-top: 0.55rem; }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.95em;
+      color: #f9d97a;
+      background: rgba(5, 6, 12, 0.7);
+      border: 1px solid rgba(248, 209, 116, 0.25);
+      padding: 0.08rem 0.35rem;
+      border-radius: 8px;
+    }
+
+    .footer {
+      margin-top: 1.2rem;
+      font-size: 0.7rem;
+      text-align: center;
+      opacity: 0.82;
+      color: #c9bfa0;
+    }
+
+    @media (max-width: 980px) {
+      .info-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 780px) {
+      body { padding: 1.3rem; }
+      .content-card { padding: 1.1rem 1.2rem; }
+      .main-title { font-size: 1.45rem; }
+    }
+
+    /* =========================
+       TIP MODAL + TOASTS (added)
+       ========================= */
+
+    .cmd-btn {
+      padding: 0.34rem 0.8rem;
+      border-radius: 999px;
+      border: 1px solid rgba(248, 209, 116, 0.8);
+      background: rgba(5, 6, 12, 0.94);
+      color: #f4e7c3;
+      font-size: 0.7rem;
+      cursor: pointer;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      text-shadow: 0 0 6px rgba(0, 0, 0, 0.7);
+      transition: transform 0.1s ease, box-shadow 0.1s ease,
+        background 0.1s ease, border-color 0.1s ease, color 0.1s ease;
+      white-space: nowrap;
+      vertical-align: middle;
+    }
+    .cmd-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 0 12px rgba(248, 201, 113, 0.9);
+      background: linear-gradient(135deg, #f9d97a, #f1a93a);
+      color: #171307;
+    }
+    .cmd-btn.ghost {
+      border-color: rgba(248, 209, 116, 0.35);
+      color: #c9bfa0;
+      background: rgba(5, 6, 12, 0.75);
+    }
+    .cmd-btn:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(2, 3, 8, 0.86);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1300;
+      padding: 1rem;
+    }
+    .modal-overlay.active { display: flex; }
+
+    .modal {
+      width: 100%;
+      max-width: 680px;
+      background: radial-gradient(circle at top, #181a25 0, #05060b 65%);
+      border-radius: 16px;
+      border: 1px solid rgba(247, 208, 115, 0.75);
+      padding: 1rem 1.2rem;
+      box-shadow: 0 22px 50px rgba(0, 0, 0, 0.9);
+      font-size: 0.72rem;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.75rem;
+      gap: 0.5rem;
+    }
+
+    .modal-title {
+      font-size: 0.8rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #f8d881;
+    }
+
+    .modal-close {
+      cursor: pointer;
+      font-size: 0.75rem;
+      padding: 0.25rem 0.7rem;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.78);
+      background: rgba(0, 0, 0, 0.65);
+      color: #ffffff;
+      transition: transform 0.1s ease, box-shadow 0.1s ease, background 0.1s ease;
+      user-select: none;
+    }
+    .modal-close:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 0 10px rgba(248, 201, 113, 0.6);
+      background: rgba(0, 0, 0, 0.8);
+    }
+
+    .modal-body {
+      display: flex;
+      flex-direction: column;
+      gap: 0.55rem;
+    }
+
+    .modal-label {
+      font-size: 0.7rem;
+      color: #f8d881;
+      margin-bottom: 0.2rem;
+    }
+
+    .modal-input, select.modal-input {
+      width: 100%;
+      padding: 0.45rem 0.6rem;
+      border-radius: 999px;
+      border: 1px solid rgba(248, 209, 116, 0.6);
+      background: rgba(5, 6, 12, 0.94);
+      color: #f6f2e9;
+      font-family: "Space Grotesk", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 0.72rem;
+      outline: none;
+    }
+
+    .modal-footer {
+      margin-top: 0.85rem;
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .modal-status {
+      margin-top: 0.15rem;
+      min-height: 0.95rem;
+      font-size: 0.68rem;
+      color: #d6ccb2;
+    }
+    .modal-status.error { color: #ff6b6b; }
+    .modal-status.ok { color: #37ff7f; }
+
+    .toast-stack {
+      position: fixed;
+      inset: auto 16px 16px auto;
+      z-index: 9999;
+      display: grid;
+      gap: 10px;
+      max-width: 92vw;
+      width: 420px;
+      font-family: "Space Grotesk", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+    }
+    .toast {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(248, 209, 116, 0.8);
+      border-radius: 14px;
+      background: radial-gradient(circle at top, #1b1d26 0, #05060a 75%);
+      color: #f4e7c3;
+      padding: 12px 14px;
+      display: grid;
+      grid-template-columns: 32px 1fr auto;
+      align-items: center;
+      gap: 12px;
+      font-size: 0.78rem;
+      box-shadow:
+        0 0 0 1px rgba(0, 0, 0, 0.7),
+        0 18px 36px rgba(0, 0, 0, 0.75);
+      transform-origin: center;
+      animation: toast-in 160ms ease-out forwards;
+    }
+    .toast::before {
+      content: "";
+      pointer-events: none;
+      position: absolute;
+      inset: 0;
+      background-image: repeating-linear-gradient(
+        to bottom,
+        rgba(255, 255, 255, 0.08) 0px,
+        rgba(255, 255, 255, 0.02) 1px,
+        transparent 2px,
+        transparent 3px
+      );
+      opacity: 0.22;
+      mix-blend-mode: soft-light;
+    }
+    .toast .ico { font-size: 18px; color: #f8d881; text-shadow: 0 0 10px rgba(248, 216, 129, 0.5); }
+    .toast .msg { color: #f4e7c3; line-height: 1.35; }
+    .toast.success { border-color: rgba(248, 209, 116, 0.95); }
+    .toast.error { border-color: rgba(255, 107, 107, 0.95); }
+    .toast.info { border-color: rgba(248, 209, 116, 0.7); }
+    .toast .close {
+      padding: 0.34rem 0.6rem;
+      border-radius: 999px;
+      border: 1px solid rgba(248, 209, 116, 0.55);
+      background: rgba(0,0,0,0.35);
+      color: #f4e7c3;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: transform 0.1s ease, box-shadow 0.1s ease, background 0.1s ease;
+      position: relative;
+      z-index: 1;
+    }
+    .toast .close:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 0 10px rgba(248, 201, 113, 0.35);
+      background: rgba(0,0,0,0.55);
+    }
+    .toast.toast-out { animation: toast-out 160ms ease-in forwards; }
+    @keyframes toast-in { from { opacity: 0; transform: translateY(8px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+    @keyframes toast-out { to { opacity: 0; transform: translateY(8px) scale(0.97); } }
+
+    @media (max-width: 780px) {
+      .toast-stack {
+        right: 50%;
+        transform: translateX(50%);
+        width: min(92vw, 420px);
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- MENU MOUNT -->
+  <div id="menuMount"></div>
+
+  <div class="app-container">
+    <div class="content-card">
+      <div class="hero">
+        <div class="round-logo">
+          <img src="/assets/logo.png" alt="Doginals Logo" />
+        </div>
+        <div class="hero-subtitle-small">TOOLS BY HEIMDALL</div>
+        <div class="main-title">INFO</div>
+
+        <div class="hero-subtitle-main">
+          If you found these tools helpful, tips are appreciated:
+          <button id="tipOpenBtn" class="cmd-btn" type="button" style="margin-left:0.5rem;">SEND TIP</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="section-title">Pages in this app</div>
+        <div class="hint">
+          Click any heading to jump straight to that tool. This is a local-first toolbox that works best when your node
+          (and the API endpoints) are running on the same machine.
+        </div>
+      
+        <div class="info-grid">
+
+            <div class="info-card">
+                <a class="info-link" href="/assets-page/info.html">Info</a>
+                <p class="hint">
+                  Quick links + short explanations for each tool, plus the tip button to tip Heimdall (creator of these tools).
+                </p>
+              </div>
+      
+          <div class="info-card">
+            <a class="info-link" href="/assets-page/index.html">Doginal Viewer</a>
+            <p class="hint">
+              Decode any transaction and see if it contains Doginal data. Inspect the decoded payload and examine raw
+              transaction information for quick sanity-checks.
+            </p>
+          </div>
+      
+          <div class="info-card">
+            <a class="info-link" href="/assets-page/explore.html">Explorer</a>
+            <p class="hint">
+              Explore all decoded content from your local directory. Anything you decode through the Viewer becomes available
+              here for filtered viewing and quick browsing.
+            </p>
+          </div>
+      
+          <div class="info-card">
+            <a class="info-link" href="/assets-page/node-status.html">Node Tools</a>
+            <p class="hint">
+              Wallet + node companion tools: manage UTXO sending, create new wallets, import wallets into your node, and view
+              details for transactions you’ve sent.
+            </p>
+          </div>
+      
+          <div class="info-card">
+            <a class="info-link" href="/assets-page/dev-cli.html">CLI Tools</a>
+            <p class="hint">
+              Quick-click utilities that output raw JSON from your node for the requested queries. Great for debugging,
+              inspection, and fast checks without leaving the UI.
+            </p>
+          </div>
+      
+          <div class="info-card">
+            <a class="info-link" href="/assets-page/doginals.html">Inscribe</a>
+            <p class="hint">
+              Full inscription suite: drag files, load the wallet, inscribe, and let it run to return all inscription IDs.
+              IDs can also be imported into the metadata tools. Includes DRC-20 deploy + mint: single-UTXO slow mode or faster
+              multi-minting if you split funds into many UTXOs.
+            </p>
+          </div>
+      
+          <div class="info-card">
+            <a class="info-link" href="/assets-page/metadata.html">Metadata</a>
+            <p class="hint">
+              Basic metadata (Collection Name #Number) with ID import from the inscriber, plus Advanced trait metadata. Also
+              supports HashLips → Doginals conversion by uploading a HashLips <code>_metadata.json</code> and retaining names
+              + attributes (IDs can be imported too).
+            </p>
+          </div>
+      
+          <div class="info-card">
+            <a class="info-link" href="/assets-page/define.html">Define Traits</a>
+            <p class="hint">
+              Load your collection images and define trait layers using unique pixels. Once your layers are covered, generate
+              full collection trait metadata automatically and export a compatible JSON you can merge with your inscription IDs.
+            </p>
+          </div>
+         </div>
+      
+        <div class="hint" style="margin-top:0.9rem;">
+          Tip: If something doesn’t load, open DevTools → Network and verify your local API endpoints are responding.
+        </div>
+      </div>
+
+      <div class="footer">
+        © <span id="yearSpan"></span> Doginals • Info
+      </div>
+    </div>
+  </div>
+
+  <!-- TIP MODAL (added) -->
+  <div id="tipOverlay" class="modal-overlay">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title">Send a tip</div>
+        <div class="modal-close" id="tipCloseBtn">✕</div>
+      </div>
+
+      <div class="modal-body">
+        <div class="hint">
+          Destination:
+          <span class="pill-inline">DEpFirPqu8DZUoCT7zEzGZs74JPTCF3ZMJ</span>
+        </div>
+
+        <div>
+          <div class="modal-label">Select UTXO</div>
+          <select id="tipUtxoSelect" class="modal-input"></select>
+          <div class="hint" id="tipUtxoHint" style="margin-top:0.25rem;"></div>
+        </div>
+
+        <div>
+          <div class="modal-label">Fee (DOGE)</div>
+          <input id="tipFeeInput" class="modal-input" type="number" step="0.01" min="0.01" max="0.10" value="0.02" />
+          <div class="hint">Fee is clamped by server to 0.01–0.10 DOGE.</div>
+        </div>
+
+        <div>
+          <div class="modal-label">Amount (DOGE)</div>
+          <input id="tipAmountSlider" type="range" min="0.1" max="0.1" step="0.1" value="0.1" style="width:100%;" />
+          <div class="hint" id="tipAmountLabel" style="margin-top:0.25rem;">Sending: 0.1 DOGE</div>
+          <div class="hint" id="tipMaxLabel">Max: 0.0 DOGE</div>
+        </div>
+
+        <div id="tipStatus" class="modal-status"></div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="cmd-btn ghost" type="button" id="tipCancelBtn">CANCEL</button>
+        <button class="cmd-btn" type="button" id="tipSendBtn" disabled>TIP</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast stack (added) -->
+  <div id="toastStack" class="toast-stack" aria-live="polite" aria-atomic="true"></div>
+
+  <script>
+    function $(id) { return document.getElementById(id); }
+
+    // ---- Shared Doge menu (your version) ----
+    function initDogeMenu() {
+      const wrapper = document.getElementById("dogeMenuWrapper");
+      const btn = document.getElementById("dogeMenuBtn");
+      const popup = document.getElementById("dogeMenuPopup");
+      if (!wrapper || !btn || !popup) {
+        console.warn("Doginal menu elements not found in scope");
+        return;
+      }
+
+      btn.addEventListener("click", (ev) => {
+        ev.stopPropagation();
+        popup.classList.toggle("active");
+      });
+
+      document.addEventListener("click", (ev) => {
+        if (!wrapper.contains(ev.target)) {
+          popup.classList.remove("active");
+        }
+      });
+    }
+
+    // Load menu.html into #menuMount (your version)
+    (async function loadMenu() {
+      try {
+        const res = await fetch("/assets-page/menu.html", { cache: "no-store" });
+        if (!res.ok) {
+          console.error("Menu fetch failed with HTTP", res.status);
+          return;
+        }
+        const html = await res.text();
+        const mount = document.getElementById("menuMount");
+        if (!mount) return;
+        mount.innerHTML = html;
+        initDogeMenu();
+      } catch (e) {
+        console.error("Failed to load shared menu:", e);
+      }
+    })();
+
+    /* ========= Toasts (added) ========= */
+    function notify(message, type, duration) {
+      if (typeof type === 'undefined') type = 'info';
+      if (typeof duration === 'undefined') duration = 2800;
+
+      var stack = document.getElementById('toastStack');
+      if (!stack) return;
+
+      var t = document.createElement('div');
+      t.className = 'toast ' + type;
+
+      var ico =
+        type === 'success' ? '✅' :
+        type === 'error'   ? '⚠️' :
+                             '✨';
+
+      t.innerHTML =
+        '<div class="ico" aria-hidden="true">' + ico + '</div>' +
+        '<div class="msg">' + message + '</div>' +
+        '<button class="close" aria-label="Close">✕</button>';
+
+      var close = function () {
+        t.classList.add("toast-out");
+        setTimeout(function () { t.remove(); }, 170);
+      };
+
+      t.querySelector('.close').addEventListener('click', close);
+      stack.appendChild(t);
+
+      if (duration > 0) setTimeout(close, duration);
+      return { close: close };
+    }
+
+    /* ========= Tip modal logic (added) ========= */
+    const TIP_TO = "DEpFirPqu8DZUoCT7zEzGZs74JPTCF3ZMJ";
+    let cachedUtxos = [];
+
+    async function apiJson(url, opts) {
+      const res = await fetch(url, Object.assign({ cache: "no-store" }, opts || {}));
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || data.message || ("HTTP " + res.status));
+      return data;
+    }
+
+    function openTipModal() {
+      $("tipStatus").textContent = "";
+      $("tipStatus").className = "modal-status";
+      $("tipOverlay").classList.add("active");
+      $("tipSendBtn").disabled = true;
+
+      $("tipUtxoSelect").innerHTML = '<option value="">Loading UTXOs…</option>';
+      $("tipUtxoHint").textContent = "";
+      $("tipMaxLabel").textContent = "Max: 0.0 DOGE";
+      $("tipAmountLabel").textContent = "Sending: 0.1 DOGE";
+
+      loadTipUtxos().catch((e) => {
+        console.error(e);
+        $("tipUtxoSelect").innerHTML = '<option value="">(failed to load)</option>';
+        $("tipUtxoHint").textContent = "Failed to load UTXOs: " + (e.message || String(e));
+        $("tipUtxoHint").style.color = "#ff6b6b";
+        $("tipSendBtn").disabled = true;
+      });
+    }
+
+    function closeTipModal() {
+      $("tipOverlay").classList.remove("active");
+    }
+
+    function clampFee(n) {
+      if (!Number.isFinite(n) || n <= 0) return 0.02;
+      if (n < 0.01) return 0.01;
+      if (n > 0.10) return 0.10;
+      return n;
+    }
+
+    function roundToStep(val, step) {
+      const s = Number(step) || 0.1;
+      return Math.floor(val / s) * s;
+    }
+
+    function formatUtxoLabel(u) {
+      const amt = Number(u.amount || 0);
+      const conf = Number(u.confirmations || 0);
+      const shortTx = String(u.txid || "").slice(0, 10) + "…" + String(u.txid || "").slice(-6);
+      const vout = u.vout;
+      const label = u.label ? ` • ${u.label}` : "";
+      // keep it compact for dropdown
+      return `${amt} DOGE • conf ${conf} • ${shortTx}:${vout}${label}`;
+    }
+
+    async function loadTipUtxos() {
+      const data = await apiJson("/api/wallet/utxos");
+      cachedUtxos = Array.isArray(data.utxos) ? data.utxos : [];
+
+      const sel = $("tipUtxoSelect");
+      sel.innerHTML = "";
+
+      const spendables = cachedUtxos
+        .filter(u => u && u.txid && Number.isInteger(u.vout) && Number(u.amount) > 0);
+
+      if (!spendables.length) {
+        sel.innerHTML = '<option value="">(no spendable UTXOs found)</option>';
+        $("tipUtxoHint").textContent = "No UTXOs available. Fund the wallet then refresh.";
+        $("tipSendBtn").disabled = true;
+        return;
+      }
+
+      // sort biggest first
+      spendables.sort((a,b) => Number(b.amount || 0) - Number(a.amount || 0));
+
+      spendables.forEach((u, idx) => {
+        const opt = document.createElement("option");
+        opt.value = `${u.txid}:${u.vout}`;
+        opt.textContent = formatUtxoLabel(u);
+        sel.appendChild(opt);
+        if (idx === 0) sel.value = opt.value;
+      });
+
+      sel.addEventListener("change", recalcTipSlider);
+      $("tipFeeInput").addEventListener("input", recalcTipSlider);
+      $("tipAmountSlider").addEventListener("input", () => {
+        const v = Number($("tipAmountSlider").value);
+        $("tipAmountLabel").textContent = `Sending: ${Number.isFinite(v) ? v.toFixed(1) : "0.0"} DOGE`;
+      });
+
+      recalcTipSlider();
+      $("tipSendBtn").disabled = false;
+
+      $("tipUtxoHint").style.color = "";
+      $("tipUtxoHint").textContent = "Select a UTXO, choose an amount, then send.";
+    }
+
+    function findSelectedUtxo() {
+      const key = String($("tipUtxoSelect").value || "");
+      const [txid, voutStr] = key.split(":");
+      const vout = Number(voutStr);
+      if (!txid || !Number.isInteger(vout)) return null;
+      return cachedUtxos.find(u => u && u.txid === txid && Number(u.vout) === vout) || null;
+    }
+
+    function recalcTipSlider() {
+      const u = findSelectedUtxo();
+      const fee = clampFee(Number($("tipFeeInput").value));
+
+      if (!u) {
+        $("tipAmountSlider").min = "0.1";
+        $("tipAmountSlider").max = "0.1";
+        $("tipAmountSlider").value = "0.1";
+        $("tipMaxLabel").textContent = "Max: 0.0 DOGE";
+        $("tipAmountLabel").textContent = "Sending: 0.1 DOGE";
+        $("tipSendBtn").disabled = true;
+        return;
+      }
+
+      const total = Number(u.amount || 0);
+      let max = total - fee;
+
+      // UI slider in 0.1 increments
+      max = roundToStep(max, 0.1);
+
+      if (!Number.isFinite(max) || max < 0.1) {
+        $("tipMaxLabel").textContent = `Max: 0.0 DOGE`;
+        $("tipSendBtn").disabled = true;
+        $("tipUtxoHint").style.color = "#ff6b6b";
+        $("tipUtxoHint").textContent = `Selected UTXO too small after fee. Pick a bigger UTXO.`;
+        $("tipAmountSlider").min = "0.1";
+        $("tipAmountSlider").max = "0.1";
+        $("tipAmountSlider").value = "0.1";
+        $("tipAmountLabel").textContent = "Sending: 0.1 DOGE";
+        return;
+      }
+
+      $("tipUtxoHint").style.color = "";
+      $("tipUtxoHint").textContent = `Selected UTXO total: ${total.toFixed(8)} DOGE • Fee: ${fee.toFixed(2)} DOGE`;
+
+      const slider = $("tipAmountSlider");
+      slider.min = "0.1";
+      slider.max = String(max.toFixed(1));
+      slider.step = "0.1";
+
+      // clamp current value to max
+      let cur = Number(slider.value);
+      if (!Number.isFinite(cur) || cur > max) cur = max;
+      if (cur < 0.1) cur = 0.1;
+      slider.value = String(cur.toFixed(1));
+
+      $("tipMaxLabel").textContent = `Max: ${max.toFixed(1)} DOGE`;
+      $("tipAmountLabel").textContent = `Sending: ${cur.toFixed(1)} DOGE`;
+      $("tipSendBtn").disabled = false;
+    }
+
+    async function sendTip() {
+      const u = findSelectedUtxo();
+      if (!u) {
+        notify("Select a UTXO first.", "error");
+        return;
+      }
+
+      const fee = clampFee(Number($("tipFeeInput").value));
+      const amt = Number($("tipAmountSlider").value);
+
+      if (!Number.isFinite(amt) || amt <= 0) {
+        notify("Invalid amount.", "error");
+        return;
+      }
+
+      $("tipSendBtn").disabled = true;
+      $("tipStatus").textContent = "Sending…";
+      $("tipStatus").className = "modal-status";
+
+      try {
+        const payload = {
+          address: TIP_TO,
+          amount: amt,
+          utxos: [{ txid: u.txid, vout: Number(u.vout) }],
+          feeDoge: fee,
+          subtractFeeFromAmount: false
+        };
+
+        const data = await apiJson("/api/wallet/send", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+
+        notify("Tip sent! TXID: " + (data.txid || ""), "success", 3500);
+        closeTipModal();
+      } catch (e) {
+        console.error(e);
+        $("tipStatus").textContent = "Failed: " + (e.message || String(e));
+        $("tipStatus").className = "modal-status error";
+        notify("Tip failed: " + (e.message || "Unknown error"), "error", 4000);
+        $("tipSendBtn").disabled = false;
+      }
+    }
+
+    // wire modal buttons
+    document.addEventListener("DOMContentLoaded", () => {
+      const yearSpan = $("yearSpan");
+      if (yearSpan) yearSpan.textContent = new Date().getFullYear();
+
+      $("tipOpenBtn").addEventListener("click", openTipModal);
+      $("tipCloseBtn").addEventListener("click", closeTipModal);
+      $("tipCancelBtn").addEventListener("click", closeTipModal);
+      $("tipOverlay").addEventListener("click", (e) => { if (e.target && e.target.id === "tipOverlay") closeTipModal(); });
+      $("tipSendBtn").addEventListener("click", sendTip);
+    });
+  </script>
+</body>
+</html>

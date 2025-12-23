@@ -1,0 +1,192 @@
+<!-- assets-page/drc20css.html -->
+<style>
+    /* === DRC-20 shared styles for cards, modal, fullscreen === */
+  
+    .drc20-overlay {
+      position: absolute;
+      inset: 0;
+      padding: 16px 10px;  /* a little less padding so content has more room */
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      border-radius: 14px;
+      text-align: center;
+      background: rgba(10, 12, 20, 0.78);
+      backdrop-filter: blur(4px);
+      font-family: "Space Grotesk", system-ui, -apple-system, BlinkMacSystemFont,
+        "Segoe UI", sans-serif;
+    }
+  
+    /* For modal / fullscreen, we sometimes wrap in a flex container;
+       make sure it expands correctly there too. */
+    .drc20-overlay.drc-full {
+      position: relative;
+      inset: auto;
+      width: 100%;
+      height: 100%;
+    }
+  
+    .drc-heading {
+      font-size: clamp(1.3rem, 1.8vw, 1.9rem);
+      font-weight: 700;
+      letter-spacing: 0.10em;
+      margin-bottom: 0px;
+      line-height: 1;
+    }
+  
+    .drc-op {
+      font-size: clamp(1.4rem, 2vw, 1.8rem);
+      font-weight: 600;
+      margin-top: 6px;
+      opacity: 0.9;
+      line-height: 1;
+    }
+  
+    .drc-tick {
+      font-size: 4.4rem;  /* was 6rem – now smaller & responsive */
+      font-weight: 800;
+      margin-bottom: -6px;
+      line-height: 0.9;
+    }
+  
+    .drc-extra {
+      font-size: clamp(1rem, 1.6vw, 1.15rem);
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      line-height: 1.05;
+      padding-top: 10px;
+    }
+  
+    .drc-field span {
+      color: #f8d881;
+      font-weight: 600;
+      margin-right: 4px;
+    }
+  
+    /* Accent colors by op type */
+    .drc-deploy .drc-heading,
+    .drc-deploy .drc-op {
+      color: #6cfad0; /* minty green */
+    }
+  
+    .drc-transfer .drc-heading,
+    .drc-transfer .drc-op,
+    .drc-mint .drc-heading,
+    .drc-mint .drc-op {
+      color: #f7b66c; /* warm orange */
+    }
+  
+    /* For safety if something is unknown */
+    .drc-unknown .drc-heading,
+    .drc-unknown .drc-op {
+      color: #e1e1e1;
+    }
+  </style>
+  
+  
+  <script>
+    (function () {
+      function safeParseDrc(jsonText) {
+        if (!jsonText || typeof jsonText !== "string") return null;
+  
+        const trimmed = jsonText.trim();
+        let obj = null;
+  
+        try {
+          if (trimmed[0] === "{") {
+            obj = JSON.parse(trimmed);
+          } else {
+            // attempt to coerce bare key/values into JSON
+            const maybe = trimmed
+              .replace(/^[^{]+/, "")
+              .replace(/}[^}]*$/, "}");
+            obj = JSON.parse(maybe);
+          }
+        } catch (_) {
+          return null;
+        }
+  
+        if (!obj || String(obj.p).toLowerCase() !== "drc-20") return null;
+  
+        return {
+          op: (obj.op || "").toString().toLowerCase(),
+          tick: (obj.tick || "").toString(),
+          max: obj.max != null ? String(obj.max) : "",
+          lim: obj.lim != null ? String(obj.lim) : obj.limit != null ? String(obj.limit) : "",
+          amt: obj.amt != null ? String(obj.amt) : "",
+        };
+      }
+  
+      /**
+       * Build a DRC-20 overlay inside `target`.
+       * options.variant: "card" | "full"  (optional, default "card")
+       */
+      function buildDrc20Card(target, jsonText, options) {
+        if (!target) return;
+        const info = safeParseDrc(jsonText);
+        if (!info) {
+          // fall back to plain text
+          target.textContent = jsonText || "";
+          return;
+        }
+  
+        const opLower = info.op || "unknown";
+        const opUpper = opLower.toUpperCase();
+        const tickUpper = (info.tick || "").toUpperCase();
+  
+        const isDeploy = opLower === "deploy";
+        const variant = (options && options.variant) || "card";
+  
+        const wrapper = document.createElement("div");
+        wrapper.className =
+          "drc20-overlay drc-" +
+          (isDeploy || opLower === "transfer" || opLower === "mint"
+            ? opLower
+            : "unknown") +
+          (variant === "full" ? " drc-full" : "");
+  
+        const extraHtml = isDeploy
+          ? `
+              <div class="drc-field"><span>MAX:</span>${info.max || "—"}</div>
+              <div class="drc-field"><span>LIMIT:</span>${info.lim || "—"}</div>
+            `
+          : `
+              <div class="drc-field"><span></span>${info.amt || "—"}</div>
+            `;
+  
+        wrapper.innerHTML = `
+          <div class="drc-heading">DRC-20</div>
+          <div class="drc-tick">${tickUpper}</div>
+          <div class="drc-extra">${extraHtml}</div>
+           <div class="drc-op">${opUpper}</div>
+        `;
+  
+        target.innerHTML = "";
+        target.appendChild(wrapper);
+      }
+  
+      window.DRC20CSS = {
+  parse: safeParseDrc,
+  buildDrc20Card,
+
+  // Explorer expects a "buildOverlay" function — so we provide one.
+  buildOverlay(text) {
+    const info = safeParseDrc(text);
+    if (!info) return null;            // not DRC-20 → explorer will fallback
+
+    const wrapper = document.createElement("div");
+    wrapper.style.position = "absolute";
+    wrapper.style.inset = "0";
+
+    // Use the same styling as card mode
+    window.DRC20CSS.buildDrc20Card(wrapper, text, { variant: "card" });
+
+    return wrapper.firstElementChild;  // return the actual overlay div
+  }
+};
+
+    })();
+  </script>
+  

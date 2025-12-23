@@ -1,0 +1,3447 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0"
+    />
+    <title>Dogecoin Minter Console</title>
+
+    <link rel="icon" type="image/png" href="/assets/menu.png" />
+    <link rel="shortcut icon" type="image/png" href="/assets/menu.png" />
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        height: 100%;
+      }
+
+      body {
+        position: relative;
+        min-height: 100vh;
+        font-family: "Space Grotesk", system-ui, -apple-system,
+          BlinkMacSystemFont, "Segoe UI", sans-serif;
+        color: #f6f2e9;
+        padding: 2rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        background:
+          radial-gradient(circle at top left, #3a280e 0, transparent 55%),
+          radial-gradient(circle at bottom right, #b38a2e 0, transparent 55%),
+          linear-gradient(135deg, #05060a 0%, #0a0e18 35%, #05040a 100%);
+        overflow-x: hidden;
+      }
+
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background-image: url("/assets/bg.png");
+        background-size: auto;
+        background-repeat: repeat;
+        pointer-events: none;
+        z-index: -1;
+      }
+
+      .app-container {
+        width: 100%;
+        max-width: 1100px;
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+      }
+
+      .panel {
+        width: 100%;
+        background: radial-gradient(circle at top, #191b22 0, #101118 55%, #07070c 100%);
+        border-radius: 20px;
+        padding: 1.4rem 1.7rem;
+        border: 1px solid rgba(248, 200, 84, 0.45);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8);
+      }
+
+      .hero {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+      }
+
+      .hero-top {
+        display: flex;
+        align-items: center;
+        gap: 1.25rem;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+
+      .logo-wrap {
+        width: 90px;
+        height: 90px;
+        border-radius: 24px;
+        padding: 4px;
+        background: linear-gradient(135deg, #f9d97a, #f5b642);
+        box-shadow: 0 0 25px rgba(244, 198, 80, 0.6);
+      }
+
+      .logo-inner {
+        width: 100%;
+        height: 100%;
+        border-radius: 20px;
+        background: #05060b;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+      }
+
+      .logo-inner img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+      }
+
+      .hero-text {
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+        text-align: left;
+      }
+
+      .title {
+        font-size: 1.7rem;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: #f8d881;
+        text-shadow: 0 0 18px rgba(248, 216, 129, 0.85);
+      }
+
+      .subtitle {
+        font-size: 0.85rem;
+        color: #d4c7a6;
+        opacity: 0.9;
+      }
+
+      .subtitle-small {
+        font-size: 0.75rem;
+        color: #c1b491;
+        opacity: 0.9;
+      }
+
+      .status-actions {
+        margin-top: 0.6rem;
+        display: flex;
+        gap: 0.75rem;
+        align-items: center;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+
+      .status-indicator {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        font-size: 0.78rem;
+        color: #f4e7c3;
+      }
+
+      .status-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 999px;
+        background: rgb(230, 25, 25);
+        box-shadow: 0 0 10px rgba(216, 206, 206, 0.9);
+      }
+
+      .status-dot.online {
+        background: #f4b728;
+        box-shadow: 0 0 10px #f4b728;
+      }
+
+      .btn-small {
+        padding: 0.32rem 0.7rem;
+        border-radius: 999px;
+        border: 1px solid rgba(248, 209, 116, 0.8);
+        background: rgba(5, 6, 12, 0.94);
+        color: #f4e7c3;
+        font-size: 0.7rem;
+        cursor: pointer;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        text-shadow: 0 0 6px rgba(0, 0, 0, 0.7);
+        transition: transform 0.1s ease, box-shadow 0.1s ease,
+          background 0.1s ease, border-color 0.1s ease, color 0.1s ease;
+        white-space: nowrap;
+      }
+
+      .btn-small:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 0 12px rgba(248, 201, 113, 0.9);
+        background: linear-gradient(135deg, #f9d97a, #f1a93a);
+        color: #171307;
+      }
+
+      .btn-pill-muted {
+        border-color: rgba(248, 209, 116, 0.4);
+        color: #c9bfa0;
+        background: rgba(5, 6, 12, 0.8);
+      }
+
+      .btn-pill-muted.active {
+        background: linear-gradient(135deg, #f9d97a, #f1a93a);
+        color: #171307;
+        box-shadow: 0 0 12px rgba(248, 201, 113, 0.9);
+      }
+
+      .main-grid {
+        display: grid;
+        grid-template-columns: 1.4fr 1.6fr;
+        gap: 1.1rem;
+        margin-top: 1.2rem;
+      }
+
+      .sub-panel {
+        background: radial-gradient(circle at top, #181a22 0, #080910 70%);
+        border-radius: 16px;
+        border: 1px solid rgba(248, 200, 84, 0.35);
+        padding: 0.75rem 0.9rem;
+        font-size: 0.75rem;
+        box-shadow:
+          0 0 0 1px rgba(0, 0, 0, 0.7),
+          0 16px 32px rgba(0, 0, 0, 0.8);
+      }
+
+      .sub-panel-title-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 0.5rem;
+      }
+
+      .sub-panel-title {
+        font-size: 0.8rem;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: #f8d881;
+      }
+
+      .sub-panel-actions {
+        display: flex;
+        gap: 0.35rem;
+        flex-wrap: wrap;
+      }
+
+      .panel-hint {
+        margin-top: 0.35rem;
+        font-size: 0.65rem;
+        opacity: 0.78;
+        color: #c2b79b;
+      }
+
+      .status-bar {
+        margin-top: 0.75rem;
+        font-size: 0.7rem;
+        text-align: center;
+        opacity: 0.9;
+        color: #e9ddbe;
+      }
+
+      .status-bar.error {
+        color: #ff6b6b;
+      }
+
+      .wallet-row {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        margin-bottom: 0.6rem;
+      }
+
+      .wallet-top-line {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.4rem;
+        align-items: center;
+      }
+
+      .wallet-select {
+        min-width: 220px;
+        max-width: 100%;
+      }
+
+      .label-inline {
+        font-size: 0.7rem;
+        color: #d6ccb2;
+      }
+
+      .gold {
+        color: #f8d881;
+      }
+
+      .wallet-copy-row {
+        margin-top: 0.35rem;
+        }
+
+      .modal-input,
+      .modal-select {
+        width: 100%;
+        padding: 0.45rem 0.6rem;
+        border-radius: 999px;
+        border: 1px solid rgba(248, 209, 116, 0.6);
+        background: rgba(5, 6, 12, 0.94);
+        color: #f6f2e9;
+        font-family: "Space Grotesk", system-ui, -apple-system,
+          BlinkMacSystemFont, "Segoe UI", sans-serif;
+        font-size: 0.7rem;
+        outline: none;
+      }
+
+      .mode-row {
+        display: flex;
+        justify-content: center;
+        gap: 0.5rem;
+        margin-top: 0.75rem;
+      }
+
+      .drc20-section,
+      .ord-section {
+        margin-top: 0.25rem;
+      }
+
+      .drc-toggle-row {
+        display: flex;
+        gap: 0.4rem;
+        margin-bottom: 0.5rem;
+      }
+
+      .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.6rem 0.75rem;
+        margin-top: 0.4rem;
+      }
+
+      .form-field {
+        display: flex;
+        flex-direction: column;
+        gap: 0.18rem;
+      }
+
+      .form-label {
+        font-size: 0.7rem;
+        color: #f8d881;
+      }
+
+      .input-sm {
+        padding: 0.4rem 0.6rem;
+        border-radius: 999px;
+        border: 1px solid rgba(248, 209, 116, 0.6);
+        background: rgba(5, 6, 12, 0.94);
+        color: #f6f2e9;
+        font-size: 0.7rem;
+        outline: none;
+      }
+
+      .input-sm::placeholder {
+        color: #8e8265;
+      }
+
+      .console-wrap {
+        margin-top: 0.6rem;
+      }
+
+      .scroll-pre {
+        max-height: 260px;
+        overflow-y: auto;
+        border-radius: 10px;
+        border: 1px solid rgba(248, 209, 116, 0.3);
+        padding: 0.4rem 0.5rem;
+        background: #05060a;
+        font-size: 0.7rem;
+        white-space: pre-wrap;
+        word-break: break-word;
+        color: #f9d97a;
+      }
+
+      .drop-zone {
+        border-radius: 14px;
+        border: 1px dashed rgba(248, 209, 116, 0.7);
+        background: radial-gradient(circle at top, #1b1d26 0, #05060a 75%);
+        padding: 1.1rem 1rem;
+        text-align: center;
+        cursor: pointer;
+        transition: border-color 0.15s ease, box-shadow 0.15s ease,
+          background 0.15s ease;
+      }
+
+      .drop-zone.dragover {
+        border-style: solid;
+        box-shadow: 0 0 18px rgba(248, 209, 116, 0.9);
+        background: radial-gradient(circle at top, #26293a 0, #05060a 75%);
+      }
+
+      .drop-zone-title {
+        font-size: 0.9rem;
+        color: #f8d881;
+        margin-bottom: 0.25rem;
+      }
+
+      .drop-zone-sub {
+        font-size: 0.7rem;
+        color: #d6ccb2;
+      }
+
+      .preview-wrap {
+        margin-top: 0.7rem;
+        border-radius: 12px;
+        border: 1px solid rgba(248, 209, 116, 0.35);
+        background: #05060a;
+        max-height: 260px;
+        overflow-y: auto;
+        padding: 0.45rem 0.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem;
+      }
+
+      .preview-row {
+        display: flex;
+        align-items: center;
+        gap: 0.45rem;
+      }
+
+      .preview-thumb {
+        width: 42px;
+        height: 42px;
+        border-radius: 8px;
+        border: 1px solid rgba(248, 209, 116, 0.5);
+        background: #151620;
+        overflow: hidden;
+        flex-shrink: 0;
+      }
+
+      .preview-thumb img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .preview-meta {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 0.1rem;
+        font-size: 0.7rem;
+      }
+
+      .preview-name {
+        color: #f4e7c3;
+      }
+
+      .preview-size {
+        color: #b7ac8f;
+      }
+
+      .preview-fee {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+        font-size: 0.7rem;
+        color: #f8d881;
+      }
+
+      .preview-fee img {
+        width: 14px;
+        height: 14px;
+      }
+
+      .total-row {
+        margin-top: 0.55rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+      }
+
+      .total-label {
+        font-size: 0.75rem;
+        color: #d6ccb2;
+      }
+
+      .total-value {
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+        font-size: 0.8rem;
+        color: #f8d881;
+      }
+
+      .total-value img {
+        width: 16px;
+        height: 16px;
+      }
+
+      .hint-warning {
+        margin-top: 0.4rem;
+        font-size: 0.68rem;
+        color: #f6d47e;
+      }
+
+      .inline-checkbox {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        font-size: 0.68rem;
+        margin-top: 0.35rem;
+      }
+
+      .inline-checkbox input[type="checkbox"] {
+        width: 14px;
+        height: 14px;
+        accent-color: #f8d881;
+      }
+
+      .hidden {
+        display: none !important;
+      }
+
+      /* MODALS */
+
+      .modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(2, 3, 8, 0.86);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 1300;
+      }
+
+      .modal-overlay.active {
+        display: flex;
+      }
+
+      .modal {
+        width: 100%;
+        max-width: 480px;
+        background: radial-gradient(circle at top, #181a25 0, #05060b 65%);
+        border-radius: 16px;
+        border: 1px solid rgba(247, 208, 115, 0.75);
+        padding: 1rem 1.2rem;
+        box-shadow: 0 22px 50px rgba(0, 0, 0, 0.9);
+        font-size: 0.7rem;
+      }
+
+      .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.75rem;
+      }
+
+      .modal-title {
+        font-size: 0.8rem;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: #f8d881;
+      }
+
+      .modal-close {
+        cursor: pointer;
+        font-size: 0.75rem;
+        padding: 0.25rem 0.7rem;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, 0.78);
+        background: rgba(0, 0, 0, 0.65);
+        color: #ffffff;
+      }
+
+      .modal-body {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+
+      .modal-label {
+        font-size: 0.7rem;
+        margin-bottom: 0.18rem;
+        color: #f8d881;
+      }
+
+      .modal-textarea {
+        width: 100%;
+        padding: 0.45rem 0.6rem;
+        border-radius: 10px;
+        border: 1px solid rgba(248, 209, 116, 0.6);
+        background: rgba(5, 6, 12, 0.94);
+        color: #f6f2e9;
+        font-size: 0.7rem;
+        outline: none;
+        min-height: 70px;
+        resize: vertical;
+      }
+
+      .footer {
+        margin-top: 1.2rem;
+        font-size: 0.7rem;
+        text-align: center;
+        opacity: 0.82;
+        color: #c9bfa0;
+      }
+
+      .modal-footer {
+        margin-top: 0.75rem;
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+      }
+
+      .modal-hint {
+        font-size: 0.65rem;
+        opacity: 0.85;
+        color: #d6ccb2;
+      }
+
+      .modal-status {
+        margin-top: 0.35rem;
+        min-height: 0.9rem;
+        font-size: 0.68rem;
+        color: #d6ccb2;
+      }
+
+      .modal-status.error {
+        color: #ff6b6b;
+      }
+
+      .modal-status.ok {
+        color: #37ff7f;
+      }
+
+      .preview-wrap::-webkit-scrollbar,
+      .scroll-pre::-webkit-scrollbar {
+        width: 8px;
+      }
+
+      .preview-wrap::-webkit-scrollbar-track,
+      .scroll-pre::-webkit-scrollbar-track {
+        background: #05060a;
+      }
+
+      .preview-wrap::-webkit-scrollbar-thumb,
+      .scroll-pre::-webkit-scrollbar-thumb {
+        background: #f4b728;
+        border-radius: 999px;
+      }
+
+      .preview-wrap::-webkit-scrollbar-thumb:hover,
+      .scroll-pre::-webkit-scrollbar-thumb:hover {
+        background: #ffd46d;
+      }
+
+      .mint-progress-row {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 0.55rem;
+        margin-top: 0.2rem;
+        }
+
+        .mint-progress-text {
+        font-size: 0.7rem;
+        color: #f8d881;
+        white-space: nowrap;
+        }
+
+        .mint-progress-bar {
+        position: relative;
+        width: 130px;
+        height: 6px;
+        border-radius: 999px;
+        background: rgba(248, 209, 116, 0.18);
+        overflow: hidden;
+        }
+
+        .mint-progress-fill {
+        position: absolute;
+        inset: 0;
+        width: 0%;
+        border-radius: 999px;
+        background: linear-gradient(90deg, #f9d97a, #f1a93a);
+        box-shadow: 0 0 12px rgba(248, 209, 116, 0.8);
+        transition: width 0.15s ease-out;
+        }
+
+      /* Make 3 equal-width columns for multi-mint rows */
+      .mint-row-grid {
+        grid-template-columns: 1fr 1fr auto;
+      }
+.mint-row-remove {
+  margin-top: 1.2rem;
+  display: flex;
+  align-items: flex-end;
+}
+
+/* small round X remove button */
+.mint-remove-btn {
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  border: 1px solid rgba(248, 209, 116, 0.6);
+  background: rgba(5, 6, 12, 0.94);
+  color: #f8d881;
+  font-size: 0.9rem;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+}
+
+.mint-remove-btn:hover {
+  background: linear-gradient(135deg, #f9d97a, #f1a93a);
+  color: #171307;
+}
+
+.progress {
+  width: 100%;
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(248, 209, 116, 0.18);
+  overflow: hidden;
+  border: 1px solid rgba(248, 209, 116, 0.25);
+}
+
+.progress-bar {
+  height: 100%;
+  width: 0%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #f9d97a, #f1a93a);
+  box-shadow: 0 0 12px rgba(248, 209, 116, 0.75);
+  transition: width 0.15s ease-out;
+}
+
+.small {
+  font-size: 0.7rem;
+}
+.text-muted {
+  color: #b7ac8f;
+}
+.mt-1 { margin-top: 0.25rem; }
+.mt-2 { margin-top: 0.5rem; }
+
+.log-item {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.45rem 0.5rem;
+  border-radius: 10px;
+  border: 1px solid rgba(248, 209, 116, 0.18);
+  background: rgba(0,0,0,0.25);
+  cursor: pointer;
+  margin-bottom: 0.35rem;
+}
+
+.log-item:hover {
+  border-color: rgba(248, 209, 116, 0.55);
+  box-shadow: 0 0 10px rgba(248, 209, 116, 0.25);
+}
+
+.log-item.active {
+  border-color: rgba(248, 209, 116, 0.85);
+  background: rgba(248, 209, 116, 0.08);
+}
+
+.log-time {
+  flex-shrink: 0;
+  font-size: 0.65rem;
+  color: #c9bfa0;
+  min-width: 128px;
+}
+
+.log-title {
+  font-size: 0.7rem;
+  color: #f4e7c3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.log-empty {
+  padding: 0.6rem;
+  font-size: 0.7rem;
+  color: #b7ac8f;
+  opacity: 0.9;
+}
+
+
+ 
+
+      @media (max-width: 780px) {
+        body {
+          padding: 1.3rem;
+        }
+        .panel {
+          padding: 1.1rem 1.2rem;
+        }
+        .title {
+          font-size: 1.45rem;
+        }
+        .main-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Shared menu mount -->
+    <div id="menuMount"></div>
+
+    <div class="app-container">
+      <div class="panel">
+        <div class="hero">
+          <div class="hero-top">
+            <div class="logo-wrap">
+              <div class="logo-inner">
+                <img src="/assets/logo.png" alt="Doginals Logo" />
+              </div>
+            </div>
+            <div class="hero-text">
+              <div class="title">Dogecoin Minter Tools</div>
+              <div class="subtitle">
+                Multi-wallet Dogecoin Doginals and DRC-20 mint console.
+              </div>
+              <div class="subtitle-small">
+                Wallets live under
+                <code>/wallets/&lt;label&gt;/.wallet.json</code>.
+              </div>
+            </div>
+          </div>
+
+          <div class="status-actions">
+            <div class="status-indicator">
+              <div id="rpcStatusDot" class="status-dot"></div>
+              <span id="rpcStatusText">RPC: Unknown</span>
+            </div>
+            <button id="rpcRefreshBtn" class="btn-small">Refresh</button>
+            <button id="rpcSettingsBtn" class="btn-small">RPC Settings</button>
+          </div>
+
+          <div id="rpcError" class="status-bar"></div>
+
+          <div class="mode-row">
+            <button
+              id="modeDrc20Btn"
+              class="btn-small btn-pill-muted active"
+              type="button"
+            >
+              DRC-20
+            </button>
+            <button
+              id="modeOrdBtn"
+              class="btn-small btn-pill-muted"
+              type="button"
+            >
+              Doginals
+            </button>
+          </div>
+        </div>
+
+        <div id="statusBar" class="status-bar"></div>
+
+        <div class="main-grid">
+          <!-- Wallet side -->
+          <div class="sub-panel" id="walletPanel">
+            <div class="sub-panel-title-row">
+              <div class="sub-panel-title">Wallet Control</div>
+              <div class="sub-panel-actions">
+                <button id="walletRefreshBtn" class="btn-small btn-pill-muted">
+                  Refresh
+                </button>
+              </div>
+            </div>
+
+            <div class="wallet-row">
+                <div class="wallet-top-line">
+                  <span class="label-inline gold">Active Wallet</span>
+                  <select
+                    id="walletSelect"
+                    class="modal-select wallet-select"
+                  ></select>
+                </div>
+                <div class="wallet-top-line">
+                  <button id="newWalletBtn" class="btn-small">New Wallet</button>
+                  <button id="splitWalletBtn" class="btn-small btn-pill-muted">
+                    Split UTXOs
+                  </button>
+                  <button id="walletLogsBtn" class="btn-small btn-pill-muted">
+                    Wallet Logs
+                  </button>
+                  <button id="copyActiveWalletBtn" class="btn-small btn-pill-muted" type="button">
+                    Copy Address
+                  </button>
+                </div>
+                            
+                <div class="label-inline">
+                    Minting from:
+                    <span id="mintFromAddress" class="gold">-</span>
+                  </div>
+
+                <!-- NEW: UTXO count -->
+                <div class="label-inline">
+                    UTXOs:
+                    <span id="walletUtxoCount" class="gold">-</span>
+                </div>
+              
+                <div class="label-inline">
+                  Mode:
+                  <span id="modeLabel" class="gold">DRC-20</span>
+                </div>
+              </div>
+                          
+
+            <div class="panel-hint">
+              All mints spend UTXOs from the selected wallet. RPC settings and
+              fee policy are shared across all tools.
+            </div>
+          </div>
+
+          <!-- Mode content side -->
+          <div class="sub-panel" id="modePanel">
+            <!-- DRC-20 -->
+            <div id="drc20Section" class="drc20-section">
+              <div class="sub-panel-title-row">
+                <div class="sub-panel-title">DRC-20 Controls</div>
+                <div class="sub-panel-actions drc-toggle-row">
+                  <button
+                    id="drcDeployTab"
+                    class="btn-small btn-pill-muted active"
+                    type="button"
+                  >
+                    Deploy
+                  </button>
+                  <button
+                    id="drcMintTab"
+                    class="btn-small btn-pill-muted"
+                    type="button"
+                  >
+                    Mint
+                  </button>
+                </div>
+              </div>
+
+              <!-- Deploy form -->
+              <div id="drcDeployForm">
+                <div class="form-grid">
+                  <div class="form-field">
+                    <div class="form-label">Ticker (max 4 chars)</div>
+                    <input
+                      id="deployTickerInput"
+                      class="input-sm"
+                      maxlength="4"
+                      placeholder="DOGI"
+                    />
+                  </div>
+                  <div class="form-field">
+                    <div class="form-label">Total Supply (max)</div>
+                    <input
+                      id="deployMaxInput"
+                      class="input-sm"
+                      placeholder="210000000"
+                    />
+                  </div>
+                  <div class="form-field">
+                    <div class="form-label">Per-mint Limit</div>
+                    <input
+                      id="deployLimitInput"
+                      class="input-sm"
+                      placeholder="1000"
+                    />
+                  </div>
+                  <div class="form-field">
+                    <div class="form-label">Deployer Address</div>
+                    <input
+                      id="deployAddressInput"
+                      class="input-sm"
+                      placeholder="Auto-filled from wallet"
+                    />
+                  </div>
+                </div>
+
+                <div class="console-wrap">
+                  <button id="runDeployBtn" class="btn-small" type="button">
+                    Deploy Token
+                  </button>
+                  <div class="panel-hint">
+                    Uses <code>doginals.js drc-20 deploy</code> via
+                    <code>/api/drc20/deploy</code> and shows output below.
+                  </div>
+                  <pre id="drcConsole" class="scroll-pre">
+// DRC-20 deploy output will appear here</pre>
+                </div>
+              </div>
+
+              <!-- Mint form -->
+              <div id="drcMintForm" class="hidden">
+                <div class="form-grid">
+                  <div class="form-field">
+                    <div class="form-label">Ticker</div>
+                    <input
+                      id="mintTickerInput"
+                      class="input-sm"
+                      maxlength="4"
+                      placeholder="DOGI"
+                    />
+                  </div>
+                  <div class="form-field">
+                    <div class="form-label">Amount per Mint</div>
+                    <input
+                      id="mintAmountInput"
+                      class="input-sm"
+                      placeholder="1000"
+                    />
+                  </div>
+                  <div class="form-field">
+                    <div class="form-label">Target Address</div>
+                    <input
+                      id="mintTargetInput"
+                      class="input-sm"
+                      placeholder="Where tokens will be minted to"
+                    />
+                  </div>
+                  <div class="form-field">
+                    <div class="form-label">Total Mints (count)</div>
+                    <input
+                      id="mintCountInput"
+                      class="input-sm"
+                      placeholder="e.g. 100"
+                    />
+                  </div>
+                </div>
+                <!-- NEW: Multi-wallet controls -->
+                <div style="margin-top:0.3rem; display:flex; gap:0.5rem; align-items:center;">
+                  <button id="addMintRowBtn" class="btn-small" type="button">+</button>
+                  <button id="loadMintJsonBtn" class="btn-small btn-pill-muted" type="button">Load JSON List</button>
+                  <span id="mintJsonStatus" class="label-inline" style="color:#f8d881;"></span>
+                </div>
+
+                <!-- NEW: Container for additional rows -->
+                <div id="mintMultiRows"></div>
+
+                <div class="form-field">
+                    <div class="form-label">&nbsp;</div>
+                    <div class="mint-progress-row">
+                      <div id="mintProgressText" class="mint-progress-text">
+                        Completed: 0 / 0
+                      </div>
+                      <div class="mint-progress-bar">
+                        <div id="mintProgressFill" class="mint-progress-fill"></div>
+                      </div>
+                    </div>
+                  </div>
+                <div class="console-wrap">
+                  <button id="runMintBtn" class="btn-small" type="button">
+                    Start Mint Batch
+                  </button>
+                  <div class="panel-hint">
+                    Uses <code>/api/drc20/mint</code> to batch mint with the
+                    selected wallet.
+                  </div>
+                  <pre id="drcMintConsole" class="scroll-pre">
+// DRC-20 mint output will appear here</pre>
+                </div>
+              </div>
+            </div>
+
+            <!-- Doginals -->
+            <div id="ordSection" class="ord-section hidden">
+              <div class="sub-panel-title-row">
+                <div class="sub-panel-title">Doginals Batch Inscriber</div>
+              </div>
+              <div id="ordUtxoWarning" class="hint-warning">
+                Doginals minting requires the active wallet to have exactly
+                <strong>1 UTXO</strong>. Current wallet has
+                <strong><span id="ordUtxoCountDisplay">0</span></strong>.
+                Use <em>Split UTXOs</em> or consolidate first.
+              </div>
+
+              <div class="drop-zone" id="dropZone">
+                <div class="drop-zone-title">Drop files here to prepare mint</div>
+                <div class="drop-zone-sub">
+                  Or click to choose files. Use names like <code>1.png</code>,
+                  <code>0001.png</code>, <code>NAME#1.png</code> to keep
+                  collection order.
+                </div>
+              </div>
+              <input
+                id="fileInput"
+                type="file"
+                multiple
+                class="hidden"
+              />
+
+              <div id="previewWrap" class="preview-wrap hidden"></div>
+
+              <button
+                id="clear-files"
+                class="btn-small btn-pill-muted"
+                style="margin-top:0.6rem; display:none;"
+              >
+                Clear All Files
+              </button>
+
+              <div id="ordMetaArea" class="hidden">
+                <div class="total-row">
+                  <div class="total-label">Estimated total inscription fee</div>
+                  <div class="total-value">
+                    <img src="/assets/dogecoin.svg" alt="DOGE" />
+                    <span id="ordTotalCost">0.00000000</span>
+                  </div>
+                </div>
+
+                <div class="form-field" style="margin-top: 0.5rem;">
+                  <div class="form-label">Target Receive Address</div>
+                  <input
+                    id="ordTargetInput"
+                    class="input-sm"
+                    placeholder="Address that will receive the inscriptions"
+                  />
+                </div>
+
+                <label class="inline-checkbox">
+                  <input id="orderWarningAck" type="checkbox" />
+                  <span>
+                    I understand random filenames may break collection order and
+                    accept that risk.
+                  </span>
+                </label>
+
+                <div class="hint-warning">
+                  Files are saved under <code>/images/</code>. Genesis IDs and a
+                  filename → inscriptionId map are written to
+                  <code>/json/</code>.
+                </div>
+
+                <div class="console-wrap" style="margin-top: 0.7rem;">
+                  <button
+                    id="startOrdMintBtn"
+                    class="btn-small"
+                    type="button"
+                  >
+                    Start Inscribing
+                  </button>
+                  <!-- Doginals mint progress -->
+                  <div id="ordProgressRow" class="mt-2" style="display:none;">
+                    <div class="progress">
+                      <div
+                        id="ordProgressBar"
+                        class="progress-bar"
+                        role="progressbar"
+                        style="width: 0%;"
+                        aria-valuemin="0"
+                        aria-valuemax="100"
+                        aria-valuenow="0"
+                      ></div>
+                    </div>
+                    <div id="ordProgressLabel" class="small text-muted mt-1">
+                      Waiting to start…
+                    </div>
+                  </div>
+
+                  <pre id="ordConsole" class="scroll-pre" style="margin-top: 0.45rem;">
+// Doginals mint progress will appear here</pre>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="footer">
+          Doginals Inscriber • Made By Heimdall
+      </div>
+      </div>
+    </div>
+
+    <!-- RPC Settings Modal -->
+    <div id="rpcModalOverlay" class="modal-overlay">
+      <div class="modal">
+        <div class="modal-header">
+          <div class="modal-title">RPC Settings</div>
+          <button id="rpcModalClose" class="modal-close">X</button>
+        </div>
+        <div class="modal-body">
+          <div>
+            <div class="modal-label">NODE_RPC_URL</div>
+            <input
+              id="rpcUrlInput"
+              class="modal-input"
+              type="text"
+              placeholder="http://127.0.0.1:22555"
+            />
+          </div>
+          <div>
+            <div class="modal-label">NODE_RPC_USER</div>
+            <input
+              id="rpcUserInput"
+              class="modal-input"
+              type="text"
+              placeholder="RPC username"
+            />
+          </div>
+          <div>
+            <div class="modal-label">NODE_RPC_PASS</div>
+            <input
+              id="rpcPassInput"
+              class="modal-input"
+              type="password"
+              placeholder="RPC password"
+            />
+          </div>
+          <div>
+            <div class="modal-label">TESTNET (true / false)</div>
+            <input
+              id="rpcTestnetInput"
+              class="modal-input"
+              type="text"
+              placeholder="leave blank to keep existing"
+            />
+          </div>
+          <div>
+            <div class="modal-label">FEE_PER_KB (sats)</div>
+            <input
+              id="rpcFeePerKbInput"
+              class="modal-input"
+              type="number"
+              min="0"
+              step="1"
+              placeholder="e.g. 10000000"
+            />
+          </div>
+          <div class="modal-hint">
+            These are stored in <code>.env</code> as NODE_RPC_*.
+          </div>
+          <div id="rpcModalStatus" class="modal-status"></div>
+        </div>
+        <div class="modal-footer">
+          <button id="rpcModalCancelBtn" class="btn-small btn-pill-muted">
+            Cancel
+          </button>
+          <button id="rpcModalSaveBtn" class="btn-small">Save</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- New Wallet Modal -->
+    <div id="walletModalOverlay" class="modal-overlay">
+      <div class="modal">
+        <div class="modal-header">
+          <div class="modal-title">New Wallet</div>
+          <button id="walletModalClose" class="modal-close">X</button>
+        </div>
+        <div class="modal-body">
+          <div>
+            <div class="modal-label">Wallet Label (optional)</div>
+            <input
+              id="walletLabelInput"
+              class="modal-input"
+              placeholder="If blank, auto wallet1, wallet2, ..."
+            />
+          </div>
+          <div id="walletModalStatus" class="modal-status"></div>
+          <div class="modal-hint">
+            A new <code>.wallet.json</code> will be created under
+            <code>/wallets/&lt;label&gt;/</code> and auto-imported into your
+            node with <code>rescan=false</code>.
+          </div>
+          <div id="walletResultBox" class="modal-hint"></div>
+        </div>
+        <div class="modal-footer">
+          <button id="walletModalCancelBtn" class="btn-small btn-pill-muted">
+            Close
+          </button>
+          <button id="walletModalCreateBtn" class="btn-small">Create</button>
+        </div>
+      </div>
+    </div>
+
+        <!-- Split UTXOs Modal -->
+        <div id="splitModalOverlay" class="modal-overlay">
+            <div class="modal">
+              <div class="modal-header">
+                <div class="modal-title">Split UTXOs</div>
+                <button id="splitModalClose" class="modal-close">X</button>
+              </div>
+              <div class="modal-body">
+                <div>
+                  <div class="modal-label">Number of splits</div>
+                  <input
+                    id="splitCountInput"
+                    class="modal-input"
+                    type="number"
+                    min="2"
+                    step="1"
+                    placeholder="e.g. 20"
+                  />
+                </div>
+                <div id="splitModalStatus" class="modal-status"></div>
+                <div class="modal-hint">
+                  This will create a single transaction that splits the active
+                  wallet UTXO(s) into N smaller UTXOs. Use this before large DRC-20
+                  mint batches for better throughput.
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button id="splitModalCancelBtn" class="btn-small btn-pill-muted">
+                  Cancel
+                </button>
+                <button id="splitModalConfirmBtn" class="btn-small">
+                  Split
+                </button>
+              </div>
+            </div>
+          </div>
+      
+
+<!-- Wallet Logs Modal (REPLACE WHOLE BLOCK) -->
+<div id="logsModalOverlay" class="modal-overlay">
+  <div class="modal" style="max-width: 820px;">
+    <div class="modal-header">
+      <div class="modal-title">Wallet Logs</div>
+      <button id="logsModalClose" class="modal-close">X</button>
+    </div>
+
+    <div class="modal-body" style="gap:0.65rem;">
+      <!-- controls -->
+      <div style="display:flex; gap:0.5rem; flex-wrap:wrap; align-items:center;">
+        <div style="flex:1; min-width:220px;">
+          <div class="modal-label" style="margin-bottom:0.25rem;">Wallet</div>
+          <select id="logsWalletSelect" class="modal-select"></select>
+        </div>
+
+        <div style="flex:2; min-width:240px;">
+          <div class="modal-label" style="margin-bottom:0.25rem;">Filter</div>
+          <input
+            id="logsFilterInput"
+            class="modal-input"
+            type="text"
+            placeholder="Type to filter logs…"
+          />
+        </div>
+      </div>
+
+      <div style="display:flex; gap:0.5rem; flex-wrap:wrap; align-items:center;">
+        <button id="logsRefreshBtn" class="btn-small">Refresh</button>
+        <button id="logsCopyBtn" class="btn-small btn-pill-muted" type="button">Copy</button>
+        <button id="logsDownloadBtn" class="btn-small btn-pill-muted" type="button">Download</button>
+        <span id="logsMeta" class="label-inline" style="margin-left:auto; color:#d6ccb2;"></span>
+      </div>
+
+      <div style="display:grid; grid-template-columns: 1fr 1.2fr; gap:0.6rem; align-items:stretch;">
+        <!-- shortlist -->
+        <div
+          id="logsList"
+          style="
+            border-radius:10px;
+            border:1px solid rgba(248, 209, 116, 0.3);
+            background:#05060a;
+            max-height:420px;
+            overflow:auto;
+            padding:0.35rem;
+          "
+        ></div>
+      
+        <!-- full entry -->
+        <pre id="logsDetail" class="scroll-pre" style="max-height:420px;">// Click a log entry to view details</pre>
+      </div>
+      
+
+      <div id="logsModalStatus" class="modal-status"></div>
+    </div>
+
+    <div class="modal-footer">
+      <button id="logsModalCloseBtn" class="btn-small btn-pill-muted">Close</button>
+    </div>
+  </div>
+</div>
+
+
+    <!-- Image Preview Modal -->
+    <div id="previewModalOverlay" class="modal-overlay">
+      <div class="modal">
+        <div class="modal-header">
+          <div class="modal-title">Preview</div>
+          <button id="previewModalClose" class="modal-close">X</button>
+        </div>
+        <div class="modal-body">
+          <div
+            style="
+              border-radius: 16px;
+              overflow: hidden;
+              border: 1px solid rgba(248, 209, 116, 0.5);
+              background: #05060a;
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              max-height: 420px;
+            "
+          >
+            <img
+              id="previewModalImg"
+              src=""
+              alt="Preview"
+              style="max-width: 100%; max-height: 400px; object-fit: contain;"
+            />
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button id="previewModalCloseBtn" class="btn-small">Close</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Multi-Mint JSON Import Modal -->
+    <div id="mintJsonModalOverlay" class="modal-overlay">
+      <div class="modal">
+        <div class="modal-header">
+          <div class="modal-title">Load Multi-Mint JSON</div>
+          <button id="mintJsonModalClose" class="modal-close">X</button>
+        </div>
+
+        <div class="modal-body">
+          <div class="modal-label">Paste JSON list</div>
+          <textarea id="mintJsonTextarea" class="modal-textarea" placeholder='Example:
+    [
+      {"owner":"Dabc...", "items":10},
+      {"owner":"Dxyz...", "items":5}
+    ]'></textarea>
+
+          <div id="mintJsonModalStatus" class="modal-status"></div>
+          <div class="modal-hint">
+            Accepted fields: <code>owner</code> or <code>wallet</code>, and
+            <code>items</code> or <code>amount</code>.
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button id="mintJsonModalCancel" class="btn-small btn-pill-muted">Cancel</button>
+          <button id="mintJsonModalLoad" class="btn-small">Load</button>
+        </div>
+      </div>
+    </div>
+
+
+    <script>
+      // --- shared helpers ---
+      function $(id) {
+        return document.getElementById(id);
+      }
+
+      function setStatus(msg, isError) {
+        const bar = $("statusBar");
+        if (!bar) return;
+        bar.textContent = msg || "";
+        if (isError) bar.classList.add("error");
+        else bar.classList.remove("error");
+      }
+
+      let mintJsonLoaded = false;
+
+      function appendOrdConsole(line, reset = false) {
+        const consoleEl = $("ordConsole");
+        if (!consoleEl) return;
+
+        if (reset) {
+          consoleEl.textContent = line;
+        } else {
+          if (!consoleEl.textContent) {
+            consoleEl.textContent = line;
+          } else {
+            consoleEl.textContent += "\n" + line;
+          }
+        }
+
+        // auto-scroll to latest output
+        consoleEl.scrollTop = consoleEl.scrollHeight;
+      }
+
+      function setOrdProgressVisible(show) {
+        const row = $("ordProgressRow");
+        if (!row) return;
+        row.style.display = show ? "block" : "none";
+      }
+
+      function updateOrdProgress(current, total) {
+        const bar = $("ordProgressBar");
+        const label = $("ordProgressLabel");
+        if (!bar || !label) return;
+
+        const safeTotal = total > 0 ? total : 1;
+        const pct = Math.min(100, Math.max(0, (current / safeTotal) * 100));
+
+        bar.style.width = pct.toFixed(1) + "%";
+        bar.setAttribute("aria-valuenow", pct.toFixed(1));
+
+        label.textContent = `Minting ${current}/${safeTotal}`;
+      }
+
+      function completeOrdProgress(total) {
+        const bar = $("ordProgressBar");
+        const label = $("ordProgressLabel");
+        if (!bar || !label) return;
+
+        bar.style.width = "100%";
+        bar.setAttribute("aria-valuenow", "100");
+        label.textContent = `Mint complete ${total}/${total}`;
+      }
+
+
+
+      async function copyToClipboard(text, opts = {}) {
+      const { silentStatus = false, alsoLogsStatus = false } = opts;
+
+      if (!text) {
+        if (!silentStatus) setStatus("No address to copy.", true);
+        if (alsoLogsStatus && typeof setLogsStatus === "function") {
+          setLogsStatus("Nothing to copy.", true);
+        }
+        return false;
+      }
+
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          await navigator.clipboard.writeText(text);
+        } else {
+          // fallback for older browsers
+          const ta = document.createElement("textarea");
+          ta.value = text;
+          ta.style.position = "fixed";
+          ta.style.left = "-9999px";
+          document.body.appendChild(ta);
+          ta.focus();
+          ta.select();
+          document.execCommand("copy");
+          document.body.removeChild(ta);
+        }
+
+        if (!silentStatus) setStatus("Copied to clipboard.", false);
+        if (alsoLogsStatus && typeof setLogsStatus === "function") {
+          setLogsStatus("Copied to clipboard.", false);
+          setTimeout(() => setLogsStatus("", false), 800);
+        }
+        return true;
+      } catch (err) {
+        console.error("clipboard error", err);
+        if (!silentStatus) setStatus("Failed to copy: " + err.message, true);
+        if (alsoLogsStatus && typeof setLogsStatus === "function") {
+          setLogsStatus("Copy failed: " + err.message, true);
+        }
+        return false;
+      }
+    }
+
+
+        let currentMintSource = null;
+        let currentMintTotal = 0;
+
+        function updateMintProgress(completed, total) {
+        const textEl = $('mintProgressText');
+        const fillEl = $('mintProgressFill');
+        if (!textEl || !fillEl) return;
+
+        currentMintTotal = total || 0;
+        const safeCompleted = Math.max(0, completed || 0);
+        const safeTotal = Math.max(0, total || 0);
+
+        textEl.textContent =
+            safeTotal > 0
+            ? `Completed: ${safeCompleted} / ${safeTotal}`
+            : `Completed: ${safeCompleted}`;
+
+        const pct =
+            safeTotal > 0 ? Math.min(100, (safeCompleted / safeTotal) * 100) : 0;
+        fillEl.style.width = pct + '%';
+        }
+
+        function appendMintConsole(line) {
+        const consoleEl = $('drcMintConsole');
+        if (!consoleEl) return;
+        if (!consoleEl.textContent) {
+            consoleEl.textContent = line;
+        } else {
+            consoleEl.textContent += '\n' + line;
+        }
+        consoleEl.scrollTop = consoleEl.scrollHeight;
+        }
+
+
+
+      // ---- Shared Doge menu ----
+      function initDogeMenu() {
+        const wrapper = document.getElementById("dogeMenuWrapper");
+        const btn = document.getElementById("dogeMenuBtn");
+        const popup = document.getElementById("dogeMenuPopup");
+        if (!wrapper || !btn || !popup) {
+          console.warn("Doginal menu elements not found in scope");
+          return;
+        }
+
+        btn.addEventListener("click", (ev) => {
+          ev.stopPropagation();
+          popup.classList.toggle("active");
+        });
+
+        document.addEventListener("click", (ev) => {
+          if (!wrapper.contains(ev.target)) {
+            popup.classList.remove("active");
+          }
+        });
+      }
+
+      (async function loadMenu() {
+        try {
+          const res = await fetch("/assets-page/menu.html", {
+            cache: "no-store",
+          });
+          if (!res.ok) {
+            console.error("Menu fetch failed with HTTP", res.status);
+            return;
+          }
+          const html = await res.text();
+          const mount = document.getElementById("menuMount");
+          if (!mount) return;
+          mount.innerHTML = html;
+          initDogeMenu();
+        } catch (e) {
+          console.error("Failed to load shared menu:", e);
+        }
+      })();
+
+      // ---------- RPC status / config (uses /api/dev/rpc-config) ----------
+      async function refreshRpcStatus() {
+        const dot = $("rpcStatusDot");
+        const text = $("rpcStatusText");
+        const errEl = $("rpcError");
+        if (text) text.textContent = "Checking RPC...";
+        if (dot) dot.classList.remove("online");
+        if (errEl) errEl.textContent = "";
+        try {
+          const res = await fetch("/api/dev/rpc-config", {
+            cache: "no-store",
+          });
+          if (!res.ok || !res.body) {
+            let extra = "";
+            try {
+              const data = await res.json();
+              extra = data.error || data.message || "";
+            } catch {
+              try {
+                extra = await res.text();
+              } catch (_) {}
+            }
+            if (extra) {
+              throw new Error("HTTP " + res.status + " – " + extra);
+            }
+            throw new Error("HTTP " + res.status);
+          }
+
+          const data = await res.json().catch(() => ({}));
+            if (dot) dot.classList.add("online");
+            if (text) text.textContent = "RPC: OK";
+
+            $("rpcUrlInput").value = data.url || "";
+            $("rpcUserInput").value = data.user || "";
+            // don’t pre-fill password
+            $("rpcTestnetInput").value =
+            data.testnet !== undefined && data.testnet !== null ? String(data.testnet) : "";
+            $("rpcFeePerKbInput").value =
+            data.feePerKb !== undefined && data.feePerKb !== null ? String(data.feePerKb) : "";
+
+        } catch (err) {
+          console.error("RPC status error", err);
+          if (dot) dot.classList.remove("online");
+          if (text) text.textContent = "RPC: Error";
+          if (errEl) errEl.textContent = err.message;
+        }
+      }
+
+      function openRpcModal() {
+        $("rpcModalStatus").textContent = "";
+        $("rpcModalOverlay").classList.add("active");
+      }
+
+      function closeRpcModal() {
+        $("rpcModalOverlay").classList.remove("active");
+      }
+
+      async function saveRpcSettings() {
+  const statusEl = $("rpcModalStatus");
+
+  const feeRaw = $("rpcFeePerKbInput").value.trim();
+  const body = {
+    url: $("rpcUrlInput").value.trim() || undefined,
+    user: $("rpcUserInput").value.trim() || undefined,
+    pass: $("rpcPassInput").value.trim() || undefined,
+    testnet: $("rpcTestnetInput").value.trim() || undefined,
+    feePerKb: feeRaw === "" ? undefined : Number(feeRaw),
+  };
+
+  // drop undefined keys
+  Object.keys(body).forEach((k) => {
+    if (body[k] === undefined) delete body[k];
+  });
+
+  try {
+    statusEl.textContent = "Saving...";
+    statusEl.className = "modal-status";
+    const res = await fetch("/api/dev/rpc-config/save", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || !data.ok) {
+      throw new Error(data.error || data.detail || "Save failed");
+    }
+    statusEl.textContent = "Saved.";
+    statusEl.classList.add("ok");
+    await refreshRpcStatus();
+    setTimeout(closeRpcModal, 900);
+  } catch (err) {
+    console.error("RPC save error", err);
+    statusEl.textContent = "Error: " + err.message;
+    statusEl.classList.add("error");
+  }
+}
+
+
+      // ---------- Wallets ----------
+      let wallets = [];
+      let activeWallet = null;
+
+      // ---------- Wallet Logs (modal v2) ----------
+let logsRawText = "";
+let logsLastLabel = "";
+
+function safeLabelFromActive() {
+  return (activeWallet && activeWallet.label) ? String(activeWallet.label) : "";
+}
+
+function updateLogsMeta(text) {
+  const el = $("logsMeta");
+  if (el) el.textContent = text || "";
+}
+
+function setLogsStatus(msg, isError) {
+  const el = $("logsModalStatus");
+  if (!el) return;
+  el.textContent = msg || "";
+  el.className = "modal-status";
+  if (msg) el.classList.add(isError ? "error" : "ok");
+}
+
+function fillLogsWalletSelect() {
+  const sel = $("logsWalletSelect");
+  if (!sel) return;
+
+  sel.innerHTML = "";
+
+  if (!Array.isArray(wallets) || !wallets.length) {
+    const opt = document.createElement("option");
+    opt.value = "";
+    opt.textContent = "No wallets loaded";
+    sel.appendChild(opt);
+    return;
+  }
+
+  wallets.forEach((w, idx) => {
+    const opt = document.createElement("option");
+    opt.value = w.label;
+
+    const label = w.label || ("wallet" + (idx + 1));
+    const addrShort = w.address ? (" • " + String(w.address).slice(0, 10) + "…") : "";
+    opt.textContent = label + addrShort;
+
+    sel.appendChild(opt);
+  });
+
+  // default selection: active wallet if possible
+  const activeLabel = safeLabelFromActive();
+  sel.value = wallets.some(w => w.label === activeLabel) ? activeLabel : wallets[0].label;
+}
+
+
+let logsEntries = [];          // parsed entries
+let logsSelectedIndex = -1;    // current selection
+
+function safeShortTitle(text, maxLen = 80) {
+  const s = String(text || "").replace(/\s+/g, " ").trim();
+  if (!s) return "(empty)";
+  return s.length > maxLen ? (s.slice(0, maxLen - 1) + "…") : s;
+}
+
+// Try to extract a timestamp from a line.
+// Supports: "2025-12-14 10:22:33", "2025-12-14T10:22:33", "[2025-12-14 10:22:33]" etc.
+// Only treat a timestamp as a NEW entry if the line STARTS with it (optionally wrapped in [ ])
+function extractHeaderTimestamp(line) {
+  const s = String(line || "").trim();
+
+  // Only match when the entire line is a timestamp header (optionally in [ ])
+  // Examples:
+  // [2025-12-14T05:41:51.233Z]
+  // 2025-12-14T05:41:51.233Z
+  // [2025-12-14 05:41:51]
+  // 2025-12-14 05:41:51
+  const m = s.match(
+    /^\[?(\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z)?)\]?\s*$/
+  );
+  return m ? m[1] : "";
+}
+
+
+function parseLogsToEntries(rawText) {
+  const lines = String(rawText || "").split(/\r?\n/);
+
+  const entries = [];
+  let current = null;
+
+  const pushCurrent = () => {
+    if (!current) return;
+
+    // Trim trailing empty lines inside a block
+    while (
+      current.lines.length &&
+      !String(current.lines[current.lines.length - 1]).trim()
+    ) {
+      current.lines.pop();
+    }
+
+    const full = current.lines.join("\n").trimEnd();
+    if (!full) return;
+
+    // Title = first non-empty line AFTER the header timestamp line (if it has one)
+    let titleLine = "";
+
+    if (current.ts) {
+      // skip index 0 because it's the timestamp header line
+      for (let j = 1; j < current.lines.length; j++) {
+        const s = String(current.lines[j] || "").trim();
+        if (!s) continue;
+
+        // If someone accidentally logs another header timestamp line inside the block,
+        // don't use it as title.
+        if (extractHeaderTimestamp(s)) continue;
+
+        titleLine = s;
+        break;
+      }
+    } else {
+      // preamble block (no timestamp header)
+      for (let j = 0; j < current.lines.length; j++) {
+        const s = String(current.lines[j] || "").trim();
+        if (!s) continue;
+        titleLine = s;
+        break;
+      }
+    }
+
+    // Fallback if block only has timestamp line (or all lines empty)
+    if (!titleLine) {
+      const firstLine = current.lines[0] || "";
+      titleLine =
+        String(firstLine)
+          .replace(current.ts || "", "")
+          .replace(/^\s*[\[\(]?\s*/, "")
+          .replace(/\s*[\]\)]?\s*$/, "")
+          .trim() || "(empty)";
+    }
+
+    entries.push({
+      idx: current.idx,
+      ts: current.ts || "",
+      title: safeShortTitle(titleLine),
+      full,
+    });
+  };
+
+  for (let i = 0; i < lines.length; i++) {
+    const l = String(lines[i] || "");
+    const ts = extractHeaderTimestamp(l);
+
+    // A header timestamp line starts a new block
+    if (ts) {
+      pushCurrent();
+      current = { idx: i, ts, lines: [l] };
+      continue;
+    }
+
+    // Append to current block (or start preamble block)
+    if (!current) {
+      current = { idx: i, ts: "", lines: [l] };
+    } else {
+      current.lines.push(l);
+    }
+  }
+
+  // last block
+  pushCurrent();
+
+  // Newest first (reverse chronological by timestamp)
+  entries.sort((a, b) => {
+    const ta = a.ts ? Date.parse(a.ts) : 0;
+    const tb = b.ts ? Date.parse(b.ts) : 0;
+    if (tb !== ta) return tb - ta; // newest first
+    return (b.idx || 0) - (a.idx || 0);
+  });
+
+  return entries;
+}
+
+
+function renderLogsList() {
+  const listEl = $("logsList");
+  const detailEl = $("logsDetail");
+  const filterEl = $("logsFilterInput");
+  if (!listEl || !detailEl) return;
+
+  const filter = (filterEl && filterEl.value ? filterEl.value.trim().toLowerCase() : "");
+
+  const visible = !filter
+    ? logsEntries
+    : logsEntries.filter(e =>
+        e.full.toLowerCase().includes(filter) ||
+        e.title.toLowerCase().includes(filter) ||
+        (e.ts && e.ts.toLowerCase().includes(filter))
+      );
+
+  listEl.innerHTML = "";
+
+  if (!visible.length) {
+    listEl.innerHTML = `<div class="log-empty">// No matches.</div>`;
+    detailEl.textContent = "// Click a log entry to view details";
+    logsSelectedIndex = -1;
+    return;
+  }
+
+  visible.forEach((entry) => {
+    const row = document.createElement("div");
+    row.className = "log-item";
+    row.dataset.idx = String(entry.idx);
+
+    const time = document.createElement("div");
+    time.className = "log-time";
+    time.textContent = entry.ts || "—";
+
+    const title = document.createElement("div");
+    title.className = "log-title";
+    title.textContent = entry.title;
+
+    row.appendChild(time);
+    row.appendChild(title);
+
+    row.addEventListener("click", async () => {
+  // clear active
+  listEl.querySelectorAll(".log-item").forEach(el => el.classList.remove("active"));
+  row.classList.add("active");
+
+  logsSelectedIndex = entry.idx;
+
+  // show something immediately
+  detailEl.textContent = "Loading entry…";
+  detailEl.scrollTop = 0;
+
+  try {
+    // IMPORTANT: this requires your parseLogsToEntries() to include entry.id
+    const walletLabel = String(logsLastLabel || "").trim();
+    const entryId = entry.id;
+
+    if (!walletLabel || !entryId) {
+      detailEl.textContent = entry.full || "(missing entry id)";
+      return;
+    }
+
+    const url =
+      "/api/doginals/wallets/" +
+      encodeURIComponent(walletLabel) +
+      "/log/entry/" +
+      encodeURIComponent(entryId);
+
+    const resp = await fetch(url, { cache: "no-store" });
+    const data = await resp.json().catch(() => ({}));
+
+    if (!resp.ok || !data.ok) {
+      throw new Error(data.error || data.message || ("HTTP " + resp.status));
+    }
+
+    // Render:
+    // - kind==="text" -> data.text
+    // - kind==="json" -> show title + pretty JSON
+    // - optional: kind==="text+json" if you added that on backend
+    let out = "";
+
+    if (data.kind === "json") {
+      out =
+        (data.title ? data.title + "\n\n" : "") +
+        (data.jsonFile ? `outputJson=${data.jsonFile}\n\n` : "") +
+        JSON.stringify(data.data || {}, null, 2);
+    } else if (data.kind === "text+json") {
+      out = String(data.text || "");
+      if (data.jsonText) {
+        out += "\n\n\n" + (data.jsonFile ? `outputJson=${data.jsonFile}\n` : "") + String(data.jsonText);
+      } else if (data.data) {
+        out += "\n\n\n" + (data.jsonFile ? `outputJson=${data.jsonFile}\n` : "") + JSON.stringify(data.data, null, 2);
+      }
+    } else {
+      // default text block
+      out = String(data.text || "");
+    }
+
+    detailEl.textContent = out || "(empty)";
+    detailEl.scrollTop = 0;
+  } catch (e) {
+    detailEl.textContent = (entry.full || "") + "\n\n[frontend] Failed to load entry details: " + (e.message || String(e));
+    detailEl.scrollTop = 0;
+  }
+});
+
+
+    listEl.appendChild(row);
+  });
+
+  // Auto-select the first visible entry
+  const firstRow = listEl.querySelector(".log-item");
+  if (firstRow) firstRow.click();
+}
+
+function renderLogsFiltered() {
+  renderLogsList();
+}
+
+async function fetchWalletLogs(label) {
+  const walletLabel = String(label || "").trim();
+  if (!walletLabel) {
+    logsRawText = "";
+    logsEntries = [];
+    renderLogsList();
+    setLogsStatus("No wallet selected.", true);
+    return;
+  }
+
+  setLogsStatus("Loading logs…", false);
+  updateLogsMeta("");
+  logsLastLabel = walletLabel;
+
+  try {
+    // ✅ NEW: use backend index (gives us entry.id)
+    const res = await fetch(
+      "/api/doginals/wallets/" + encodeURIComponent(walletLabel) + "/log/index",
+      { cache: "no-store" }
+    );
+    const data = await res.json().catch(() => ({}));
+
+    if (!res.ok || !data.ok) {
+      throw new Error(data.error || data.message || ("HTTP " + res.status));
+    }
+
+    const entries = Array.isArray(data.entries) ? data.entries : [];
+
+    // Build logsEntries in the shape renderLogsList expects
+    logsEntries = entries.map((e, i) => ({
+      idx: i,                         // local index for UI selection
+      id: e.id,                       // ✅ REQUIRED for /log/entry/:id
+      ts: e.timestamp || "",
+      title: e.title || "(no title)",
+      type: e.type || "",
+      hasJson: !!e.hasJson,
+      jsonFile: e.jsonFile || null,
+
+      // used only for filtering; keep it simple but useful
+      full: [
+        e.title || "",
+        e.type ? `type=${e.type}` : "",
+        e.jsonFile ? `outputJson=${e.jsonFile}` : ""
+      ].filter(Boolean).join("\n"),
+    }));
+
+    renderLogsList();
+
+    // meta
+    updateLogsMeta(`${walletLabel} • ${logsEntries.length} entries`);
+    setLogsStatus("Loaded.", false);
+    setTimeout(() => setLogsStatus("", false), 800);
+  } catch (err) {
+    console.error("wallet logs fetch error", err);
+    logsRawText = "";
+    logsEntries = [];
+    renderLogsList();
+    setLogsStatus("Error: " + err.message, true);
+  }
+}
+
+
+function downloadText(filename, text) {
+  const blob = new Blob([text || ""], { type: "text/plain;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 2500);
+}
+
+async function openWalletLogsV2() {
+  // ensure wallets are present in selector
+  fillLogsWalletSelect();
+
+  // reset UI
+  const filterEl = $("logsFilterInput");
+  if (filterEl) filterEl.value = "";
+
+  const listEl = $("logsList");
+  if (listEl) listEl.innerHTML = `<div class="log-empty">// Loading logs...</div>`;
+
+  const detailEl = $("logsDetail");
+  if (detailEl) detailEl.textContent = "// Loading logs...";
+
+  setLogsStatus("", false);
+  updateLogsMeta("");
+
+  // open modal
+  const overlay = $("logsModalOverlay");
+  if (overlay) overlay.classList.add("active");
+
+  // load selected wallet logs
+  const sel = $("logsWalletSelect");
+  const label = sel ? sel.value : safeLabelFromActive();
+  await fetchWalletLogs(label);
+}
+
+
+
+      function onWalletChange() {
+        const label = $("walletSelect").value;
+        activeWallet =
+            wallets.find((w) => w.label === label) || wallets[0] || null;
+
+        $("mintFromAddress").textContent =
+            (activeWallet && activeWallet.address) || "-";
+
+        // NEW: update UTXO count
+        const utxoEl = $("walletUtxoCount");
+        if (utxoEl) {
+            if (activeWallet && typeof activeWallet.utxoCount === "number") {
+            utxoEl.textContent = String(activeWallet.utxoCount);
+            } else {
+            utxoEl.textContent = "-";
+            }
+        }
+
+        if (!$("deployAddressInput").value && activeWallet) {
+            $("deployAddressInput").value = activeWallet.address || "";
+        }
+
+        updateOrdMintButtonState();
+        }
+
+
+
+      async function loadWallets() {
+  try {
+    const sel = $("walletSelect");
+    sel.innerHTML = "";
+    const res = await fetch("/api/doginals/wallets", { cache: "no-store" });
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    const data = await res.json().catch(() => ({}));
+    wallets = Array.isArray(data.wallets) ? data.wallets : [];
+
+    if (!wallets.length) {
+        const opt = document.createElement("option");
+        opt.value = "";
+        opt.textContent = "No wallets yet";
+        sel.appendChild(opt);
+        activeWallet = null;
+        $("mintFromAddress").textContent = "-";
+        const utxoEl = $("walletUtxoCount");
+        if (utxoEl) utxoEl.textContent = "-"; 
+        
+            // If logs modal is open, keep its wallet selector in sync
+        const logsOverlay = $("logsModalOverlay");
+        if (logsOverlay && logsOverlay.classList.contains("active")) {
+          fillLogsWalletSelect();
+        }
+        return;
+        }
+
+
+    wallets.forEach((w, idx) => {
+      const opt = document.createElement("option");
+      opt.value = w.label;
+
+      const label = w.label || "wallet" + (idx + 1);
+      const addr = w.address ? ` (${w.address})` : "";
+      let balText = "";
+      if (typeof w.balance === "number") {
+        balText = " — " + w.balance.toFixed(4) + " DOGE";
+      }
+
+      opt.textContent = label + addr + balText;
+      sel.appendChild(opt);
+    });
+
+    const initialLabel =
+      activeWallet && activeWallet.label
+        ? activeWallet.label
+        : wallets[0].label;
+    sel.value = initialLabel;
+    onWalletChange();
+
+    updateOrdMintButtonState();
+  } catch (err) {
+    console.error("wallet load error", err);
+    setStatus("Wallet load error: " + err.message, true);
+  }
+}
+
+
+
+      function openWalletModal() {
+        $("walletLabelInput").value = "";
+        $("walletModalStatus").textContent = "";
+        $("walletModalStatus").className = "modal-status";
+        $("walletResultBox").innerHTML = "";
+        $("walletModalOverlay").classList.add("active");
+      }
+
+      function closeWalletModal() {
+        $("walletModalOverlay").classList.remove("active");
+      }
+
+      async function createNewWallet() {
+        const labelField = $("walletLabelInput");
+        const statusEl = $("walletModalStatus");
+        const resultBox = $("walletResultBox");
+        statusEl.textContent = "";
+        statusEl.className = "modal-status";
+        resultBox.innerHTML = "";
+        try {
+          statusEl.textContent = "Creating wallet...";
+          const res = await fetch("/api/doginals/wallets/new", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              label: labelField.value.trim() || undefined,
+            }),
+          });
+          const data = await res.json().catch(() => ({}));
+          if (!res.ok || !data.ok) {
+            throw new Error(data.error || data.message || "Create failed");
+          }
+          statusEl.textContent = "Wallet created and imported.";
+          statusEl.classList.add("ok");
+          const addr = data.address || "(unknown address)";
+          const priv = data.privkey || "(hidden)";
+          resultBox.innerHTML =
+            '<div class="modal-hint"><strong>Address</strong><br />' +
+            addr +
+            "</div>" +
+            '<div class="modal-hint" style="margin-top:0.5rem;"><strong>Private key (WIF)</strong><br />' +
+            priv +
+            "</div>" +
+            '<div class="modal-hint" style="margin-top:0.55rem;">Copy the address and fund the wallet before minting.</div>';
+          await loadWallets();
+          const sel = $("walletSelect");
+          if (data.label) {
+            sel.value = data.label;
+            onWalletChange();
+          }
+        } catch (err) {
+          console.error("new wallet error", err);
+          statusEl.textContent = "Error: " + err.message;
+          statusEl.classList.add("error");
+        }
+      }
+
+      // --- Split UTXOs modal helpers ---
+      function openSplitModal() {
+        if (!activeWallet) {
+          setStatus("No active wallet selected.", true);
+          return;
+        }
+        $("splitCountInput").value = "";
+        const statusEl = $("splitModalStatus");
+        statusEl.textContent = "";
+        statusEl.className = "modal-status";
+        $("splitModalOverlay").classList.add("active");
+      }
+
+      function closeSplitModal() {
+        $("splitModalOverlay").classList.remove("active");
+      }
+
+      async function confirmSplitWallet() {
+        if (!activeWallet) {
+            setStatus("No active wallet selected.", true);
+            closeSplitModal();
+            return;
+        }
+
+        const input = $("splitCountInput");
+        const statusEl = $("splitModalStatus");
+        statusEl.textContent = "";
+        statusEl.className = "modal-status";
+
+        const raw = (input.value || "").trim();
+        const count = Number(raw);
+
+        if (!raw || !Number.isFinite(count) || count < 2) {
+            statusEl.textContent = "Please enter a whole number ≥ 2.";
+            statusEl.classList.add("error");
+            return;
+        }
+
+        try {
+            statusEl.textContent = "Creating split transaction...";
+            setStatus("Splitting UTXOs...", false);
+
+            const res = await fetch("/api/doginals/wallets/split", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                label: activeWallet.label,
+                splits: Math.floor(count),
+            }),
+            });
+
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok || !data.ok) {
+            throw new Error(data.error || data.message || "Split failed");
+            }
+
+            statusEl.textContent =
+            "Split transaction sent: " + (data.txid || "(txid unknown)");
+            statusEl.classList.add("ok");
+            setStatus(
+            "UTXO split transaction sent: " + (data.txid || "(txid unknown)"),
+            false
+            );
+
+            // NEW: refresh wallets so balance + UTXO count update
+            await loadWallets();
+        } catch (err) {
+            console.error("split error", err);
+            statusEl.textContent = "Error: " + err.message;
+            statusEl.classList.add("error");
+            setStatus("UTXO split error: " + err.message, true);
+        }
+        }
+
+      // ---------- DRC-20 ----------
+      async function runDeploy() {
+        if (!activeWallet) {
+          setStatus("Select a wallet first.", true);
+          return;
+        }
+        const ticker = $("deployTickerInput").value.trim();
+        const max = $("deployMaxInput").value.trim();
+        const lim = $("deployLimitInput").value.trim();
+        const addr =
+          $("deployAddressInput").value.trim() || activeWallet.address || "";
+        const consoleEl = $("drcConsole");
+        consoleEl.textContent = "// Deploying token...\n";
+
+        if (!ticker || ticker.length > 4) {
+          consoleEl.textContent += "Ticker must be 1–4 characters.";
+          return;
+        }
+        if (!max || !lim || !addr) {
+          consoleEl.textContent += "Please fill all fields.";
+          return;
+        }
+
+        try {
+          const res = await fetch("/api/drc20/deploy", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              label: activeWallet.label,
+              ticker,
+              max,
+              limit: lim,
+              address: addr,
+            }),
+          });
+          const data = await res.json().catch(() => ({}));
+          if (!res.ok || !data.ok) {
+            throw new Error(data.error || data.message || "Deploy failed");
+          }
+          consoleEl.textContent += data.stdout || "\nOK\n";
+          if (Array.isArray(data.txids) && data.txids.length) {
+            consoleEl.textContent +=
+              "\nTXIDs:\n" + data.txids.join("\n");
+          }
+          setStatus("DRC-20 deploy sent.", false);
+        } catch (err) {
+          console.error("deploy error", err);
+          consoleEl.textContent += "\nError: " + err.message;
+          setStatus("Deploy error: " + err.message, true);
+        }
+      }
+
+async function runMintBatch() {
+  if (!activeWallet) {
+    setStatus('Select a wallet first.', true);
+    return;
+  }
+
+  if (currentMintSource) {
+    setStatus('A mint batch is already running.', true);
+    return;
+  }
+
+  
+  const jobs = getMultiMintJobs();
+
+  // ---- MULTI MODE ----
+  if (jobs.length > 1) {
+    return runMultiMint(jobs);
+  }
+
+  const ticker = $('mintTickerInput').value.trim();
+  const amount = $('mintAmountInput').value.trim();
+  const target = $('mintTargetInput').value.trim();
+  const countStr = $('mintCountInput').value.trim();
+  const consoleEl = $('drcMintConsole');
+  const startBtn = $('runMintBtn');
+
+  consoleEl.textContent = '// Starting batch mint...\n';
+  updateMintProgress(0, 0);
+
+  if (!ticker || ticker.length > 4) {
+    consoleEl.textContent += 'Ticker must be 1–4 characters.';
+    return;
+  }
+  if (!amount || !target || !countStr) {
+    consoleEl.textContent += 'Please fill all fields.';
+    return;
+  }
+
+  const total = Number(countStr);
+  if (!Number.isFinite(total) || total <= 0) {
+    consoleEl.textContent += 'Total mints must be > 0.';
+    return;
+  }
+
+  // Build SSE URL
+  const params = new URLSearchParams({
+    label: activeWallet.label,
+    ticker,
+    amount,
+    count: String(total),
+    address: target,
+  });
+
+  const url = `/api/drc20/mint-stream?${params.toString()}`;
+
+  try {
+    setStatus('Starting DRC-20 mint batch...', false);
+    startBtn.disabled = true;
+    startBtn.textContent = 'Minting...';
+
+    const es = new EventSource(url, { withCredentials: false });
+    currentMintSource = es;
+
+    es.addEventListener('init', (ev) => {
+      try {
+        const data = JSON.parse(ev.data || '{}');
+        const tot = Number(data.total || total || 0);
+        updateMintProgress(0, tot);
+        appendMintConsole(
+          `// Mint stream started for ${data.ticker || ticker} – total ${tot}`
+        );
+      } catch (_) {
+        // ignore JSON parse errors
+      }
+    });
+
+    es.addEventListener('log', (ev) => {
+      try {
+        const data = JSON.parse(ev.data || '{}');
+        if (data.line) {
+          appendMintConsole(data.line);
+        }
+      } catch (_) {}
+    });
+
+    es.addEventListener('progress', (ev) => {
+      try {
+        const data = JSON.parse(ev.data || '{}');
+        const completed = Number(data.completed || 0);
+        const tot = Number(data.total || total || 0);
+        updateMintProgress(completed, tot);
+      } catch (_) {}
+    });
+
+    es.addEventListener('done', (ev) => {
+      try {
+        const data = JSON.parse(ev.data || '{}');
+        const completed = Number(data.completed || total || 0);
+        const tot = Number(data.total || total || 0);
+        updateMintProgress(completed, tot);
+        appendMintConsole(
+          `// Mint batch complete – ${completed}/${tot} inscriptions.`
+        );
+        setStatus('DRC-20 mint batch completed.', false);
+        } catch (_) {
+        appendMintConsole('// Mint batch complete.');
+        } finally {
+        es.close();
+        currentMintSource = null;
+        startBtn.disabled = false;
+        startBtn.textContent = 'Start Mint Batch';
+
+        // NEW: refresh wallet balances + UTXO count
+        loadWallets().catch(() => {});
+        }
+
+    });
+
+    es.addEventListener('mintError', (ev) => {
+      try {
+        const data = JSON.parse(ev.data || '{}');
+        if (data.stdout) appendMintConsole(data.stdout);
+        if (data.stderr) appendMintConsole(data.stderr);
+        const msg =
+          data.message ||
+          data.error ||
+          'Mint failed – see console output above.';
+        appendMintConsole('Error: ' + msg);
+        setStatus('Mint batch error: ' + msg, true);
+      } catch (err) {
+        appendMintConsole('Error: mint failed.');
+        setStatus('Mint batch error.', true);
+      } finally {
+        es.close();
+        currentMintSource = null;
+        startBtn.disabled = false;
+        startBtn.textContent = 'Start Mint Batch';
+      }
+    });
+
+    es.onerror = () => {
+      if (!currentMintSource) return; // already handled
+      appendMintConsole('// Mint stream connection error.');
+      setStatus('Mint stream connection error.', true);
+      es.close();
+      currentMintSource = null;
+      startBtn.disabled = false;
+      startBtn.textContent = 'Start Mint Batch';
+    };
+  } catch (err) {
+    console.error('mint batch error', err);
+    appendMintConsole('Error: ' + err.message);
+    setStatus('Mint batch error: ' + err.message, true);
+    currentMintSource = null;
+    startBtn.disabled = false;
+    startBtn.textContent = 'Start Mint Batch';
+  }
+}
+
+async function runMultiMint(jobs) {
+  const consoleEl = $("drcMintConsole");
+  const startBtn = $("runMintBtn");
+  consoleEl.textContent = "// Starting multi-wallet mint...\n";
+
+  const ticker = $("mintTickerInput").value.trim();
+  const amount = $("mintAmountInput").value.trim();
+
+  if (!ticker || ticker.length > 4) {
+    consoleEl.textContent += "Ticker is invalid.";
+    return;
+  }
+  if (!amount) {
+    consoleEl.textContent += "Amount per mint is required.";
+    return;
+  }
+
+  startBtn.disabled = true;
+  startBtn.textContent = "Minting...";
+
+  const payload = {
+    label: activeWallet.label,
+    ticker,
+    amount,
+    jobs,
+  };
+
+  const es = new EventSource(
+    "/api/drc20/multi-mint-stream?" +
+      new URLSearchParams({ data: JSON.stringify(payload) })
+  );
+
+  currentMintSource = es;
+
+  es.addEventListener("log", (ev) => {
+    const d = JSON.parse(ev.data || "{}");
+    if (d.line) appendMintConsole(d.line);
+  });
+
+  es.addEventListener("progress", (ev) => {
+    const d = JSON.parse(ev.data || "{}");
+    updateMintProgress(d.completed, d.total);
+  });
+
+  es.addEventListener("done", (ev) => {
+    const d = JSON.parse(ev.data || "{}");
+    appendMintConsole(`// Multi-mint completed: ${d.completed}/${d.total}`);
+    setStatus("Multi-wallet mint completed.", false);
+
+    es.close();
+    currentMintSource = null;
+    startBtn.disabled = false;
+    startBtn.textContent = "Start Mint Batch";
+    loadWallets();
+  });
+
+  es.addEventListener("mintError", (ev) => {
+    const d = JSON.parse(ev.data || "{}");
+    appendMintConsole("ERROR: " + d.message);
+    setStatus("Multi-mint error: " + d.message, true);
+
+    es.close();
+    currentMintSource = null;
+    startBtn.disabled = false;
+    startBtn.textContent = "Start Mint Batch";
+  });
+
+  es.onerror = () => {
+    appendMintConsole("// Multi-mint stream connection error.");
+    setStatus("Multi-mint stream error.", true);
+
+    es.close();
+    currentMintSource = null;
+    startBtn.disabled = false;
+    startBtn.textContent = "Start Mint Batch";
+  };
+}
+
+
+
+
+      function setDrcTab(tab) {
+        const depTab = $("drcDeployTab");
+        const mintTab = $("drcMintTab");
+        const depForm = $("drcDeployForm");
+        const mintForm = $("drcMintForm");
+        if (tab === "deploy") {
+          depTab.classList.add("active");
+          mintTab.classList.remove("active");
+          depForm.classList.remove("hidden");
+          mintForm.classList.add("hidden");
+        } else {
+          depTab.classList.remove("active");
+          mintTab.classList.add("active");
+          depForm.classList.add("hidden");
+          mintForm.classList.remove("hidden");
+        }
+      }
+
+      // ---------- Doginals upload + mint ----------
+      let ordFiles = []; // {name, size, mime, estFeeSats, estFeeDoge, previewUrl}
+      let ordMintInProgress = false;
+
+
+      function dogeFromNumber(d) {
+        return Number(d || 0).toFixed(8);
+      }
+
+      // helper: numeric-aware filename sort
+      function sortOrdFilesInPlace() {
+        function extractNum(name) {
+          const m = String(name || "").match(/(\d+)/);
+          return m ? parseInt(m[1], 10) : null;
+        }
+
+        ordFiles.sort((a, b) => {
+          const an = extractNum(a.name);
+          const bn = extractNum(b.name);
+          if (an !== null && bn !== null && an !== bn) return an - bn;
+          // fallback: localeCompare with numeric option
+          return String(a.name || "").localeCompare(String(b.name || ""), undefined, {
+            numeric: true,
+            sensitivity: "base",
+          });
+        });
+      }
+
+      function renderOrdPreview() {
+        const wrap = $("previewWrap");
+        const clearBtn = $("clear-files");
+
+        if (wrap) wrap.innerHTML = "";
+
+        if (!ordFiles.length) {
+          if (wrap) wrap.classList.add("hidden");
+          $("ordMetaArea").classList.add("hidden");
+          $("ordTotalCost").textContent = "0.00000000";
+          if (clearBtn) clearBtn.style.display = "none";
+          updateOrdMintButtonState();
+          return;
+        }
+
+        // keep frontend order strictly by filename
+        sortOrdFilesInPlace();
+
+        if (wrap) wrap.classList.remove("hidden");
+        $("ordMetaArea").classList.remove("hidden");
+        if (clearBtn) clearBtn.style.display = "inline-block";
+
+        let totalDoge = 0;
+
+        ordFiles.forEach((f, index) => {
+          const row = document.createElement("div");
+          row.className = "preview-row";
+
+          const thumb = document.createElement("div");
+          thumb.className = "preview-thumb";
+          const img = document.createElement("img");
+          img.alt = f.name;
+          img.src = f.previewUrl || "";
+          thumb.appendChild(img);
+          row.appendChild(thumb);
+
+          const meta = document.createElement("div");
+          meta.className = "preview-meta";
+
+          const name = document.createElement("div");
+          name.className = "preview-name";
+          name.textContent = f.name;
+          meta.appendChild(name);
+
+          const size = document.createElement("div");
+          size.className = "preview-size";
+          const kb = Math.ceil(f.size / 1024);
+          size.textContent = kb + " KB";
+          meta.appendChild(size);
+
+          const feeRow = document.createElement("div");
+          feeRow.className = "preview-fee";
+          const icon = document.createElement("img");
+          icon.src = "/assets/dogecoin.svg";
+          icon.alt = "DOGE";
+          feeRow.appendChild(icon);
+          feeRow.appendChild(
+            document.createTextNode(dogeFromNumber(f.estFeeDoge))
+          );
+          meta.appendChild(feeRow);
+
+          row.appendChild(meta);
+
+          // inline X delete button on the right
+          const delBtn = document.createElement("button");
+          delBtn.className = "btn-small btn-pill-muted";
+          delBtn.textContent = "X";
+          delBtn.style.marginLeft = "auto";
+          delBtn.style.flexShrink = "0";
+          delBtn.addEventListener("click", async (ev) => {
+            ev.stopPropagation();
+
+            const filename = f.name;
+
+            try {
+              const res = await fetch("/api/doginals/delete-image", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ name: filename }),
+              });
+
+              const data = await res.json().catch(() => ({}));
+              if (!res.ok || !data.ok) {
+                throw new Error(data.error || "Delete failed");
+              }
+
+              // remove from frontend list ONLY after server success
+              ordFiles.splice(index, 1);
+              renderOrdPreview();
+            } catch (err) {
+              console.error("delete image error:", err);
+              setStatus("Failed to remove file: " + err.message, true);
+            }
+          });
+
+          row.appendChild(delBtn);
+
+          row.addEventListener("click", () => {
+            if (!f.previewUrl) return;
+            $("previewModalImg").src = f.previewUrl;
+            $("previewModalOverlay").classList.add("active");
+          });
+
+          if (wrap) wrap.appendChild(row);
+
+          totalDoge += Number(f.estFeeDoge || 0);
+        });
+
+        $("ordTotalCost").textContent = dogeFromNumber(totalDoge);
+        updateOrdMintButtonState();
+      }
+
+
+
+      function handleDropZoneClick() {
+        $("fileInput").click();
+      }
+
+      function handleFilesSelected(fileList) {
+        if (!fileList || !fileList.length) return;
+        uploadOrdFiles(fileList);
+      }
+      async function uploadOrdFiles(fileList) {
+        if (!fileList.length) return;
+        if (!activeWallet) {
+          // use status bar instead of browser alert
+          setStatus("Select a wallet first.", true);
+          return;
+        }
+
+        const fd = new FormData();
+        Array.from(fileList).forEach((file) =>
+          fd.append("files", file, file.name)
+        );
+
+        try {
+          appendOrdConsole("// Uploading files to server...", true);
+
+
+          const res = await fetch("/api/doginals/upload", {
+            method: "POST",
+            body: fd,
+          });
+
+          const data = await res.json().catch(() => ({}));
+          if (!res.ok || !data.ok) {
+            throw new Error(data.error || data.message || "Upload failed");
+          }
+
+          // Build ordFiles based on what the server actually has in ./images
+          const serverFiles = Array.isArray(data.files) ? data.files.slice() : [];
+
+          // Sort numerically by filename (00001, 00002, 00010, etc.)
+          serverFiles.sort((a, b) =>
+            String(a.name).localeCompare(String(b.name), undefined, {
+              numeric: true,
+              sensitivity: "base",
+            })
+          );
+
+          ordFiles = serverFiles.map((f) => {
+            return {
+              name: f.name,
+              size: f.size,
+              mime: f.mime,
+              estFeeSats: f.estFeeSats,
+              estFeeDoge: f.estFeeDoge,
+              // PREVIEW DIRECTLY FROM SERVER /images/<filename>
+              previewUrl: "/images/" + encodeURIComponent(f.name),
+            };
+          });
+
+          renderOrdPreview();
+          appendOrdConsole("Prepared " + ordFiles.length + " files.");
+
+        } catch (err) {
+          console.error("upload error", err);
+          appendOrdConsole("Upload error: " + err.message, true);
+          setStatus("Upload error: " + err.message, true);
+        }
+      }
+
+
+
+      function updateOrdMintButtonState() {
+        const btn = $("startOrdMintBtn");
+        if (btn && ordMintInProgress) {
+        btn.disabled = true;
+        btn.textContent = "Inscribing in progress…";
+        return;
+      }
+
+        const warn = $("ordUtxoWarning");
+        const warnCount = $("ordUtxoCountDisplay");
+
+        const utxo =
+          activeWallet && typeof activeWallet.utxoCount === "number"
+            ? activeWallet.utxoCount
+            : 0;
+        if (warnCount) {
+          warnCount.textContent = String(utxo);
+        }
+
+        const hasFiles = Array.isArray(ordFiles) && ordFiles.length > 0;
+        const walletOk = !!activeWallet && utxo === 1;
+        const canMint = walletOk && hasFiles;
+
+        if (btn) {
+          btn.disabled = !canMint;
+          btn.textContent = canMint
+            ? "Start Inscribing"
+            : "Need 1 UTXO + files";
+        }
+
+        if (!warn) return;
+
+        if (!activeWallet) {
+          warn.classList.remove("hidden");
+          warn.innerHTML =
+            'Select an active wallet before minting Doginals.';
+          return;
+        }
+
+        if (utxo !== 1) {
+          warn.classList.remove("hidden");
+          warn.innerHTML =
+            'Doginals minting requires the active wallet to have exactly ' +
+            "<strong>1 UTXO</strong>. Current wallet has " +
+            "<strong>" +
+            utxo +
+            "</strong>. Use <em>Split UTXOs</em> or consolidate first.";
+          return;
+        }
+
+        // Wallet is OK; optionally show hint if no files yet
+        if (!hasFiles) {
+          warn.classList.remove("hidden");
+          warn.innerHTML =
+            'Wallet UTXO count is OK (1). Now add files to mint.';
+        } else {
+          warn.classList.add("hidden");
+        }
+      }
+
+      async function startOrdMint() {
+  if (!activeWallet) {
+    setStatus("Select a wallet first.", true);
+    updateOrdMintButtonState();
+    return;
+  }
+
+  const utxo =
+    typeof activeWallet.utxoCount === "number"
+      ? activeWallet.utxoCount
+      : 0;
+  if (utxo !== 1) {
+    setStatus(
+      "Doginals minting requires the active wallet to have exactly 1 UTXO.",
+      true
+    );
+    updateOrdMintButtonState();
+    return;
+  }
+
+  if (!ordFiles.length) {
+    setStatus("Upload files first.", true);
+    updateOrdMintButtonState();
+    return;
+  }
+
+  const target = $("ordTargetInput").value.trim();
+        const consoleEl = $("ordConsole");
+
+        if (!target) {
+          setStatus("Enter a target receive address before minting.", true);
+          appendOrdConsole("Error: No target receive address set.", true);
+          return;
+        }
+
+        if (!$("orderWarningAck").checked) {
+            setStatus("You must tick the order disclaimer before minting.", true);
+            return;
+        }
+
+  appendOrdConsole(
+    "// Starting doginals mint for " + ordFiles.length + " files...",
+    true
+  );
+  const mintBtn = $("startOrdMintBtn");
+    if (mintBtn) {
+    mintBtn.disabled = true;
+    mintBtn.textContent = "Inscribing in progress…";
+    ordMintInProgress = true;
+  }
+
+  // show & reset progress bar
+  setOrdProgressVisible(true);
+  updateOrdProgress(0, ordFiles.length);
+
+  try {
+    const res = await fetch("/api/doginals/mint-stream", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        label: activeWallet.label,
+        recipientAddress: target,
+      }),
+    });
+
+    // If backend returns 4xx/5xx, read the error body so we see *why*
+    if (!res.ok) {
+      let detail = "";
+      try {
+        const text = await res.text();
+        if (text) {
+          try {
+            const j = JSON.parse(text);
+            detail = j.error || j.message || text;
+          } catch {
+            detail = text;
+          }
+        }
+      } catch {
+        // ignore
+      }
+      const msg = detail
+        ? `HTTP ${res.status}: ${detail}`
+        : `HTTP ${res.status}`;
+      throw new Error(msg);
+    }
+
+    if (!res.body) {
+      throw new Error("Browser does not support streaming response (no body).");
+    }
+
+    // The server responds as text/event-stream; we just read it as text
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder("utf-8");
+    let buffer = "";
+    let doneMint = false;
+
+    while (true) {
+      const { value, done } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+
+      const chunks = buffer.split("\n\n");
+      buffer = chunks.pop();
+
+      for (const chunk of chunks) {
+        const line = chunk.trim();
+        if (!line.startsWith("data:")) continue;
+
+        const jsonStr = line.slice(5).trim();
+        let evt;
+        try {
+          evt = JSON.parse(jsonStr);
+        } catch {
+          continue;
+        }
+
+        if (evt.type === "status") {
+          appendOrdConsole(evt.message);
+        } else if (evt.type === "log") {
+          appendOrdConsole(evt.message);
+        } else if (evt.type === "progress") {
+          // backend sends: { type: "progress", current, total }
+          const current = Number(evt.current || 0);
+          const total = Number(evt.total || ordFiles.length || 0);
+          updateOrdProgress(current, total);
+        } else if (evt.type === "done") {
+          doneMint = true;
+
+          const total =
+            (Array.isArray(evt.results) && evt.results.length) ||
+            ordFiles.length;
+
+          completeOrdProgress(total);
+
+          appendOrdConsole("// Mint complete. " + total + " inscriptions.");
+
+          // ✅ clear frontend list + server images
+          clearOrdFiles();
+
+          // ✅ allow selecting same files again
+          const fi = $("fileInput");
+          if (fi) fi.value = "";
+
+          // ✅ optional resets
+          const ack = $("orderWarningAck");
+          if (ack) ack.checked = false;
+
+          const targetEl = $("ordTargetInput");
+          if (targetEl) targetEl.value = "";
+        }
+      }
+    } 
+
+    setStatus(
+      doneMint
+        ? "Doginals batch mint completed."
+        : "Doginals batch mint finished (no final status event).",
+      false
+    );
+    ordMintInProgress = false;
+    updateOrdMintButtonState()
+   
+
+  } catch (err) {
+    console.error("ord mint error", err);
+    appendOrdConsole("Error: " + err.message);
+    setStatus("Doginals mint error: " + err.message, true);
+    ordMintInProgress = false;
+    updateOrdMintButtonState();
+    // optional: hide bar on error
+    // setOrdProgressVisible(false);
+  }
+}
+
+
+
+      // ---------- Mode switching ----------
+      function setMode(mode) {
+        const drcBtn = $("modeDrc20Btn");
+        const ordBtn = $("modeOrdBtn");
+        const drcSec = $("drc20Section");
+        const ordSec = $("ordSection");
+        $("modeLabel").textContent = mode === "drc20" ? "DRC-20" : "Doginals";
+        if (mode === "drc20") {
+          drcBtn.classList.add("active");
+          ordBtn.classList.remove("active");
+          drcSec.classList.remove("hidden");
+          ordSec.classList.add("hidden");
+        } else {
+          drcBtn.classList.remove("active");
+          ordBtn.classList.add("active");
+          drcSec.classList.add("hidden");
+          ordSec.classList.remove("hidden");
+        }
+      }
+
+      // ---- MULTI-MINT LOGIC ---- //
+
+    function createMintRow(address = "", count = "") {
+      const row = document.createElement("div");
+      row.className = "form-grid mint-row-grid";
+      row.style.marginTop = "0.5rem";
+
+      row.innerHTML = `
+        <div class="form-field">
+          <div class="form-label">Target Address</div>
+          <input class="input-sm mintRowAddress" placeholder="Wallet address" value="${address}">
+        </div>
+        <div class="form-field">
+          <div class="form-label">Total Mints</div>
+          <input class="input-sm mintRowCount" placeholder="e.g. 100" value="${count}">
+        </div>
+        <div class="form-field mint-row-remove">
+          <button class="btn-small btn-pill-muted removeMintRowBtn" type="button">Remove</button>
+        </div>
+
+      `;
+
+      row.querySelector(".removeMintRowBtn").addEventListener("click", () => {
+        row.remove();
+      });
+
+      return row;
+    }
+
+    function getMultiMintJobs() {
+      const jobs = [];
+
+      // Only include main row if JSON has NOT been loaded
+      if (!mintJsonLoaded) {
+        const addrMain = $("mintTargetInput").value.trim();
+        const cntMain = $("mintCountInput").value.trim();
+        if (addrMain && cntMain) {
+          jobs.push({ address: addrMain, count: Number(cntMain) });
+        }
+      }
+
+      // additional rows
+      const extraRows = document.querySelectorAll("#mintMultiRows .form-grid");
+      extraRows.forEach((row) => {
+        const a = row.querySelector(".mintRowAddress").value.trim();
+        const c = Number(row.querySelector(".mintRowCount").value.trim());
+        if (a && c > 0) jobs.push({ address: a, count: c });
+      });
+
+      return jobs;
+    }
+
+
+    function openMintJsonModal() {
+      $("mintJsonTextarea").value = "";
+      $("mintJsonModalStatus").textContent = "";
+      $("mintJsonModalOverlay").classList.add("active");
+    }
+
+    function closeMintJsonModal() {
+      $("mintJsonModalOverlay").classList.remove("active");
+    }
+
+    function loadMintJson() {
+      const raw = $("mintJsonTextarea").value.trim();
+      if (!raw) {
+        $("mintJsonModalStatus").textContent = "JSON is empty.";
+        $("mintJsonModalStatus").classList.add("error");
+        return;
+      }
+
+      let arr;
+      try {
+        arr = JSON.parse(raw);
+      } catch (e) {
+        $("mintJsonModalStatus").textContent = "Invalid JSON.";
+        $("mintJsonModalStatus").classList.add("error");
+        return;
+      }
+
+      if (!Array.isArray(arr) || !arr.length) {
+        $("mintJsonModalStatus").textContent = "JSON must be a non-empty array.";
+        $("mintJsonModalStatus").classList.add("error");
+        return;
+      }
+
+      // Clear old rows
+      $("mintMultiRows").innerHTML = "";
+
+      // Populate rows
+      let totalMints = 0;
+      arr.forEach((entry) => {
+        const addr = entry.owner || entry.wallet;
+        const amt = entry.items || entry.amount;
+
+        if (addr && Number(amt) > 0) {
+          totalMints += Number(amt);
+          $("mintMultiRows").appendChild(createMintRow(addr, amt));
+        }
+      });
+      
+      mintJsonLoaded = true;
+
+      $("mintJsonStatus").textContent =
+        `Loaded ${arr.length} wallets – total ${totalMints} mints.`;
+
+      closeMintJsonModal();
+    }
+
+    async function cleanupServerImages() {
+        try {
+          await fetch("/api/doginals/cleanup-images", {
+            method: "POST",
+            keepalive: true,
+          });
+        } catch (e) {
+          console.warn("cleanup-images failed", e);
+        }
+      }
+
+
+      function clearOrdFiles() {
+        // revoke object URLs if present (harmless if previewUrl is a normal URL)
+        ordFiles.forEach((f) => {
+          if (f.previewUrl && f.previewUrl.startsWith("blob:")) {
+            try {
+              URL.revokeObjectURL(f.previewUrl);
+            } catch (_) {}
+          }
+        });
+
+        ordFiles = [];
+        renderOrdPreview();
+        appendOrdConsole("// Cleared all uploaded files.");
+
+
+        // also clear server-side ./images folder
+        cleanupServerImages();
+      }
+      
+      // ---------- init ----------
+      document.addEventListener("DOMContentLoaded", () => {
+        const yearSpan = $("yearSpan");
+        if (yearSpan) yearSpan.textContent = new Date().getFullYear();
+
+        refreshRpcStatus();
+        loadWallets();
+        updateOrdMintButtonState();
+
+        $("rpcRefreshBtn").addEventListener("click", refreshRpcStatus);
+        $("rpcSettingsBtn").addEventListener("click", openRpcModal);
+        $("rpcModalClose").addEventListener("click", closeRpcModal);
+        $("rpcModalCancelBtn").addEventListener("click", closeRpcModal);
+        $("rpcModalOverlay").addEventListener("click", (e) => {
+          if (e.target.id === "rpcModalOverlay") closeRpcModal();
+        });
+        $("rpcModalSaveBtn").addEventListener("click", (e) => {
+          e.preventDefault();
+          saveRpcSettings();
+        });
+
+        $("walletRefreshBtn").addEventListener("click", loadWallets);
+        $("walletSelect").addEventListener("change", onWalletChange);
+        $("newWalletBtn").addEventListener("click", openWalletModal);
+        $("walletModalClose").addEventListener("click", closeWalletModal);
+        $("walletModalCancelBtn").addEventListener("click", closeWalletModal);
+        $("walletModalCreateBtn").addEventListener("click", (e) => {
+          e.preventDefault();
+          createNewWallet();
+        });
+        $("copyActiveWalletBtn").addEventListener("click", () => {
+            const addr = activeWallet && activeWallet.address;
+            copyToClipboard(addr || "");
+            });
+
+
+        // Split UTXOs modal
+        $("splitWalletBtn").addEventListener("click", openSplitModal);
+        $("splitModalClose").addEventListener("click", closeSplitModal);
+        $("splitModalCancelBtn").addEventListener("click", closeSplitModal);
+        $("splitModalOverlay").addEventListener("click", (e) => {
+          if (e.target.id === "splitModalOverlay") closeSplitModal();
+        });
+        $("splitModalConfirmBtn").addEventListener("click", (e) => {
+          e.preventDefault();
+          confirmSplitWallet();
+        });
+
+        const wl = $("walletLogsBtn");
+        if (wl) wl.addEventListener("click", openWalletLogsV2);
+
+        
+
+        $("drcDeployTab").addEventListener("click", () =>
+          setDrcTab("deploy")
+        );
+        $("drcMintTab").addEventListener("click", () =>
+          setDrcTab("mint")
+        );
+        $("runDeployBtn").addEventListener("click", runDeploy);
+        $("runMintBtn").addEventListener("click", runMintBatch);
+
+        $("modeDrc20Btn").addEventListener("click", () =>
+          setMode("drc20")
+        );
+        $("modeOrdBtn").addEventListener("click", () =>
+          setMode("ord")
+        );
+
+        const dropZone = $("dropZone");
+        dropZone.addEventListener("click", handleDropZoneClick);
+        dropZone.addEventListener("dragover", (e) => {
+          e.preventDefault();
+          dropZone.classList.add("dragover");
+        });
+        dropZone.addEventListener("dragleave", (e) => {
+          e.preventDefault();
+          dropZone.classList.remove("dragover");
+        });
+        dropZone.addEventListener("drop", (e) => {
+          e.preventDefault();
+          dropZone.classList.remove("dragover");
+          handleFilesSelected(e.dataTransfer.files);
+        });
+        $("fileInput").addEventListener("change", (e) =>
+          handleFilesSelected(e.target.files)
+        );
+        $("startOrdMintBtn").addEventListener("click", startOrdMint);
+
+        const prevOverlay = $("previewModalOverlay");
+        const closePrev = () =>
+          prevOverlay.classList.remove("active");
+        $("previewModalClose").addEventListener("click", closePrev);
+        $("previewModalCloseBtn").addEventListener("click", closePrev);
+        prevOverlay.addEventListener("click", (e) => {
+          if (e.target.id === "previewModalOverlay") closePrev();
+        });
+
+        // MULTI-MINT BUTTONS
+      $("addMintRowBtn").addEventListener("click", () => {
+        mintJsonLoaded = false;
+        $("mintMultiRows").appendChild(createMintRow("", ""));
+      });
+
+      $("loadMintJsonBtn").addEventListener("click", openMintJsonModal);
+
+      // Multi-mint JSON modal events
+      $("mintJsonModalClose").addEventListener("click", closeMintJsonModal);
+      $("mintJsonModalCancel").addEventListener("click", closeMintJsonModal);
+      $("mintJsonModalLoad").addEventListener("click", loadMintJson);
+      $("mintJsonModalOverlay").addEventListener("click", (e) => {
+        if (e.target.id === "mintJsonModalOverlay") closeMintJsonModal();
+      });
+
+            // Clear all Doginals files
+      $("clear-files").addEventListener("click", (e) => {
+        e.preventDefault();
+        clearOrdFiles();
+      });
+
+        // When leaving / refreshing, ask server to clear the images folder
+        window.addEventListener("beforeunload", () => {
+          try {
+            navigator.sendBeacon("/api/doginals/cleanup-images");
+          } catch (_) {
+            // fallback best-effort
+            cleanupServerImages();
+          }
+        });
+
+                // Wallet Logs modal v2 events
+        $("logsRefreshBtn").addEventListener("click", () => {
+          const sel = $("logsWalletSelect");
+          fetchWalletLogs(sel ? sel.value : safeLabelFromActive());
+        });
+
+        $("logsWalletSelect").addEventListener("change", (e) => {
+          fetchWalletLogs(e.target.value);
+        });
+
+        $("logsFilterInput").addEventListener("input", () => {
+          renderLogsFiltered();
+        });
+
+        $("logsCopyBtn").addEventListener("click", async () => {
+          const detail = $("logsDetail");
+          await copyToClipboard(String((detail && detail.textContent) || ""), {
+            silentStatus: true,
+            alsoLogsStatus: true,
+          });
+        }); 
+
+
+
+        $("logsDownloadBtn").addEventListener("click", () => {
+        const label = logsLastLabel || safeLabelFromActive() || "wallet";
+        const ts = new Date().toISOString().replace(/[:.]/g, "-");
+        const detail = $("logsDetail");
+        downloadText(`wallet-log-${label}-${ts}.txt`, String((detail && detail.textContent) || ""));
+      });
+
+
+        // close handlers (keep your existing ones too if you want, but these are safe)
+        const closeLogs = () => $("logsModalOverlay").classList.remove("active");
+        $("logsModalClose").addEventListener("click", closeLogs);
+        $("logsModalCloseBtn").addEventListener("click", closeLogs);
+        $("logsModalOverlay").addEventListener("click", (e) => {
+          if (e.target.id === "logsModalOverlay") closeLogs();
+        });
+
+
+
+      });
+    </script>
+  </body>
+</html>
