@@ -76,7 +76,7 @@ Open the project folder in VS Code → Terminal:
 npm install
 ```
 
-### 2) add RPC Username and passwor details to .env now for ease
+### 2) add RPC Username and password details to .env now for ease
 
 ### 3) Start the server
 ```bash
