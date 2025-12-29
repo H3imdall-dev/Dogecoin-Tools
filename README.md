@@ -76,7 +76,15 @@ Open the project folder in VS Code → Terminal:
 npm install
 ```
 
-### 2) add RPC Username and password details to .env now for ease
+### 2)create .env file add RPC Username and password details to .env now for ease in this structure so its ready for use and minting. 
+```bash
+NODE_RPC_URL=http://127.0.0.1:22555
+NODE_RPC_USER=<yourusername>
+NODE_RPC_PASS=<yourpassword>
+TESTNET=false
+FEE_PER_KB=10000000
+```
+
 
 ### 3) Start the server
 ```bash
